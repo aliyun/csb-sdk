@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.alibaba.csb.sdk</groupId>
+	<artifactId>csb.sdk.parent</artifactId>
+	<version>1.0.4.4-SNAPSHOT</version>
+	<name>CSB :: SDK :: parent</name>
+	<packaging>pom</packaging>
+	<description>CSB SDK build POM</description>
+
+	<properties>
+		<junit.version>4.11</junit.version>
+	</properties>
+
+	<modules>
+		<module>common</module>
+		<module>http-client</module>
+		<module>ws-client</module>
+	</modules>
+
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<url>http://mvnrepo.alibaba-inc.com/mvn/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>http://mvnrepo.alibaba-inc.com/mvn/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+</project>

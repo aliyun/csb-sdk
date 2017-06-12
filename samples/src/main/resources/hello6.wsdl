@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://test.bifrost.taobao.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" name="hello6" targetNamespace="http://test.bifrost.taobao.com/">
+  <wsdl:types>
+<xs:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://test.bifrost.taobao.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns="http://test.bifrost.taobao.com/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://test.bifrost.taobao.com/">
+
+  <xs:complexType name="hello6">
+
+    <xs:sequence>
+
+      <xs:element name="arg0" type="xs:string"/>
+
+
+    </xs:sequence>
+
+  </xs:complexType>
+
+  <xs:element name="hello6" type="hello6"/>
+
+  <xs:complexType name="hello6Response">
+
+    <xs:sequence>
+
+      <xs:element name="return" type="xs:string"/>
+
+
+    </xs:sequence>
+
+  </xs:complexType>
+
+  <xs:element name="hello6Response" type="hello6Response"/>
+
+  
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="hello6">
+    <wsdl:part element="tns:hello6" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="hello6Response">
+    <wsdl:part element="tns:hello6Response" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="hello6PortType">
+    <wsdl:operation name="hello6">
+      <wsdl:input message="tns:hello6" name="hello6">
+    </wsdl:input>
+      <wsdl:output message="tns:hello6Response" name="hello6Response">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="hello6SoapBinding" type="tns:hello6PortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="hello6">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="hello6">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="hello6Response">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="hello6">
+    <wsdl:port binding="tns:hello6SoapBinding" name="hello6Port">
+      <soap:address location="http://114.55.224.16:9081/com.taobao.csb.test.service6.ws$1_0_0/hello6"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

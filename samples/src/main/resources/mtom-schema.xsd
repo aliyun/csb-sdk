@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is JAX-WS RI 2.2.4-b01. --><xs:schema xmlns:tns="http://wsimpl.ws.csb.alibaba.com/" xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://wsimpl.ws.csb.alibaba.com/">
+
+<xs:import namespace="http://www.w3.org/2005/05/xmlmime" schemaLocation="http://www.w3.org/2005/05/xmlmime"></xs:import>
+<xs:element name="echoBinaryAsString" type="tns:echoBinaryAsString"></xs:element>
+
+<xs:element name="echoBinaryAsStringResponse" type="tns:echoBinaryAsStringResponse"></xs:element>
+
+<xs:element name="echoStringAsBinary" type="tns:echoStringAsBinary"></xs:element>
+
+<xs:element name="echoStringAsBinaryResponse" type="tns:echoStringAsBinaryResponse"></xs:element>
+
+<xs:element name="fileDownload" type="tns:fileDownload"></xs:element>
+
+<xs:element name="fileDownloadResponse" type="tns:fileDownloadResponse"></xs:element>
+
+<xs:element name="fileUpload" type="tns:fileUpload"></xs:element>
+
+<xs:element name="fileUploadResponse" type="tns:fileUploadResponse"></xs:element>
+
+<xs:complexType name="echoBinaryAsString">
+<xs:sequence>
+<xs:element name="arg0" type="xs:base64Binary" nillable="true" minOccurs="0"></xs:element>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="echoBinaryAsStringResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0"></xs:element>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="echoStringAsBinary">
+<xs:sequence>
+<xs:element name="arg0" type="xs:string" minOccurs="0"></xs:element>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="echoStringAsBinaryResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:base64Binary" nillable="true" minOccurs="0"></xs:element>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="fileDownload">
+<xs:sequence>
+<xs:element name="arg0" type="xs:string" minOccurs="0"></xs:element>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="fileDownloadResponse">
+<xs:sequence>
+<xs:element name="return" xmime:expectedContentTypes="application/octet-stream" type="xs:base64Binary" minOccurs="0"></xs:element>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="fileUpload">
+<xs:sequence>
+<xs:element name="arg0" type="xs:string" minOccurs="0"></xs:element>
+<xs:element name="arg1" xmime:expectedContentTypes="application/octet-stream" type="xs:base64Binary" minOccurs="0"></xs:element>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="fileUploadResponse">
+<xs:sequence></xs:sequence>
+</xs:complexType>
+</xs:schema>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.alibaba.csb</groupId>
+	<artifactId>sdk-sample</artifactId>
+	<version>1.0.4.2-SNAPSHOT</version>
+	<name>sdk demo for http and ws</name>
+	<packaging>jar</packaging>
+
+	<properties>
+		<spring.version>3.2.7.RELEASE</spring.version>
+		<cxf-version>3.0.5</cxf-version>
+	</properties>
+
+	<dependencies>
+	
+	    <dependency>
+            <groupId>httpsdk</groupId>
+            <artifactId>httpsdk</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/http-sdk.jar</systemPath>
+        </dependency>
+        
+	<dependency>
+            <groupId>wssdk</groupId>
+            <artifactId>wssdk</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/ws-sdk.jar</systemPath>
+        </dependency>
+
+		<!--test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-codegen-plugin</artifactId>
+				<version>3.0.5</version>
+				<executions>
+					<execution>
+						<id>generate-sources</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<sourceRoot>${basedir}/target/generated/src/test/java</sourceRoot>
+							<wsdlOptions>
+								<wsdlOption>
+									<wsdl>${basedir}/src/main/resources/ping.wsdl</wsdl>
+								</wsdlOption>
+								<wsdlOption>
+									<wsdl>${basedir}/src/main/resources/mtom.wsdl</wsdl>
+								</wsdlOption>
+								<wsdlOption>
+									<wsdl>${basedir}/src/main/resources/ping-ws2ws.wsdl</wsdl>
+								</wsdlOption>
+							</wsdlOptions>
+						</configuration>
+						<goals>
+							<goal>wsdl2java</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.9.1</version>
+				<executions>
+					<execution>
+						<id>add-integration-test-source-as-test-sources</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${basedir}/target/generated/src/test/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			 <plugin>  
+                <groupId>org.apache.maven.plugins</groupId>  
+                <artifactId>maven-jar-plugin</artifactId>  
+                <executions>  
+                    <execution>  
+                        <phase>process-classes</phase>  
+                        <goals>  
+                            <goal>jar</goal>  
+                        </goals>  
+                        <configuration>  
+                            <classesDirectory>target/classes</classesDirectory>  
+                            <finalName>mtomtest</finalName>  
+                            <outputDirectory>bin</outputDirectory>  
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.alibaba.csb.sdk.ws.mtom.Main</mainClass>
+                                </manifest>
+                    </archive>
+                        </configuration>  
+                    </execution>  
+                </executions>  
+            </plugin>  
+		</plugins>
+	</build>
+</project>
