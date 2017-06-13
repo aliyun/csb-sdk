@@ -4,6 +4,7 @@ import com.alibaba.csb.sdk.internel.HttpClientFactory;
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
 import com.alibaba.csb.sdk.security.SignUtil;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -541,11 +542,11 @@ public class HttpCaller {
 
 	private static String doGet(String requestURL, String apiName, String version, Map<String, String> paramsMap,
 								String accessKey, String secretKey, Map<String, String> directParamsMap) throws HttpCallerException {
-		return doGet(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null);
+		return doGet(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null, null);
 	}
 	
 	private static String doGet(String requestURL, String apiName, String version, Map<String, String> paramsMap,
-			String accessKey, String secretKey, Map<String, String> directParamsMap, String restfulProtocolVersion) throws HttpCallerException {
+			String accessKey, String secretKey, Map<String, String> directParamsMap, String restfulProtocolVersion, StringBuffer resHttpHeaders) throws HttpCallerException {
 		long startT = System.currentTimeMillis();
 		long initT = startT;
 		HttpClientHelper.validateParams(apiName, accessKey, secretKey);
@@ -609,7 +610,7 @@ public class HttpCaller {
 			HttpClientHelper.printDebugInfo("-- signature parameters are " + urlParamsMap);
 		}
 		try {
-			return doHttpReq(requestURL, httpGet);
+			return doHttpReq(requestURL, httpGet, resHttpHeaders);
 		}finally {
 			if (DEBUG) {
 				HttpClientHelper.printDebugInfo("-- total = " + (System.currentTimeMillis() - initT) + " ms ");
@@ -710,7 +711,7 @@ public class HttpCaller {
 		httpGet.setConfig(getRequestConfig());
 		HttpClientHelper.printDebugInfo("requestURL=" + requestURL);
 
-		return doHttpReq(requestURL,httpGet);
+		return doHttpReq(requestURL,httpGet, null);
 	}
 
 	/**
@@ -823,7 +824,7 @@ public class HttpCaller {
 	 */
 	private static String doPost(final String requestURL, String apiName, String version, Map<String, String> paramsMap,
 								 ContentBody cb, String accessKey, String secretKey, Map<String, String> directHheaderParamsMap) throws HttpCallerException {
-		return doPost(requestURL, apiName, version, paramsMap, cb, accessKey, secretKey, directHheaderParamsMap, null);
+		return doPost(requestURL, apiName, version, paramsMap, cb, accessKey, secretKey, directHheaderParamsMap, null, null);
 	}
 
 	/**
@@ -837,11 +838,13 @@ public class HttpCaller {
 	 * @param secretKey
 	 * @param directHheaderParamsMap 透传的header, 这些http header直接透传给后端的接入服务，不参与签名认证
 	 * @param restfulProtocolVersion 区分是否是restful 协议调用，1.0标示restful调用
+	 * @param resHttpHeaders 是否返回http reponse headers, 如果请求参数不为空，会出现 {"_HTTP_HEADERS":[{"key":"value"}]}返回部分
 	 * @return
 	 * @throws HttpCallerException
 	 */
 	private static String doPost(final String requestURL, String apiName, String version, Map<String, String> paramsMap,
-			ContentBody cb, String accessKey, String secretKey, Map<String, String> directHheaderParamsMap, String restfulProtocolVersion) throws HttpCallerException {
+			ContentBody cb, String accessKey, String secretKey, Map<String, String> directHheaderParamsMap, 
+			String restfulProtocolVersion, StringBuffer resHttpHeaders) throws HttpCallerException {
 		long startT = System.currentTimeMillis();
 		HttpClientHelper.validateParams(apiName, accessKey, secretKey);
 
@@ -872,7 +875,7 @@ public class HttpCaller {
 		}
 
 		try {
-			return doHttpReq(requestURL, httpPost);
+			return doHttpReq(requestURL, httpPost, resHttpHeaders);
 		} finally {
 			if (DEBUG) {
 				HttpClientHelper.printDebugInfo("-- total = " + (System.currentTimeMillis() - startT) + " ms ");
@@ -881,16 +884,16 @@ public class HttpCaller {
 
 	}
 
-	private static String doHttpReq(String requestURL,HttpRequestBase httpRequestBase)throws HttpCallerException {
+	private static String doHttpReq(String requestURL,HttpRequestBase httpRequestBase, StringBuffer sb)throws HttpCallerException {
 		boolean async = isAsync();
 		if(async){
-			return doAsyncHttpReq(requestURL, httpRequestBase);
+			return doAsyncHttpReq(requestURL, httpRequestBase, sb);
 		}else {
-			return doSyncHttpReq(requestURL, httpRequestBase);
+			return doSyncHttpReq(requestURL, httpRequestBase, sb);
 		}
 
 	}
-	private static String doSyncHttpReq(String requestURL,HttpRequestBase httpRequestBase) throws HttpCallerException {
+	private static String doSyncHttpReq(String requestURL,HttpRequestBase httpRequestBase, final StringBuffer resHttpHeaders) throws HttpCallerException {
 		if (DEBUG) {
 			HttpClientHelper.printDebugInfo("doSyncHttpReq ");
 		}
@@ -909,7 +912,7 @@ public class HttpCaller {
 		try {
 			try {
 				response = httpClient.execute(httpRequestBase);
-
+				fetchResHeaders(response, resHttpHeaders);
 				return EntityUtils.toString(response.getEntity());
 			} finally {
 				if (response != null) {
@@ -928,7 +931,21 @@ public class HttpCaller {
 		}
 	}
 
-	private static String doAsyncHttpReq(String requestURL,HttpRequestBase httpRequestBase) throws HttpCallerException {
+	private static void fetchResHeaders(final HttpResponse response, final StringBuffer resHttpHeaders) {
+		if (response != null && resHttpHeaders != null) {
+			StringBuffer body = new StringBuffer();
+			for (Header header:response.getAllHeaders()) {
+				if(body.length() > 0)
+					body.append(",");
+				body.append(String.format("\"%s\":\"%s\"", header.getName(), header.getValue()));
+			}
+			
+			resHttpHeaders.setLength(0);
+			resHttpHeaders.append(String.format("{%s}", body.toString()));
+		}
+	}
+
+	private static String doAsyncHttpReq(String requestURL,HttpRequestBase httpRequestBase, final StringBuffer resHttpHeaders) throws HttpCallerException {
 		if (DEBUG) {
 			HttpClientHelper.printDebugInfo("doAsyncHttpReq ");
 		}
@@ -957,7 +974,7 @@ public class HttpCaller {
 				}else{
 					response = asyncFuture.get();
 				}
-
+				fetchResHeaders(response, resHttpHeaders);
 				return EntityUtils.toString(response.getEntity());
 			} finally {
 				httpClient.close();
@@ -995,6 +1012,31 @@ public class HttpCaller {
 			String accessKey, String secretKey) throws HttpCallerException {
 		return doPost(requestURL, apiName, version, paramsMap, null, accessKey, secretKey, null);
 	}
+	
+	/**
+	 * 使用invoke的方式进行http-api调用
+	 * 
+	 * @param hp 各种请求参数的集合类
+	 * @param resHttpHeaders 当该传入参数不为空时，获取http response headers, {"key1":"value1","key2":"value2",...}
+	 * @return 
+	 * @throws HttpCallerException
+	 */
+	public static String invoke(HttpParameters hp, StringBuffer resHttpHeaders) throws HttpCallerException {
+		if (hp == null)
+			throw new IllegalArgumentException("null parameter!");
+		HttpClientHelper.printDebugInfo("-- httpParameters=" + hp.toString());
+
+		hp.validate();
+
+		if ("POST".equalsIgnoreCase(hp.getMethod()) || "CPOST".equalsIgnoreCase(hp.getMethod())) {
+			return doPost(hp.getRequestUrl(), hp.getApi(), hp.getVersion(), hp.getParamsMap(), hp.getContentBody(),
+					hp.getAccessKey(), hp.getSecretkey(), hp.getHeaderParamsMap(), hp.getRestfulProtocolVersion(), 
+					resHttpHeaders);
+		} else
+			return doGet(hp.getRequestUrl(), hp.getApi(), hp.getVersion(), hp.getParamsMap(), hp.getAccessKey(),
+					hp.getSecretkey(), hp.getHeaderParamsMap(), hp.getRestfulProtocolVersion(), 
+					resHttpHeaders);
+	}
 
 	/**
 	 * 使用invoke的方式进行http-api调用
@@ -1005,18 +1047,7 @@ public class HttpCaller {
 	 * @throws HttpCallerException
 	 */
 	public static String invoke(HttpParameters hp) throws HttpCallerException {
-		if (hp == null)
-			throw new IllegalArgumentException("null parameter!");
-		HttpClientHelper.printDebugInfo("-- httpParameters=" + hp.toString());
-
-		hp.validate();
-
-		if ("POST".equalsIgnoreCase(hp.getMethod()) || "CPOST".equalsIgnoreCase(hp.getMethod())) {
-			return doPost(hp.getRequestUrl(), hp.getApi(), hp.getVersion(), hp.getParamsMap(), hp.getContentBody(),
-					hp.getAccessKey(), hp.getSecretkey(), hp.getHeaderParamsMap(), hp.getRestfulProtocolVersion());
-		} else
-			return doGet(hp.getRequestUrl(), hp.getApi(), hp.getVersion(), hp.getParamsMap(), hp.getAccessKey(),
-					hp.getSecretkey(), hp.getHeaderParamsMap(), hp.getRestfulProtocolVersion());
+		return invoke(hp, null);
 	}
 
 	private static final long MAX_FILE_SIZE = 10 * 1024l * 1024l; // 10M

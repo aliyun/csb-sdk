@@ -109,12 +109,13 @@ public class CmdCaller {
 					builder.putHeaderParamsMap((String) kv.getKey(), (String) kv.getValue());
 				}
 			}
-
-			ret = HttpCaller.invoke(builder.build());
+			StringBuffer resHttpHeaders = new StringBuffer();
+			ret = HttpCaller.invoke(builder.build(), resHttpHeaders);
 
 			if (curlOnly) {
 				System.out.println("---- curlString = " + ret);
 			} else {
+				System.out.println("---- response http headers = " + resHttpHeaders.toString());
 				System.out.println("---- retStr = " + ret);
 				System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret));
 			}

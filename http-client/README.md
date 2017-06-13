@@ -83,9 +83,12 @@ header2=test2
    String result = null;
    try {
       	result = HttpCaller.invoke(builder.build());
+        //如果期望获取返回的http headers, 则需要在invoke中加入第二个参数，如下：
+        StringBuffer resHttpHeaders = new StringBuffer();
+        result = HttpCaller.invoke(builder.build(), resHttpHeaders);
       
-          //注：如果返回结果出现乱码(不能正常显示中文),可以使用串字符集转换方法进行转换
-          result = HttpCaller.changeCharset(result);
+        //注：如果返回结果出现乱码(不能正常显示中文),可以使用串字符集转换方法进行转换
+        result = HttpCaller.changeCharset(result);
    } catch (HttpCallerException e) {
       	// error process
    }
@@ -98,7 +101,7 @@ header2=test2
       
       	// 使用post方式调用
       	builder.method("post");
-      	HttpCaller.invoke(builder.build());
+      	result = HttpCaller.invoke(builder.build());
    } catch (HttpCallerException e) {
       	// error process
    }

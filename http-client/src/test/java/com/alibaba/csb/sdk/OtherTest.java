@@ -37,6 +37,16 @@ public class OtherTest {
 		 String jsonData = JSON.toJSONString(map);
 		 
 		 System.out.println("jsonStr = " + jsonData);
+		 
+		 map.clear();
+		 map.put("f1", "wiseking");
+		 map.put("f2", "love");
+		 jsonData = JSON.toJSONString(map);
+		 System.out.println("jsonStr string = " + jsonData);
+		 
+		 map.clear();
+		 jsonData = JSON.toJSONString(map);
+		 System.out.println("jsonStr empty = " + jsonData);
 	}
 	
 	@Test
