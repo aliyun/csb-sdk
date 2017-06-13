@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
 
 public class CmdCallerTest {
-	@Test
+	//@Test
 	public void testMultiTimes() throws Exception {
 		int iCount = 2000;
 		Thread[] ts = new Thread[iCount];
