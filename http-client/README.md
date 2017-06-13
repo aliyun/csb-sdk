@@ -192,14 +192,14 @@ a. 可以为http/https设置以下的全局性系统参数：
       -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是-1， 永不超时
       -Dhttp.caller.connection.so.timeout   设置读取超时时间（毫秒），默认是-1， 永不超时
       -Dhttp.caller.connection.cr.timeout   设置从连接池获取连接实例的超时（毫秒），默认是-1， 永不超时      
-      -Dhttp.caller.skip.connection.pool    如何设置为true,则不使用连接池。默认行为是false,使用连接池(支持长连接)
+      -Dhttp.caller.skip.connection.pool    如果设置为true,则不使用连接池。默认行为是false,使用连接池(支持长连接)
       -Dhttp.caller.connection.async        设置内部使用nio,默认fasle:同步io,true:nio（不支持连接池，不推荐使用）
 ```
 
 b. 也可以使用下面的方法设置以上的某一个或者多个参数：
 ```
       Map sysParams = new HashMap();
-      sysParams.put("http.caller.connection.timeout","3000"); //设置连接超时未3秒
+      sysParams.put("http.caller.connection.timeout","3000"); //设置连接超时为3秒
       HttpCaller.setConnectionParams(sysParams); //注意：本次设置只对本线程起作用
       ...
       HttpCaller.doPost() or doGet();
