@@ -85,7 +85,7 @@ header2=test2
       	result = HttpCaller.invoke(builder.build());
       	
         //如果期望获取返回的http headers, 则需要在invoke中加入第二个参数，如下：
-        //用这个参数变量获取调用后返回的http header
+        //用这个参数变量获取调用后返回的http headers, 内容为 {"header1","value1",...}
         StringBuffer resHttpHeaders = new StringBuffer(); 
         result = HttpCaller.invoke(builder.build(), resHttpHeaders);
         
