@@ -83,16 +83,20 @@ header2=test2
    String result = null;
    try {
       	result = HttpCaller.invoke(builder.build());
+      	
         //如果期望获取返回的http headers, 则需要在invoke中加入第二个参数，如下：
-        StringBuffer resHttpHeaders = new StringBuffer();
+        //用这个参数变量获取调用后返回的http header
+        StringBuffer resHttpHeaders = new StringBuffer(); 
         result = HttpCaller.invoke(builder.build(), resHttpHeaders);
+        
       
         //注：如果返回结果出现乱码(不能正常显示中文),可以使用串字符集转换方法进行转换
         result = HttpCaller.changeCharset(result);
    } catch (HttpCallerException e) {
       	// error process
    }
-      
+   
+   //再次进行调用 返回结果   
    try {
       	// 重启设置请求参数
       	builder.clearParamsMap();
