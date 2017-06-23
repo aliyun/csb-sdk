@@ -22,6 +22,41 @@ cd ws-client
 mvn clean assembly:assembly -Dmaven.test.skip
 
 ```
+
+## Use as dependency (as snapshot by now) in your pom.xml 
+```
+  <!--To use HTTP-SDK-->
+  <dependency>
+     <groupId>com.alibaba.csb.sdk</groupId>
+     <artifactId>http-client</artifactId>
+     <version>1.0.4.4-SNAPSHOT</version>
+  </dependency>
+
+  <!--To use WS-SDK-->
+  <dependency>
+     <groupId>com.alibaba.csb.sdk</groupId>
+     <artifactId>ws-client</artifactId>
+     <version>1.0.4.4-SNAPSHOT</version>
+  </dependency>
+     
+     
+  <repositories>
+    ...
+      
+    <!--define snapshot repository for SDK releases-->   
+    <repository>
+      <id>csb-sdk-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+```
+
 * Release Notes
   [change history](release.md)
 

@@ -16,6 +16,7 @@
 
 	<dependencies>
 	
+<!--
 	    <dependency>
             <groupId>httpsdk</groupId>
             <artifactId>httpsdk</artifactId>
@@ -23,7 +24,21 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/http-sdk.jar</systemPath>
         </dependency>
+-->
+	<dependency>
+            <groupId>com.alibaba.csb.sdk</groupId>
+            <artifactId>http-client</artifactId>
+            <version>1.0.4.4-SNAPSHOT</version>
+        </dependency>
+
         
+	<dependency>
+            <groupId>com.alibaba.csb.sdk</groupId>
+            <artifactId>ws-client</artifactId>
+            <version>1.0.4.4-SNAPSHOT</version>
+        </dependency>
+
+<!--
 	<dependency>
             <groupId>wssdk</groupId>
             <artifactId>wssdk</artifactId>
@@ -31,6 +46,7 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/ws-sdk.jar</systemPath>
         </dependency>
+-->
 
 		<!--test -->
 		<dependency>
@@ -40,7 +56,19 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	
+
+  <repositories>	
+  <repository>
+    <id>csb-sdk-snapshots</id>
+    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    <releases>
+      <enabled>false</enabled>
+    </releases>
+    <snapshots>
+      <enabled>true</enabled>
+    </snapshots>
+  </repository>
+</repositories>
 	
 	<build>
 		<plugins>

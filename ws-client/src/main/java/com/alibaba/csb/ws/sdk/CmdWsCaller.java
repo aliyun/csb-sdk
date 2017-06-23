@@ -57,7 +57,7 @@ public class CmdWsCaller {
 	 * @param reqSoap
 	 * @throws Exception
 	 */
-	private static void testWithDispath(String ak, String sk, String api, String version, String ns, String sname,
+	private static void invokeWithDispath(String ak, String sk, String api, String version, String ns, String sname,
 			String pname, boolean isSoap12, String wa, String ea, String reqSoap) throws Exception {
 		// Service Qname as defined in the WSDL.
 		QName serviceName = new QName(ns, sname);
@@ -87,7 +87,12 @@ public class CmdWsCaller {
 		bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, ea);
 
 		// 使用SDK给dispatch设置 ak和sk !!!
-		dispatch = WSClientSDK.bind(dispatch, ak, sk, api, version);
+		if (ak != null) {
+		  dispatch = WSClientSDK.bind(dispatch, ak, sk, api, version);
+		}else  {
+			//TODO: print a log, not sign the request header with ak/sk
+			System.out.println("-- ignore signature process due to ak/sk are not defined");
+		}
 
 		// Invoke the endpoint synchronously
 		// Invoke endpoint operation and read response
@@ -101,8 +106,8 @@ public class CmdWsCaller {
 
 	public static void main(String[] args) {
 		Options opt = new Options();
-		opt.addOption("ak", null, true, "accessKey");
-		opt.addOption("sk", null, true, "secretKey");
+		opt.addOption("ak", null, false, "accessKey");
+		opt.addOption("sk", null, false, "secretKey");
 		opt.addOption("api", null, true, "服务名");
 		opt.addOption("version", null, true, "服务版本");
 		opt.addOption("wa", null, true, "wsdl地址，e.g: http://broker-ip:9081/api/version/method?wsdl");
@@ -171,7 +176,7 @@ public class CmdWsCaller {
 				print(true, "-- 操作失败：文件%s请求报文为空", rf);
 				return;
 			}
-			testWithDispath(ak, sk, api, version, ns, sname, pname, isSoap12, wa, ea, reqData);
+			invokeWithDispath(ak, sk, api, version, ns, sname, pname, isSoap12, wa, ea, reqData);
 		} catch (Exception e) {
 			System.out.println("-- 操作失败：" + e.getMessage());
 			if (isDebug)
