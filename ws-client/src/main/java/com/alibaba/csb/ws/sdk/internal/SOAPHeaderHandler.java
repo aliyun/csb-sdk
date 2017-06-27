@@ -26,15 +26,17 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext>{
 	private String fingerStr;
 	private String apiName;
 	private String apiVersion;
+	private boolean dumpHeaders;
 	private boolean isMock;
 
-	public SOAPHeaderHandler(String ak, String sk, String apiName, String apiVersion, String fingerStr, boolean isMock) {
+	public SOAPHeaderHandler(String ak, String sk, String apiName, String apiVersion, String fingerStr, boolean isMock, boolean dumpHeaders) {
 		this.accessKey = ak;
 		this.securityKey = sk;
 		this.apiName = apiName;
 		this.apiVersion = apiVersion;
 		this.isMock = isMock;
 		this.fingerStr = fingerStr;
+		this.dumpHeaders = dumpHeaders;
 	}
 	
 	public static String generateSignature(String ak, String sk, String apiName, String apiVersion, String fingerStr, String timestamp) {
@@ -50,6 +52,11 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext>{
 		String signature = SignUtil.sign(newParamsMap, sk);
 		return signature;
 	}
+	
+	private void dumpHeaders(String key, String text) {
+		if(dumpHeaders)
+		  System.out.println(String.format("<%s xmlns=\"%s\">%s</%s>", key, HEADER_NS, text, key));
+	}
 
 	@Override
 	public boolean handleMessage(SOAPMessageContext context) {
@@ -63,22 +70,29 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext>{
 				  header = envelope.addHeader();
 				if (accessKey != null) {
 					header.addHeaderElement(new QName(HEADER_NS, ACCESS_KEY)).setTextContent(this.accessKey);
-					String timestamp = String.valueOf(System.currentTimeMillis());
+					dumpHeaders(ACCESS_KEY, accessKey);
 					if (apiName != null) {
 						header.addHeaderElement(new QName(HEADER_NS, API_NAME_KEY)).setTextContent(apiName);
 						header.addHeaderElement(new QName(HEADER_NS, VERSION_KEY)).setTextContent(apiVersion);
+						dumpHeaders(API_NAME_KEY, apiName);
+						dumpHeaders(VERSION_KEY, apiVersion);
 					}
+					
+					String timestamp = String.valueOf(System.currentTimeMillis());
 					header.addHeaderElement(new QName(HEADER_NS, TIMESTAMP_KEY)).setTextContent(timestamp);
+					dumpHeaders(TIMESTAMP_KEY, timestamp);
 					header.addHeaderElement(new QName(HEADER_NS, HEADER_FINGERPRINT)).setTextContent(fingerStr);
+					dumpHeaders(HEADER_FINGERPRINT, fingerStr);
 
 					String signature = generateSignature(accessKey, securityKey, apiName, apiVersion, fingerStr, timestamp);
 					header.addHeaderElement(new QName(HEADER_NS, SIGNATURE_KEY)).setTextContent(signature);
+					dumpHeaders(SIGNATURE_KEY, signature);
 				}
 
 				if (isMock) {
 					header.addHeaderElement(new QName(HEADER_NS, HEADER_MOCK));
+					dumpHeaders(HEADER_MOCK, "");
 				}
-
 			} else {
 				// remove the unnecessary response headers
 				// SOAPEnvelope envelope =
@@ -109,7 +123,7 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext>{
 	}
 	
 	
-	public static Map<String, List<String>> genSecrectHeaders(String accessKey, String secretKey, String apiName, String apiVersion, String fingerStr, boolean isMock) {
+	public static Map<String, List<String>> genSecrectHeaders(String accessKey, String secretKey, String apiName, String apiVersion, String fingerStr, boolean isMock, boolean dumpHeaders) {
 		//Add HTTP request Headers
 		Map<String, List<String>> requestHeaders = new HashMap<String, List<String>>();
 		
@@ -128,13 +142,13 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext>{
 		if (isMock)
 			requestHeaders.put(HEADER_MOCK, Arrays.asList("true"));
 		
-		if (WSClientSDK.PRINT_SIGNINFO) {
+		if (dumpHeaders) {
 			StringBuffer sb = new StringBuffer();
 			for(Entry<String,List<String>> kv:requestHeaders.entrySet()) {
 				if (sb.length()>0) {
 					sb.append(" ");
 				}
-				sb.append(kv.getKey()).append(":").append(kv.getValue().get(0));
+				sb.append(kv.getKey()).append(":").append(kv.getValue().get(0)).append(";");
 			}
 			System.out.println("sign headers= " + sb.toString());
 		}

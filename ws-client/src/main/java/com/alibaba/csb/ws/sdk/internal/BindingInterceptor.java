@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.ws.BindingProvider;
@@ -21,12 +22,15 @@ import com.alibaba.csb.ws.sdk.WSClientException;
  *
  */
 public class BindingInterceptor {
-
+	// put signature related headers into soap header 
+	//-Dws.sdk.headers.insoap=true is kept for backwards compatible 
+	private static boolean HEADERS_INSOAP = Boolean.getBoolean("ws.sdk.headers.insoap");
+	private static boolean SKIP_SIGN_APINAME = Boolean.getBoolean("ws.sdk.skip.sign.apiname");
 	private String accessKey;
 	private String secretKey;
 	private String apiName;
 	private String apiVersion;
-
+	private boolean dumpHeaders;
 	private boolean isMock;
 
 	private List<Handler> handlers;
@@ -49,6 +53,10 @@ public class BindingInterceptor {
 		this.apiName = apiName;
 	}	
 	
+	/* packaged */ void setDumpHeaders(boolean dumpHeaders) {
+		this.dumpHeaders = dumpHeaders;
+	}
+	
 	/* packaged */ void setApiVersion(String apiVersion) {
 		this.apiVersion = apiVersion;
 	}
@@ -58,27 +66,33 @@ public class BindingInterceptor {
 		if (!(proxy instanceof BindingProvider)) {
 			throw new WSClientException("proxy is not a legal soap client, can not do the interceptor");
 		}
-		
-		// put security info into http request headers for over-proxy invocation
-		setSecrectHeaders((BindingProvider)proxy, accessKey, secretKey, apiName, apiVersion, fingerStr, isMock);
-
-		shh = new SOAPHeaderHandler(accessKey, secretKey, apiName, apiVersion, fingerStr, isMock);
-
-		BindingProvider bp = (BindingProvider) proxy;
-		handlers = bp.getBinding().getHandlerChain();
-		List<Handler> newHandlers = new ArrayList<Handler>();
-		if (handlers != null) {
-			newHandlers.addAll(handlers);
+		if (SKIP_SIGN_APINAME) {
+			apiName = null;
 		}
-		newHandlers.add(shh);
-		// tip, must set the handleList again, or the handler will not run!!!
-		bp.getBinding().setHandlerChain(newHandlers);
+		// put security info into http request headers for over-proxy invocation
+		setSecrectHeaders((BindingProvider)proxy, accessKey, secretKey, apiName, apiVersion, fingerStr, isMock, dumpHeaders);
+
+		// skip this soap header logic
+		if (HEADERS_INSOAP) {
+			shh = new SOAPHeaderHandler(accessKey, secretKey, apiName, apiVersion, fingerStr, isMock, dumpHeaders);
+
+			BindingProvider bp = (BindingProvider) proxy;
+			handlers = bp.getBinding().getHandlerChain();
+			List<Handler> newHandlers = new ArrayList<Handler>();
+			if (handlers != null) {
+				newHandlers.addAll(handlers);
+			}
+			newHandlers.add(shh);
+			// tip, must set the handleList again, or the handler will not
+			// run!!!
+			bp.getBinding().setHandlerChain(newHandlers);
+		}
 
 		return handlers;
 
 	}
 
-	private void setSecrectHeaders(BindingProvider proxy, String accessKey, String secretKey, String apiName, String apiVersion, String fingerStr, boolean isMock) {
+	private void setSecrectHeaders(BindingProvider proxy, String accessKey, String secretKey, String apiName, String apiVersion, String fingerStr, boolean isMock, boolean dumpHeaders) {
 		//Add HTTP request Headers
 		Map<String, List<String>> requestHeaders = (Map<String, List<String>>)proxy.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
 		
@@ -86,9 +100,16 @@ public class BindingInterceptor {
 			requestHeaders = new HashMap<String, List<String>>();
 		}
 		
-		Map<String, List<String>> secHeaders = SOAPHeaderHandler.genSecrectHeaders(accessKey, secretKey, apiName, apiVersion, fingerStr, isMock);
+		Map<String, List<String>> secHeaders = SOAPHeaderHandler.genSecrectHeaders(accessKey, secretKey, apiName, apiVersion, fingerStr, isMock, dumpHeaders);
 		requestHeaders.putAll(secHeaders);
-		
+		/*
+		if (dumpHeaders) {
+			System.out.println("--HTTP Headers---");
+			for(Entry<String, List<String>> kv:secHeaders.entrySet()) {
+				System.out.println(String.format("%s=%s",kv.getKey(), kv.getValue()));
+			}
+			System.out.println("-----------------");
+		}*/
 		proxy.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
 
 	}

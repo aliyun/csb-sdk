@@ -10,6 +10,7 @@ public class CmdWsCallerTest {
 	@Test
 	public void testCmdWsCaller() {
 		String[] args = {
+				"-soap12", "true",
 				"-ak", "ak",
 				"-sk", "sk",
 				"-api", "PING",

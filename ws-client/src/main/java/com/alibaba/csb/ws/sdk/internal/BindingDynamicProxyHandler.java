@@ -33,15 +33,12 @@ public class BindingDynamicProxyHandler implements InvocationHandler {
 
 		return (T) Proxy.newProxyInstance(business.getClass().getClassLoader(), ics, this);
 	}
-
-	public void setASK(String ak, String sk) {
-		interceptor.setASK(ak, sk);
-	}
 	
-	public void setASK(String ak, String sk, String apiName, String apiVersion) {
+	public void setASK(String ak, String sk, String apiName, String apiVersion, boolean dumpHeaders) {
 		interceptor.setASK(ak, sk);
 		interceptor.setApiName(apiName);
 		interceptor.setApiVersion(apiVersion);
+		interceptor.setDumpHeaders(dumpHeaders);
 	}
 
 	public void setMock(boolean isMock) {

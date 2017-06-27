@@ -85,6 +85,14 @@ public class WSClientSDK {
 		return bind(proxy, accessKey, secretKey, null, null);
 	}
 	
+	public static <T> T bind(T proxy, String accessKey, String secretKey, String apiName, String apiVersion, boolean printHeaders) throws WSClientException {
+		validateProxy(proxy);
+		
+		BindingDynamicProxyHandler handler = getHandler((BindingProvider)proxy);
+		handler.setASK(accessKey, secretKey, apiName, apiVersion, printHeaders);
+		return handler.bind(proxy);
+	}
+	
 	/**
 	 * 给proxy/dispath 绑定ak/sk安全对，及要调用的apiName和apiVersion
 	 * 
@@ -97,11 +105,7 @@ public class WSClientSDK {
 	 * @throws WSClientException  
 	 */
 	public static <T> T bind(T proxy, String accessKey, String secretKey, String apiName, String apiVersion) throws WSClientException {
-		validateProxy(proxy);
-		
-		BindingDynamicProxyHandler handler = getHandler((BindingProvider)proxy);
-		handler.setASK(accessKey, secretKey, apiName, apiVersion);
-		return handler.bind(proxy);
+		return bind(proxy, accessKey, secretKey, apiName, apiVersion, false);
 	}
 	
 	/**

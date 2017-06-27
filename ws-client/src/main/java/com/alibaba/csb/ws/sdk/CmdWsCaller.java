@@ -88,7 +88,7 @@ public class CmdWsCaller {
 
 		// 使用SDK给dispatch设置 ak和sk !!!
 		if (ak != null) {
-		  dispatch = WSClientSDK.bind(dispatch, ak, sk, api, version);
+		  dispatch = WSClientSDK.bind(dispatch, ak, sk, api, version, true);
 		}else  {
 			//TODO: print a log, not sign the request header with ak/sk
 			System.out.println("-- ignore signature process due to ak/sk are not defined");
@@ -106,20 +106,20 @@ public class CmdWsCaller {
 
 	public static void main(String[] args) {
 		Options opt = new Options();
-		opt.addOption("ak", null, false, "accessKey");
-		opt.addOption("sk", null, false, "secretKey");
-		opt.addOption("api", null, true, "服务名");
-		opt.addOption("version", null, true, "服务版本");
-		opt.addOption("wa", null, true, "wsdl地址，e.g: http://broker-ip:9081/api/version/method?wsdl");
-		opt.addOption("ea", null, true, "endpoint地址，e.g: http://broker-ip:9081/api/version/method");
-		opt.addOption("ns", null, true, "在wsdl中定义的服务的target namespace");
+		opt.addOption("ak", true, "accessKey");
+		opt.addOption("sk", true, "secretKey");
+		opt.addOption("api", true, "服务名");
+		opt.addOption("version", true, "服务版本");
+		opt.addOption("wa", true, "wsdl地址，e.g: http://broker-ip:9081/api/version/method?wsdl");
+		opt.addOption("ea", true, "endpoint地址，e.g: http://broker-ip:9081/api/version/method");
+		opt.addOption("ns", true, "在wsdl中定义的服务的target namespace");
 		opt.addOption("sname", "serviceName", true, "在wsdl中定义的服务名");
 		opt.addOption("pname", "portName", true, "在wsdl中定义的端口名");
-		opt.addOption("soap12", null, false, "-soap12 为soap12调用, 不定义为soap11");
+		opt.addOption("soap12", false, "-soap12 为soap12调用, 不定义为soap11");
 		opt.addOption("h", "help", false, "打印帮助信息");
 		opt.addOption("d", "debug", false, "打印调试信息");
-		opt.addOption("rf", null, true, "soap请求文件，文件里存储soap请求的Message格式内容");
-		opt.addOption("rd", null, true, "soap请求内容(Message)，如果设置该选项时，-rf选项被忽略");
+		opt.addOption("rf", true, "soap请求文件，文件里存储soap请求的Message格式内容");
+		opt.addOption("rd", true, "soap请求内容(Message)，如果设置该选项时，-rf选项被忽略");
 
 		CommandLineParser parser = new DefaultParser();
 
@@ -161,7 +161,6 @@ public class CmdWsCaller {
 				if (isEmpty(rd)) {
 					System.out.println("rf=" + rf);
 				}
-				System.setProperty("WSClientSDK.print.signinfo", "true");
 			}
 
 			if (isEmpty(api) || isEmpty(version) || isEmpty(ea) || isEmpty(wa) || isEmpty(ns) || isEmpty(sname)
