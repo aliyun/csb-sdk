@@ -2,6 +2,7 @@ package com.alibaba.csb.sdk;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -67,21 +68,23 @@ public class BuilderTest {
 	
 	@Test
 	public void testhttpJson()  {
+		//URI uri = new URI("http://11.239.187.178:8086/test?arg1=1&arg0=<ApproveDataInfo><TableName>sp_shenqin</TableName><UseSJBBH>false</UseSJBBH><ZZJGDM>006939801</ZZJGDM><SXBM>10281300100693980112440000</SXBM></ApproveDataInfo>");
+
 		Map<Long,Long> map = new HashMap<Long, Long>();
 		map.put(1l, 1l);
 		map.put(2l, 2l);
 		map.put(3l, 3l);
 		map.put(4l, 4l);
 		String mapStr = JSON.toJSONString(map);
-		String requestURL = "http://localhost:8086/test?name2=a&map="+URLEncoder.encode(mapStr);
-		String apiName = "PING";
-		String version = "vcsb";
+		String requestURL = "http://11.239.187.178:8086/test";
+		String apiName = "ci-http2http";
+		String version = "1.0.0";
 		Map<String, String> paramsMap = new HashMap<String, String>();
-		paramsMap.put("key1", "v1");
-		paramsMap.put("name", "v2");
+		paramsMap.put("arg0", "<ApproveDataInfo><TableName>sp_shenqin</TableName><UseSJBBH>false</UseSJBBH><ZZJGDM>006939801</ZZJGDM><SXBM>10281300100693980112440000</SXBM></ApproveDataInfo>");
+		paramsMap.put("access", "1");
 		try {
 			
-			String result = HttpCaller.doPost(requestURL, apiName, version, paramsMap, "fbb03107e2cd42b29773a5faa55a9d99", "9i6L6NQGtba2PqnvP//KbnyCLkc=");
+			String result = HttpCaller.doPost(requestURL, apiName, version, paramsMap);
 			System.out.println(result.length() + result);
 		} catch (HttpCallerException e) {
 			// TODO Auto-generated catch block

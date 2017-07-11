@@ -211,7 +211,7 @@ public class HttpClientHelper {
 	}
 	
 	public static String createPostCurlString(String url, Map<String, String> params, Map<String, String> headerParams, ContentBody cb, Map<String, String> directHheaderParamsMap) {
-		StringBuffer sb = new StringBuffer("curl ");
+		StringBuffer sb = new StringBuffer("curl -X post ");
 		
 		//透传的http headers
 		sb.append(genCurlHeaders(directHheaderParamsMap));
@@ -238,7 +238,9 @@ public class HttpClientHelper {
 		}
 		
 		sb.append(" --insecure ");
+		sb.append("\"");
 		sb.append(url);
+		sb.append("\"");
 		return sb.toString();
 	}
 	
