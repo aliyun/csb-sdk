@@ -41,16 +41,12 @@ public class HttpClientHelper {
 			System.out.println(msg);
 	}
 
-	public static void mergeParams(Map<String, List<String>> urlParamsMap, Map<String, String> paramsMap, boolean decodeFlag) {
+	public static void mergeParams(Map<String, List<String>> urlParamsMap, Map<String, String> paramsMap, boolean decodeFlag) throws HttpCallerException {
 		if (paramsMap != null) {
 			//decode all params first, due to it will be encode to construct the request URL later
 			String value;
 			for (Entry<String,String> kv:paramsMap.entrySet()) {
-				if (decodeFlag) {
-					value = URLDecoder.decode(kv.getValue());
-				} else {
-					value = kv.getValue();
-				}
+				value = decodeValue(kv.getKey(), kv.getValue(), decodeFlag);
 				urlParamsMap.put(kv.getKey(), Arrays.asList(value));
 			}
 		}
@@ -128,8 +124,11 @@ public class HttpClientHelper {
 
 	}
 	
-	private static String encodeValue(String value, boolean decodeFlag) {
+	private static String decodeValue(String key, String value, boolean decodeFlag) throws HttpCallerException {
 		if (decodeFlag) {
+			if (value == null ) {
+			  throw new HttpCallerException("bad params, the value for key {"+key+"} is null!");
+			}
 			return URLDecoder.decode(value);
 		}
 		
@@ -159,13 +158,13 @@ public class HttpClientHelper {
 				if (pos <= 0) {
 					throw new HttpCallerException("bad request URL, url params error:" + requestURL);
 				}
-				key = encodeValue(param.substring(0, pos), decodeFlag);
+				key = decodeValue("", param.substring(0, pos), decodeFlag);
 				value = param.substring(pos + 1);
 				List<String> values = urlParamsMap.get(key);
 				if (values == null) {
 					values = new ArrayList<String>();
 				}
-				values.add(encodeValue(value, decodeFlag));
+				values.add(decodeValue(key, value, decodeFlag));
 				urlParamsMap.put(key, values);
 			}
 		}
