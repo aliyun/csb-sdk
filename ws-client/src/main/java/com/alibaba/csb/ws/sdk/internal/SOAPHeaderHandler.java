@@ -41,6 +41,12 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext>{
 	
 	public static String generateSignature(String ak, String sk, String apiName, String apiVersion, String fingerStr, String timestamp) {
 		// calculate signature
+		Map<String, String> newParamsMap = generateSignHeaders(ak, sk, apiName, apiVersion, fingerStr, timestamp);
+		return newParamsMap.get(SIGNATURE_KEY);
+	}
+	
+	public static Map<String, String> generateSignHeaders(String ak, String sk, String apiName, String apiVersion, String fingerStr, String timestamp) {
+		// calculate signature
 		Map<String, String> newParamsMap = new HashMap<String, String>();
 		newParamsMap.put(ACCESS_KEY, ak);
 		if (apiName != null) {
@@ -50,7 +56,8 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext>{
 		newParamsMap.put(TIMESTAMP_KEY, timestamp);
 		newParamsMap.put(HEADER_FINGERPRINT, fingerStr);
 		String signature = SignUtil.sign(newParamsMap, sk);
-		return signature;
+		newParamsMap.put(SIGNATURE_KEY, signature);
+		return newParamsMap;
 	}
 	
 	private void dumpHeaders(String key, String text) {

@@ -111,3 +111,76 @@ java -jar target/ws-client-1.0.4.4-SNAPSHOT.jar  -ak ak -sk sk -api PING -versio
 如果不使用-rd选项，可以把请求内容保存到一个文件中，然后使用-rf 指定这个文件。
 
 **注意：**命令行方式不支持调用附件或者MTOM形式的WSDL服务
+
+## 5. Web Service SDK的签名实现细节
+1. Web Service SDK本身不能代替Client端的调用存根（即Dispatch 或者Proxy），所以首先用户需要使用Web Service标准的客户端工具生成Client端的调用存根；
+2. 使用Web Service SDK 提供的方法将调用服务需要的AccessKey, SecrectKey, ApiName, ApiVersion, 时间戳，指纹等信息以及通过这些信息生成的签名设置到Client端存
+根上(即：Proxy，Dispatch)；
+3. 使用处理过的客户端Proxy（或者Dispatch）发送请求服务时，Web Service SDK会将需要传送的安全和签名信息添加到HTTP Header中，并把这些信息传递给服务提供端进行鉴权和验签。
+4. 经过SDK处理后的HTTP请求中会包含如下的Header信息:
+
+```
+_api_access_key:abc
+_api_name:api-name
+_api_version:1.0.0
+_api_timestamp:1473042916741
+_api_fingerprint:sayComplex
+_api_signature:AAAF/e2Scg/vv6PWRl1X/0RgRcQ=
+mock_response:true [可选]
+```
+
+5. 签名相关的公共HTTP Header包括: _api_access_key, _api_name, _api_version,_api_timestamp, _api_fingerprint, _api_signature。其中api_signature是根据SOAP Header里另外的三个Header组成的key=value格式，并按照key 的名
+称字典排序，然后把相应的key=value使用&拼接成规范串(即，_api_access_key=xxxxx&api_name=xxx&_api_fingerprint=xxxx&api_timestamp=xxxx&_api_version=xxxx)；
+mock_response是一个特殊的header, 通常在接口测试时候使用，当设置为true时，使Web Service 调用直接返回服务定义时候声明的Mock Soap Response，而不去调用后端真正的接入服务。
+
+6. WS SDK签名处理的图示：
+![alt ws-sign-diagram](img/ws-sign.png)
+
+-----------
+
+## 6. 其他
+### 6.1 使用Aixs的Call客户端时的安全信息设定
+com.alibaba.csb.ws.sdk.AxisCallWrapper类的介绍
+
+```
+ Axis客户端Call的wrapper类， 用以在发送soap请求前，将CSB所要求的签名信息存放到http header里， 具体用法：
+ 
+   //设置服务调用的安全信息
+   String apiName = "PING";  //要调用的服务名称
+   String apiVersion = "vcsb.ws";  //要调用的服务版本
+   String ak = "xxxx"; //订购服务的accessKey
+   String sk = "xxxx"; //订购服务的secrectKey
+   
+   Service service = new Service();
+   // 首先，构造封装Call对象
+   Call call = AxisCallWrapper.createCallWrapper(service, ak, sk, apiName, apiVersion); 
+   
+   // 然后，使用封装Call对象进行方法调用
+   call.setTargetEndpointAddress("http://localhost:9081/PING/vcsb.ws/ws2ws");
+   call.setOperationName(new QName("http://hc.wsprocess.csb.alibaba.com/", "ping"));
+   
+   call.addParameter("arg0", // 设置要传递的参数
+    org.apache.axis.encoding.XMLType.XSD_STRING, javax.xml.rpc.ParameterMode.IN);
+   
+   Object[] args = { "wiseking" };
+  
+   Object ret = call.invoke(args);
+   System.out.println("ret=" + ret);
+ 
+ 注意，如果要正确使用这个类，需要在你的WSClientSDK编译和运行环境中包含axis依赖， 如：
+ 
+ <dependency>
+    <groupId>axis</groupId>
+    <artifactId>axis</artifactId>
+    <version>1.4</version>
+  </dependency>
+
+  <dependency>
+    <groupId>org.apache.axis</groupId>
+    <artifactId>axis-jaxrpc</artifactId>
+    <version>1.4</version>
+  </dependency>
+  
+```
+
+

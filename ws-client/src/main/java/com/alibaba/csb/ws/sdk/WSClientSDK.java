@@ -1,7 +1,10 @@
 package com.alibaba.csb.ws.sdk;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.xml.soap.MimeHeaders;
 import javax.xml.ws.BindingProvider;
 
 import com.alibaba.csb.sdk.security.SignUtil;
@@ -159,5 +162,44 @@ public class WSClientSDK {
 	 */
 	public static String genSignature(String ak, String sk, String apiName, String apiVersion,  String fingerStr, long timestamp) {
 		return SOAPHeaderHandler.generateSignature(ak, sk, apiName, apiVersion, fingerStr, String.valueOf(timestamp));
+	}
+	
+	/**
+	 * <pre>
+	 * 设置安全相关的headers到MimeHeaders对象内，以便在调用的时候传递该http header信息
+	 * 
+	 * 用法：
+	 *   import org.apache.axis.client.Call;
+	 *   ...
+	 *   
+	 *   Service service = new Service();
+	 *   Call call = (Call)service.createCall();
+	 *   ....
+	 *   
+	 *   MessageContext msgContext = call.getMessageContext();
+	 *   MimeHeaders hd = msgContext.getMessage().getMimeHeaders();
+	 *   
+	 *   call.invoke(...);
+	 * 
+	 * </pre>
+	 * @param mimeHeaders
+	 * @param ak
+	 * @param sk
+	 * @param apiName
+	 * @param apiVersion
+	 * @param fingerStr
+	 * @param timestamp
+	 * @return
+	 */
+	public static boolean addHttpHeaders(MimeHeaders mimeHeaders, String ak, String sk, String apiName, String apiVersion,  String fingerStr, long timestamp) {
+		if (mimeHeaders != null) {
+			Map<String, String> headers = SOAPHeaderHandler.generateSignHeaders(ak, sk, apiName, apiVersion, fingerStr, String.valueOf(timestamp));
+			for(Entry<String,String> kv:headers.entrySet()) {
+				mimeHeaders.addHeader(kv.getKey(), kv.getValue());
+			}
+			return true;
+		}
+		
+		return false;
 	}
 }
