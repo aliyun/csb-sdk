@@ -7,7 +7,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 * broker-vip 是CSB-Broker的前置SLB地址或者具体的一个broker的地址(当没有前置的SLB或者Proxy)
 * 默认的访问端口为 "8086"
 * 请求的context-path可以任意指定，默认使用“CSB”
-  
+
 ## 1. 工具包的下载地址
 
 根据需要将该运行包放在调用端的CLASSPATH环境里
@@ -18,7 +18,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 ### 方式一: 使用命令行直接调用
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 ```
-java [-Dhfile=httpheaders.properties] -jar http-sdk.jar method url api version [ak sk]
+java [-Dhfile=httpheaders.properties] [-Dtest.stress.times=n] -jar http-sdk.jar method url api version [ak sk]
 ```
 参数取值说明:
 * **method**  调用Restful服务的方式，目前可以取值为：POST,GET,cpost,cget
@@ -31,6 +31,7 @@ java [-Dhfile=httpheaders.properties] -jar http-sdk.jar method url api version [
 * **ak** **sk**  即accessKey和secretKey，必须同时提供，如果不需要安全认证，则不要输入,或者输入任意的串值，如: "ak" "sk"
 * **-v**         打印当前的SDK版本
 * **hfile**      可选的**JVM系统参数**，它定义一个属性文件定义要传递给服务端的http headers
+* **test.stress.times** 可选的**JVM系统参数**，压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
 
 -Dhfile 所指向的属性文件的为标准的属性文件格式如下：
 ```
@@ -38,7 +39,6 @@ java [-Dhfile=httpheaders.properties] -jar http-sdk.jar method url api version [
 header1=test1
 header2=test2
 ```
-
 ### 方式二: 使用编程方式调用
 
 ```
@@ -52,7 +52,7 @@ header2=test2
 ```
   HttpCaller.warmup();
 ```
- 
+
   (1) 使用Builder的方式构造调用参数，然后进行调用 （推荐用法）
 ```  
  import com.alibaba.csb.sdk.HttpParameters;
@@ -110,7 +110,7 @@ header2=test2
    } catch (HttpCallerException e) {
       	// error process
    }
-```      
+```
  (2) 如果使用json或者bytes内容的作为http body，使用下面的方法
 ```
   //构造ContentBody对象
@@ -136,7 +136,7 @@ header2=test2
   } catch (HttpCallerException e) {
       	// error process
   }     
-```     
+```
  (3) 直接调用方式 (旧的使用方式，已过期，不推荐)
 ```
  Map<String,String> params = new HashMap<String,String>();
@@ -192,7 +192,7 @@ CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来�
 1 使用请求参数构造规范化的请求字符串（Canonicalized Query String）。
   a. 按照参数名称的字典顺序对请求中所有的请求参数，包括上文中中描述的“公共请求参数”（但不包括_api_signature 参数本身）和给定了的请求接口的自定义参数进行排序。
   说明：当使用GET方法提交请求时，这些参数就是请求URI中的参数部分（即URI 中“?”之后由“&”连接的部分）。
-  
+
   b. 参数名称和值使用英文等号（=）进行连接。再把英文等号连接得到的字符串按参数名称的字典顺序依次使用&符号连接，即得到规范化请求字符串。
   注意：请求参数是原始的name-value，即不能进行URL Encode等操作。
 

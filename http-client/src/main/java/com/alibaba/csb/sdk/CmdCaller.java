@@ -118,7 +118,15 @@ public class CmdCaller {
 				System.out.println("---- response http headers = " + resHttpHeaders.toString());
 				System.out.println("---- retStr = " + ret);
 				System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret));
+				
+				//call multi-times for stress or flow-ctrl testing
+				int times = Integer.getInteger("test.stress.times",0);
+				for(int i=2; i<=times; i++) {
+					ret = HttpCaller.invoke(builder.build(), resHttpHeaders);
+					System.out.println("---- retStr [#"+i+"] = " + ret);
+				}
 			}
+			
 			System.out.println();
 			//System.exit(0);
 		} catch (HttpCallerException e) {

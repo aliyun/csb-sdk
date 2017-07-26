@@ -87,6 +87,8 @@ usage: java -jar wsclient.jar [options...]
                               http://broker-ip:9081/api/version/method?wsdl
 ```
 
+TIP: 你可以使用系统参数-Dtest.stress.times=n 在压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
+
 TIP: 如何从已知的WSDL中确定上述调用参数
 
 ##### ![alt 从wsdl里取值](img/wsdl.png)

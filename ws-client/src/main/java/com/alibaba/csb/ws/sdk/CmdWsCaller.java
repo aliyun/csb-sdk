@@ -20,6 +20,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 
+import com.alibaba.csb.sdk.HttpCaller;
+
 public class CmdWsCaller {
 	private static final String SDK_VERSION = "1.0.4.2+";
 
@@ -102,6 +104,17 @@ public class CmdWsCaller {
 			System.out.println("\n-- 调用返回:\n" + DumpSoapUtil.dumpSoapMessage(reply));
 		else
 			System.out.println("\n-- 调用返回为空");
+		
+		//call multi-times for stress or flow-ctrl testing
+		int times = Integer.getInteger("test.stress.times",0);
+		for(int i=2; i<=times; i++) {
+			reply = dispatch.invoke(request);;
+			System.out.println("---- [#"+i+"] times call it for stress testing");
+			if (reply != null)
+				System.out.println("\n-- 调用返回:\n" + DumpSoapUtil.dumpSoapMessage(reply));
+			else
+				System.out.println("\n-- 调用返回为空");
+		}
 	}
 
 	public static void main(String[] args) {
