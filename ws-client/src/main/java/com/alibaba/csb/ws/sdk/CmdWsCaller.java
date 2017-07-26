@@ -20,8 +20,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 
-import com.alibaba.csb.sdk.HttpCaller;
-
 public class CmdWsCaller {
 	private static final String SDK_VERSION = "1.0.4.2+";
 
