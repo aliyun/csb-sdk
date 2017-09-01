@@ -52,27 +52,38 @@ public class HttpClientHelper {
 		}
 	}
 
+	public static Map<String, String> newParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
+																								 String accessKey, String securityKey) {
+		return newParamsMap(paramsMap, apiName, version, accessKey, securityKey, false);
+	}
+
 
 	public static Map<String, String> newParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
-			String accessKey, String securityKey) {
+			String accessKey, String securityKey, boolean isOpenAPI) {
 		Map<String, List<String>> newParamsMap = new HashMap<String, List<String>>();
 		Map<String, String> headerParamsMap = new HashMap<String, String>();
 
 		if (paramsMap != null) {
 			newParamsMap.putAll(paramsMap);
 		}
-		// put apiName
-		newParamsMap.put(CsbSDKConstants.API_NAME_KEY, Arrays.asList(apiName));
-		headerParamsMap.put(CsbSDKConstants.API_NAME_KEY, apiName);
-		// put version
-		if (version != null) {
-			newParamsMap.put(CsbSDKConstants.VERSION_KEY, Arrays.asList(version));
-			headerParamsMap.put(CsbSDKConstants.VERSION_KEY, version);
+		// no api, version, timestamp for open api invocation
+		if (!isOpenAPI ) {
+			// put apiName
+			if (apiName != null) {
+					newParamsMap.put(CsbSDKConstants.API_NAME_KEY, Arrays.asList(apiName));
+					headerParamsMap.put(CsbSDKConstants.API_NAME_KEY, apiName);
+			}
+			// put version
+			if (version != null) {
+				newParamsMap.put(CsbSDKConstants.VERSION_KEY, Arrays.asList(version));
+				headerParamsMap.put(CsbSDKConstants.VERSION_KEY, version);
+			}
+
+			// put timestamp
+			long ts = System.currentTimeMillis();
+			newParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, Arrays.asList(String.valueOf(ts)));
+			headerParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, String.valueOf(ts));
 		}
-		// put timestamp
-		long ts = System.currentTimeMillis();
-		newParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, Arrays.asList(String.valueOf(ts)));
-		headerParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, String.valueOf(ts));
 
 		// last step, put accessKey & the generated signature
 		if (accessKey != null) {
@@ -114,8 +125,8 @@ public class HttpClientHelper {
 		return ret;
 	}
 
-	public static void validateParams(String apiName, String accessKey, String securityKey) throws HttpCallerException {
-		if (apiName == null)
+	public static void validateParams(String apiName, String accessKey, String securityKey, boolean isOpenApi) throws HttpCallerException {
+		if (!isOpenApi && apiName == null)
 			throw new HttpCallerException(new InvalidParameterException("param apiName can not be null!"));
 
 		if (accessKey != null && securityKey == null)

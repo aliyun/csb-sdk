@@ -21,24 +21,24 @@ public class CmdCaller {
 
 	private static void usage() {
 		System.out
-				.println("Usage: java [-Dhfile=/tmp/abc.prop] -jar Http-client.jar method url apiName version [ak sk]");
+				.println("Usage: java [-Dhfile=headers.prop] [-Ddfile=d.txt] -jar Http-client.jar method url apiName version [ak sk]");
 		System.out.println("   method = get   :  call url with GET method ");
 		System.out.println("   method = post  :  call url with POST method ");
 		System.out.println("   method = cget  :  return curl request string with GET method,  ");
 		System.out.println("   method = cpost :  return curl request string with POST method ");
-		System.out.println("   system property 'hfile' is an optional，to set a file which defines http headers");
+		System.out.println("   method = oget  :  call url as open-api with GET method,  ");
+		System.out.println("   method = opost :  call url as open-api with POST method ");
+		System.out.println("   system property 'hfile' is an optional，to set a file which defines http headers, its content format:");
+		System.out.println("     header1=value1");
+		System.out.println("     header2=value2");
+		System.out.println("   system property 'dfile' is an optional，to set a file which defines body data, its content format:");
+		System.out.println("     data1=value1");
+		System.out.println("     data2=value2");
+		System.out.println("     ");
 		System.out.println("   print current SDK version: java -jar Http-client.jar -v ");
 	}
 
-	// TODO:move this method to common prj
-	public static Properties loadProps(String propFile) throws IOException {
-		Properties pro = new Properties();
-		FileInputStream in = new FileInputStream(propFile);
-		pro.load(in);
-		in.close();
 
-		return pro;
-	}
 
 	public static void main(String args[]) {
 		try {
@@ -51,22 +51,15 @@ public class CmdCaller {
 				return;
 			}
 			String method = args[0];
-			if (!"get".equalsIgnoreCase(method) && !"post".equalsIgnoreCase(method) && !"cget".equalsIgnoreCase(method)
-					&& !"cpost".equalsIgnoreCase(method)) {
+			if (!"get".equalsIgnoreCase(method) && !"post".equalsIgnoreCase(method)
+					&& !"cget".equalsIgnoreCase(method) && !"cpost".equalsIgnoreCase(method)
+				  && !"oget".equalsIgnoreCase(method) && !"opost".equalsIgnoreCase(method)) {
 				usage();
 				return;
 			}
 
-			String hfile = System.getProperty("hfile");
-			Properties headerProp = null;
-			if (hfile != null) {
-				System.out.println("---- hfile:" + hfile);
-				try {
-					headerProp = loadProps(hfile);
-				} catch (IOException e) {
-					throw new HttpCallerException("Failed to load http headers from file:" + hfile);
-				}
-			}
+			Properties headerProp = readPropFile("hfile");
+			Properties dataProp = readPropFile("dfile");
 
 			String lurl = args[1];
 			String apiName = args[2];
@@ -100,13 +93,38 @@ public class CmdCaller {
 				HttpCaller.setCurlResponse(true);
 			}
 
+			boolean isOpenAPI = false;
+			if ("oget".equalsIgnoreCase(method)) {
+				method = "get";
+				isOpenAPI = true;
+				if (ak == null)
+				{
+					System.out.println("ak and sk must be set for open api invocation!!!");
+					return ;
+				}
+			} else if ("opost".equalsIgnoreCase(method)) {
+				method = "post";
+				isOpenAPI = true;
+				if (ak == null)
+				{
+					System.out.println("ak and sk must be set for open api invocation!!!");
+					return ;
+				}
+			} else if ("opost".equalsIgnoreCase(method)) {
+			}
 			HttpParameters.Builder builder = HttpParameters.newBuilder();
-			builder.api(apiName).version(version).method(method).requestURL(lurl).accessKey(ak).secretKey(sk);
+			builder.api(apiName).version(version).method(method).requestURL(lurl).accessKey(ak).secretKey(sk).openApi(isOpenAPI);
 
 			if (headerProp != null) {
 				for (Entry<Object, Object> kv : headerProp.entrySet()) {
 					System.out.println("---- put http header " + (String) kv.getKey() + ":" + (String) kv.getValue());
 					builder.putHeaderParamsMap((String) kv.getKey(), (String) kv.getValue());
+				}
+			}
+			if (dataProp != null) {
+				for (Entry<Object, Object> kv : dataProp.entrySet()) {
+					System.out.println("---- put data body " + (String) kv.getKey() + ":" + (String) kv.getValue());
+					builder.putParamsMap((String) kv.getKey(), (String) kv.getValue());
 				}
 			}
 			StringBuffer resHttpHeaders = new StringBuffer();
@@ -132,5 +150,29 @@ public class CmdCaller {
 		} catch (HttpCallerException e) {
 			System.out.println("---- sdk invoke error:" + e.getMessage());
 		}
+	}
+
+	// TODO:move this method to common prj
+	private static Properties loadProps(String propFile) throws IOException {
+		Properties pro = new Properties();
+		FileInputStream in = new FileInputStream(propFile);
+		pro.load(in);
+		in.close();
+
+		return pro;
+	}
+
+	private static Properties readPropFile(String pfileKey) throws HttpCallerException {
+		String pfile = System.getProperty(pfileKey);
+		Properties headerProp = null;
+		if (pfile != null) {
+      System.out.println("---- pfile:" + pfile);
+      try {
+        headerProp = loadProps(pfile);
+      } catch (IOException e) {
+        throw new HttpCallerException("Failed to load file:" + pfile);
+      }
+    }
+		return headerProp;
 	}
 }

@@ -20,6 +20,10 @@ public class HttpParameters {
 		return builder.api;
 	}
 
+	boolean isOpenApi() {
+		return builder.openAPI;
+	}
+
 	String getVersion() {
 		return builder.version;
 	}
@@ -97,6 +101,18 @@ public class HttpParameters {
 		private String requestUrl;
 		private Map<String, String> paramsMap = new HashMap<String, String>();
 		private Map<String, String> headerParamsMap = new HashMap<String, String>();
+		private boolean openAPI;
+
+		/**
+		 * 设置是否为openAPI调用
+		 * @param api
+		 * @return
+		 */
+		public Builder openApi(boolean openApi) {
+			this.openAPI = openApi;
+			return this;
+		}
+
 
 		/**
 		 * 设置服务的api名
