@@ -272,7 +272,5 @@ b. 也可以使用下面的方法设置以上的某一个或者多个参数：
 
 ###  4.3. 如何生成sdk jar包
 ```
-1. mvn clean
-2. . ver.sh
-3. mvn assembly:assembly -Dmaven.test.skip
+1. . gen-standaloneJar.sh
 ```

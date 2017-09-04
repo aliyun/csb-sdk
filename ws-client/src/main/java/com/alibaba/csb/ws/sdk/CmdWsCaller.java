@@ -2,6 +2,7 @@ package com.alibaba.csb.ws.sdk;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.xml.namespace.QName;
@@ -13,6 +14,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
+import com.alibaba.csb.sdk.CommUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -26,7 +28,12 @@ public class CmdWsCaller {
 	private static void usage(Options opt) {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("java -jar wsclient.jar [options...]", opt);
-		System.out.println("\n current SDK version:" + SDK_VERSION);
+		System.out.println("\ncurrent SDK version:" + SDK_VERSION+"\n----");
+		try {
+			System.out.println(CommUtil.geCurrenttVersionFile());
+		} catch (IOException e) {
+			//
+		}
 		System.exit(0);
 	}
 

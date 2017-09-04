@@ -42,6 +42,11 @@ public class CmdCaller {
 		try {
 			if (args.length > 0 && "-v".equalsIgnoreCase(args[0])) {
 				System.out.println("HttpCaller SDK version:" + SDK_VERSION);
+				try {
+					System.out.println(CommUtil.geCurrenttVersionFile());
+				} catch (IOException e) {
+					//e.printStackTrace();
+				}
 				return;
 			}
 			if (args.length != 4 && args.length != 6) {
