@@ -67,7 +67,7 @@ public class HttpParameters {
 		sb.append("\n version=").append(this.getVersion());
 		sb.append("\n method=").append(this.getMethod());
 		sb.append("\n accessKey=").append(this.getAccessKey());
-		sb.append("\n secrtKey=").append("*********"); // hide this secret key!
+		sb.append("\n secretKey=").append("*********"); // hide this secret key!
 		sb.append("\n contentBody=").append(this.getContentBody());
 
 		sb.append("\n params: \n");
