@@ -26,8 +26,6 @@ public class CmdCaller {
 		System.out.println("   method = post  :  call url with POST method ");
 		System.out.println("   method = cget  :  return curl request string with GET method,  ");
 		System.out.println("   method = cpost :  return curl request string with POST method ");
-		System.out.println("   method = oget  :  call url as open-api with GET method,  ");
-		System.out.println("   method = opost :  call url as open-api with POST method ");
 		System.out.println("   system property 'hfile' is an optional，to set a file which defines http headers, its content format:");
 		System.out.println("     header1=value1");
 		System.out.println("     header2=value2");
@@ -52,8 +50,7 @@ public class CmdCaller {
 			}
 			String method = args[0];
 			if (!"get".equalsIgnoreCase(method) && !"post".equalsIgnoreCase(method)
-					&& !"cget".equalsIgnoreCase(method) && !"cpost".equalsIgnoreCase(method)
-				  && !"oget".equalsIgnoreCase(method) && !"opost".equalsIgnoreCase(method)) {
+					&& !"cget".equalsIgnoreCase(method) && !"cpost".equalsIgnoreCase(method)) {
 				usage();
 				return;
 			}
@@ -93,27 +90,8 @@ public class CmdCaller {
 				HttpCaller.setCurlResponse(true);
 			}
 
-			boolean isOpenAPI = false;
-			if ("oget".equalsIgnoreCase(method)) {
-				method = "get";
-				isOpenAPI = true;
-				if (ak == null)
-				{
-					System.out.println("ak and sk must be set for open api invocation!!!");
-					return ;
-				}
-			} else if ("opost".equalsIgnoreCase(method)) {
-				method = "post";
-				isOpenAPI = true;
-				if (ak == null)
-				{
-					System.out.println("ak and sk must be set for open api invocation!!!");
-					return ;
-				}
-			} else if ("opost".equalsIgnoreCase(method)) {
-			}
 			HttpParameters.Builder builder = HttpParameters.newBuilder();
-			builder.api(apiName).version(version).method(method).requestURL(lurl).accessKey(ak).secretKey(sk).openApi(isOpenAPI);
+			builder.api(apiName).version(version).method(method).requestURL(lurl).accessKey(ak).secretKey(sk);
 
 			if (headerProp != null) {
 				for (Entry<Object, Object> kv : headerProp.entrySet()) {

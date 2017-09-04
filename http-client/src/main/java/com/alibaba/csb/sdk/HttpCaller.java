@@ -225,7 +225,6 @@ public class HttpCaller {
 	private static String defaultSK = null;
 	
 	private static ThreadLocal<Boolean> toCurlCmd = new ThreadLocal<Boolean>();
-	private static ThreadLocal<Boolean> openApiInvoke = new ThreadLocal<Boolean>();
 
 	private static final RequestConfig SysRequestConfig = createConnBuilder().build();
 
@@ -550,7 +549,7 @@ public class HttpCaller {
 			String accessKey, String secretKey, Map<String, String> directParamsMap, String restfulProtocolVersion, StringBuffer resHttpHeaders) throws HttpCallerException {
 		long startT = System.currentTimeMillis();
 		long initT = startT;
-		HttpClientHelper.validateParams(apiName, accessKey, secretKey, openApiInvoke.get());
+		HttpClientHelper.validateParams(apiName, accessKey, secretKey);
 
 		Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
 		HttpClientHelper.mergeParams(urlParamsMap, paramsMap, true);
@@ -561,7 +560,7 @@ public class HttpCaller {
 		startProcessRestful(requestURL, restfulProtocolVersion, urlParamsMap);
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey, openApiInvoke.get());
+				secretKey);
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
@@ -847,7 +846,7 @@ public class HttpCaller {
 			ContentBody cb, String accessKey, String secretKey, Map<String, String> directHheaderParamsMap, 
 			String restfulProtocolVersion, StringBuffer resHttpHeaders) throws HttpCallerException {
 		long startT = System.currentTimeMillis();
-		HttpClientHelper.validateParams(apiName, accessKey, secretKey,openApiInvoke.get());
+		HttpClientHelper.validateParams(apiName, accessKey, secretKey);
 
 		Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
 		HttpClientHelper.mergeParams(urlParamsMap, paramsMap, false);
@@ -855,7 +854,7 @@ public class HttpCaller {
 		startProcessRestful(requestURL, restfulProtocolVersion, urlParamsMap);
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey, openApiInvoke.get());
+				secretKey);
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
@@ -1028,8 +1027,6 @@ public class HttpCaller {
 		HttpClientHelper.printDebugInfo("-- httpParameters=" + hp.toString());
 
 		hp.validate();
-
-		openApiInvoke.set(hp.isOpenApi());
 
 		if ("POST".equalsIgnoreCase(hp.getMethod()) ||
 				"CPOST".equalsIgnoreCase(hp.getMethod())) {

@@ -3,6 +3,7 @@ package com.alibaba.csb.sdk.internel;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,38 +53,31 @@ public class HttpClientHelper {
 		}
 	}
 
-	public static Map<String, String> newParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
-																								 String accessKey, String securityKey) {
-		return newParamsMap(paramsMap, apiName, version, accessKey, securityKey, false);
-	}
-
 
 	public static Map<String, String> newParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
-			String accessKey, String securityKey, boolean isOpenAPI) {
+			String accessKey, String securityKey) {
 		Map<String, List<String>> newParamsMap = new HashMap<String, List<String>>();
 		Map<String, String> headerParamsMap = new HashMap<String, String>();
 
 		if (paramsMap != null) {
 			newParamsMap.putAll(paramsMap);
 		}
-		// no api, version, timestamp for open api invocation
-		if (!isOpenAPI ) {
-			// put apiName
-			if (apiName != null) {
-					newParamsMap.put(CsbSDKConstants.API_NAME_KEY, Arrays.asList(apiName));
-					headerParamsMap.put(CsbSDKConstants.API_NAME_KEY, apiName);
-			}
-			// put version
-			if (version != null) {
-				newParamsMap.put(CsbSDKConstants.VERSION_KEY, Arrays.asList(version));
-				headerParamsMap.put(CsbSDKConstants.VERSION_KEY, version);
-			}
 
-			// put timestamp
-			long ts = System.currentTimeMillis();
-			newParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, Arrays.asList(String.valueOf(ts)));
-			headerParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, String.valueOf(ts));
+		// put apiName
+		if (apiName != null) {
+			newParamsMap.put(CsbSDKConstants.API_NAME_KEY, Arrays.asList(apiName));
+			headerParamsMap.put(CsbSDKConstants.API_NAME_KEY, apiName);
 		}
+		// put version
+		if (version != null) {
+			newParamsMap.put(CsbSDKConstants.VERSION_KEY, Arrays.asList(version));
+			headerParamsMap.put(CsbSDKConstants.VERSION_KEY, version);
+		}
+
+		// put timestamp
+		long ts = System.currentTimeMillis();
+		newParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, Arrays.asList(String.valueOf(ts)));
+		headerParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, String.valueOf(ts));
 
 		// last step, put accessKey & the generated signature
 		if (accessKey != null) {
@@ -125,8 +119,8 @@ public class HttpClientHelper {
 		return ret;
 	}
 
-	public static void validateParams(String apiName, String accessKey, String securityKey, boolean isOpenApi) throws HttpCallerException {
-		if (!isOpenApi && apiName == null)
+	public static void validateParams(String apiName, String accessKey, String securityKey) throws HttpCallerException {
+		if (apiName == null)
 			throw new HttpCallerException(new InvalidParameterException("param apiName can not be null!"));
 
 		if (accessKey != null && securityKey == null)
@@ -221,7 +215,7 @@ public class HttpClientHelper {
 	}
 	
 	public static String createPostCurlString(String url, Map<String, String> params, Map<String, String> headerParams, ContentBody cb, Map<String, String> directHheaderParamsMap) {
-		StringBuffer sb = new StringBuffer("curl -X post ");
+		StringBuffer sb = new StringBuffer("curl ");
 		
 		//透传的http headers
 		sb.append(genCurlHeaders(directHheaderParamsMap));
@@ -233,7 +227,7 @@ public class HttpClientHelper {
 			for(Entry<String,String> e:params.entrySet()){
 				if(postSB.length()>0)
 					postSB.append("&");
-				postSB.append(e.getKey()).append("=").append(e.getValue());
+				postSB.append(e.getKey()).append("=").append(URLEncoder.encode(e.getValue()));
 			}
 			if (postSB.length() > 0) {
 				sb.append(" -d \"");
@@ -241,7 +235,8 @@ public class HttpClientHelper {
 				sb.append(postSB.toString());
 			}
 		} else  {
-			// set params as 
+			// set params as
+			//FIXME need this ??
 			sb.append("--data '");
 			sb.append(urlEncodedString(toNVP(params), HTTP.UTF_8));
 			sb.append("'");

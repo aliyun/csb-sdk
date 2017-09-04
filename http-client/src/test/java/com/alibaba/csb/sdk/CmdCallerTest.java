@@ -66,6 +66,6 @@ public class CmdCallerTest {
 		urlParamsMap.put("MT_B8_ECCTOWMS_REQUEST", Arrays.asList("abc"));
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap,
 				"After_sale_information_query", "1.0.0", "6073f9ba68ff49baa0add7dbe9521a6a",
-				"1LZd4oOltnNkA6DMXWDayzDa3Lc=",false);
+				"1LZd4oOltnNkA6DMXWDayzDa3Lc=");
 	}
 }
