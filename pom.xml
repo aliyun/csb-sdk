@@ -6,7 +6,7 @@
 
 	<groupId>com.alibaba.csb.sdk</groupId>
 	<artifactId>csb.sdk.parent</artifactId>
-	<version>1.0.4.4-SNAPSHOT</version>
+	<version>1.0.4.2plus-SNAPSHOT</version>
 	<name>CSB :: SDK :: parent</name>
 	<packaging>pom</packaging>
 	<description>CSB SDK build POM</description>
@@ -26,12 +26,14 @@
 		<url>http://code.alibabatech.com/</url>
 	</organization>
 
+	<scm><url>https://github.com/aliyun/csb-sdk.git</url></scm>
+
 	<licenses>
 		<license>
 			<name>Apache 2</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
-			<comments>A business-friendly CSB license</comments>
+			<comments>A business-friendly license for Alibaba CSB SDK</comments>
 		</license>
 	</licenses>
 

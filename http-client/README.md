@@ -18,7 +18,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 ### 方式一: 使用命令行直接调用
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 ```
-java [-Dhfile=httpheaders.properties] [-Dtest.stress.times=n] -jar http-sdk.jar method url api version [ak sk]
+java [sys-props] -jar http-sdk.jar method url api version [ak sk]
 ```
 参数取值说明:
 * **method**  调用Restful服务的方式，目前可以取值为：POST,GET,cpost,cget
@@ -30,8 +30,11 @@ java [-Dhfile=httpheaders.properties] [-Dtest.stress.times=n] -jar http-sdk.jar 
 * **version**    CSB发布的 RESTful服务的版本（当设置为“null”时为不设置version）
 * **ak** **sk**  即accessKey和secretKey，必须同时提供，如果不需要安全认证，则不要输入,或者输入任意的串值，如: "ak" "sk"
 * **-v**         打印当前的SDK版本
-* **hfile**      可选的**JVM系统参数**，它定义一个属性文件定义要传递给服务端的http headers
-* **test.stress.times** 可选的**JVM系统参数**，压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
+
+* **sys-props**      为可选的**JVM系统参数**, 可以设置如下的一项或者多项（空格分隔），具体包括：
+  * -Dtest.stress.times=n   压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
+  * -Dhfile=hfile.prop      它定义一个属性文件定义要传递给服务端的http headers
+  * -Ddfile=dfile.prop      它定义一个属性文件定义要POST传递给服务端的http body 参数
 
 -Dhfile 所指向的属性文件的为标准的属性文件格式如下：
 ```
@@ -39,6 +42,13 @@ java [-Dhfile=httpheaders.properties] [-Dtest.stress.times=n] -jar http-sdk.jar 
 header1=test1
 header2=test2
 ```
+-Ddfile 所指向的属性文件的为标准的属性文件格式如下：
+```
+#注解 设置我的request body参数
+data1=value1
+data2=value2
+```
+
 ### 方式二: 使用编程方式调用
 
 ```
