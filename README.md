@@ -12,18 +12,40 @@ The CSB-SDK is a client-side invocation SDK for HTTP or Web Service API opened b
 
 ## RELEASE
 * Build as standalone client jar:
+
 ```
 # Build http SDK
 cd http-client
-mvn clean assembly:assembly -Dmaven.test.skip
+bash gen-standaloneJar.sh
+```
 
 # Build WS SDK
 cd ws-client
-mvn clean assembly:assembly -Dmaven.test.skip
+bash gen-standaloneJar.sh
 
 ```
 
-## Use as dependency (as snapshot by now) in your pom.xml 
+# Directly use the maven dependency from maven central repository
+  * Use release dependency in your pom.xml
+
+```
+  <!--To use HTTP-SDK-->
+  <dependency>
+     <groupId>com.alibaba.csb.sdk</groupId>
+     <artifactId>http-client</artifactId>
+     <version>1.1.0</version>
+  </dependency>
+
+  <!--To use WS-SDK-->
+  <dependency>
+     <groupId>com.alibaba.csb.sdk</groupId>
+     <artifactId>ws-client</artifactId>
+     <version>1.1.0</version>
+  </dependency>
+```
+
+  * Use snapshot dependency in your pom.xml
+
 ```
   <!--To use HTTP-SDK-->
   <dependency>

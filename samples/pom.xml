@@ -5,7 +5,7 @@
 
 	<groupId>com.alibaba.csb</groupId>
 	<artifactId>sdk-sample</artifactId>
-	<version>1.0.4.2-SNAPSHOT</version>
+	<version>1.1.0-SNAPSHOT</version>
 	<name>sdk demo for http and ws</name>
 	<packaging>jar</packaging>
 
@@ -16,26 +16,17 @@
 
 	<dependencies>
 	
-<!--
-	    <dependency>
-            <groupId>httpsdk</groupId>
-            <artifactId>httpsdk</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/http-sdk.jar</systemPath>
-        </dependency>
--->
 	<dependency>
             <groupId>com.alibaba.csb.sdk</groupId>
             <artifactId>http-client</artifactId>
-            <version>1.0.4.4-SNAPSHOT</version>
+            <version>1.1.0</version>
         </dependency>
 
         
 	<dependency>
             <groupId>com.alibaba.csb.sdk</groupId>
             <artifactId>ws-client</artifactId>
-            <version>1.0.4.4-SNAPSHOT</version>
+            <version>1.1.0</version>
         </dependency>
 
 <!--

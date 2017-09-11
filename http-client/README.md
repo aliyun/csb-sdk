@@ -10,16 +10,27 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 
 ## 1. 工具包的下载地址
 
-根据需要将该运行包放在调用端的CLASSPATH环境里
+* 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里
 [http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)
+* 如果用编程的方式,可以不下载这个standalone的Jar包,而是在用户的pom.xml里引用如下的dependency:
+
+```
+<dependency>
+  <groupId>com.alibaba.csb.sdk</groupId>
+  <artifactId>http-client</artifactId>
+  <version>1.1.0</version>
+</dependency>
+```
 
 ## 2. HTTP Client SDK 使用方式
 
 ### 方式一: 使用命令行直接调用
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
+
 ```
-java [sys-props] -jar http-sdk.jar method url api version [ak sk]
+java [sys-props] -jar http-sdk-1.0.4.2plus.jar method url api version [ak sk]
 ```
+
 参数取值说明:
 * **method**  调用Restful服务的方式，目前可以取值为：POST,GET,cpost,cget
    POST   以post形式调用服务
@@ -37,12 +48,15 @@ java [sys-props] -jar http-sdk.jar method url api version [ak sk]
   * -Ddfile=dfile.prop      它定义一个属性文件定义要POST传递给服务端的http body 参数
 
 -Dhfile 所指向的属性文件的为标准的属性文件格式如下：
+
 ```
 #注解 设置我的header
 header1=test1
 header2=test2
 ```
+
 -Ddfile 所指向的属性文件的为标准的属性文件格式如下：
+
 ```
 #注解 设置我的request body参数
 data1=value1
@@ -56,6 +70,7 @@ data2=value2
  import com.alibaba.csb.sdk.HttpCallerException;
  ...
 ```
+
   **注意：**在编程方式调用时，首先要在整个JVM范围内启动一次HttpCaller.warmup()来加载SDK所需要的类,
   否则在第一次调用HttpCaller的doGet/doPost/invoke等方法时会很慢(~5s)
 
@@ -64,6 +79,7 @@ data2=value2
 ```
 
   (1) 使用Builder的方式构造调用参数，然后进行调用 （推荐用法）
+
 ```  
  import com.alibaba.csb.sdk.HttpParameters;
  import com.alibaba.csb.sdk.HttpCaller;
@@ -121,7 +137,9 @@ data2=value2
       	// error process
    }
 ```
+
  (2) 如果使用json或者bytes内容的作为http body，使用下面的方法
+
 ```
   //构造ContentBody对象
   ContentBody cb = new ContentBody(jsonObject.toSring());
@@ -147,7 +165,9 @@ data2=value2
       	// error process
   }     
 ```
+
  (3) 直接调用方式 (旧的使用方式，已过期，不推荐)
+
 ```
  Map<String,String> params = new HashMap<String,String>();
     
@@ -217,7 +237,8 @@ HTTP SDK 签名处理的图示
 
 ### 4.1. 高级功能 关于连接参数的设置：
 
-a. 可以为http/https设置以下的全局性系统参数： 
+a. 可以为http/https设置以下的全局性系统参数：
+
 ```
       -Dhttp.caller.connection.max          设置连接池的最大连接数，默认是20
       -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是-1， 永不超时
@@ -228,6 +249,7 @@ a. 可以为http/https设置以下的全局性系统参数：
 ```
 
 b. 也可以使用下面的方法设置以上的某一个或者多个参数：
+
 ```
       Map sysParams = new HashMap();
       sysParams.put("http.caller.connection.timeout","3000"); //设置连接超时为3秒
@@ -280,7 +302,4 @@ b. 也可以使用下面的方法设置以上的某一个或者多个参数：
  ]
 ```
 
-###  4.3. 如何生成sdk jar包
-```
-1. . gen-standaloneJar.sh
-```
+

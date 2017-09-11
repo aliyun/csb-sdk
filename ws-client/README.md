@@ -3,8 +3,17 @@
 ## 1. WS-SDK下载地址
 
 
-根据需要将该运行包放在调用端的CLASSPATH环境里
+ * 如果使用命令行方式调用SDK,根据需要将standaloned的运行包放在调用端的CLASSPATH环境里
 [ws-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.0.4.2plus.jar)
+ * 如果用编程的方式使用SDK,则需要将需要的dependency放到你的pom.xml (该依赖已经在maven central repository存在)
+
+ ```
+ <dependency>
+   <groupId>com.alibaba.csb.sdk</groupId>
+   <artifactId>ws-client</artifactId>
+   <version>1.1.0</version>
+ </dependency>
+ ```
 
 ## 2. WS-SDK功能
 
@@ -16,6 +25,7 @@ import com.alibaba.csb.sdk.HttpCaller;
 import com.alibaba.csb.ws.sdk.WSClientSDK;
 ...
 ```
+
 **注意：**在编程方式调用时，首先要在整个JVM范围内启动一次WSClientSDK.warmup()来加载SDK所需要的类,
   否则在第一次调用WSClientSDK时会很慢(~5s)
   
@@ -110,6 +120,7 @@ java -jar target/ws-client-1.0.4.4-SNAPSHOT.jar  -ak ak -sk sk -api PING -versio
 </soapenv:Envelope>'
 
 ```
+
 如果不使用-rd选项，可以把请求内容保存到一个文件中，然后使用-rf 指定这个文件。
 
 **注意：**命令行方式不支持调用附件或者MTOM形式的WSDL服务
