@@ -17,7 +17,6 @@ The CSB-SDK is a client-side invocation SDK for HTTP or Web Service API opened b
 # Build http SDK
 cd http-client
 bash gen-standaloneJar.sh
-```
 
 # Build WS SDK
 cd ws-client
@@ -25,8 +24,8 @@ bash gen-standaloneJar.sh
 
 ```
 
-# Directly use the maven dependency from maven central repository
-  * Use release dependency in your pom.xml
+# Use the SDK as dependency in your pom.xml
+1. Directly use the maven dependency from maven central repository. Use release dependency in your pom.xml
 
 ```
   <!--To use HTTP-SDK-->
@@ -44,7 +43,7 @@ bash gen-standaloneJar.sh
   </dependency>
 ```
 
-  * Use snapshot dependency in your pom.xml
+2. Use snapshot dependency in your pom.xml
 
 ```
   <!--To use HTTP-SDK-->
@@ -81,6 +80,13 @@ bash gen-standaloneJar.sh
 
 * Release Notes
   [change history](release.md)
+
+## Other-Languages support (new!!!)
+1. PHP based HTTP-SDK
+A http-sdk implemente by PHP script [details](others/php/README.md)
+
+2. GO  based HTTP-SDK
+A http-sdk implemente by GO script [details](others/golang/README.md)
 
 ## Future Work
 
