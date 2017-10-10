@@ -257,8 +257,11 @@ b. 也可以使用下面的方法设置以上的某一个或者多个参数：
       ...
       HttpCaller.doPost() or doGet();
 ```
+### 4.2. 使用http-sdk调用CSB控制台的Open API
 
-### 4.2. 在无Java对象的情况下，使用泛化的形式转换json串的工具
+使用HTTP-SDK可以对控制台提供的OpenAPI进行调用,具体的例子[参见](InvokeOpenAPI.md)
+
+### 4.3. 在无Java对象的情况下，使用泛化的形式转换json串的工具
 
 ```
   一个辅助工具类Java对象到JSON串的泛化转换，在不定义复杂对象类的情况下，把HTTP参数转换为Json串
