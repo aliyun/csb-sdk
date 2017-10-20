@@ -81,13 +81,15 @@ bash gen-standaloneJar.sh
 * Release Notes
   [change history](release.md)
 
-## Other-Languages support (new!!!)
+## Other-Languages support (beta version!!!)
 1. PHP based HTTP-SDK
 A http-sdk implemente by PHP script [details](others/php/README.md)
 
 2. GO  based HTTP-SDK
 A http-sdk implemente by GO script [details](others/golang/README.md)
 
+3. node.js based HTTP-SDK
+A http-sdk implemente by node.js [details](others/node.js/README.md)
 ## Future Work
 
 - Support more Aliyun base service

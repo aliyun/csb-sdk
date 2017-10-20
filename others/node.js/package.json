@@ -1,0 +1,36 @@
+{
+  "name": "aliware-csb",
+  "version": "0.1.1",
+  "description": "Aliware CSB Node.js SDK",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "make test",
+    "prepublishOnly": "babel lib/ -d es5/"
+  },
+  "author": "walking98@sina.com liaotian.wq",
+  "license": "MIT",
+  "dependencies": {
+    "co": "^4.6.0",
+    "debug": "^2.6.0",
+    "httpx": "^2.1.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.4.0",
+    "babel-register": "^6.24.1",
+    "coveralls": "^2.13.1",
+    "doxmate": "^0.3.1",
+    "eslint": "^3.11.1",
+    "expect.js": "^0.3.1",
+    "mocha": "^3.2.0",
+    "nyc": "^11.0.2"
+  },
+  "files": [
+    "lib",
+    "index.js"
+  ]
+}

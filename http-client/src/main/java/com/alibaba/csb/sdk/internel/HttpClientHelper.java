@@ -223,7 +223,6 @@ public class HttpClientHelper {
 		sb.append(genCurlHeaders(headerParams));
 		
 		if (params != null) {
-			System.out.print("FFFFFFFFFFFFf");
 			StringBuffer postSB = new StringBuffer();
 			for(Entry<String,String> e:params.entrySet()){
 				if(postSB.length()>0)
@@ -238,7 +237,6 @@ public class HttpClientHelper {
 				sb.append("--data ''");
 			}
 		} else  {
-			System.out.print("xxxxxxxxxFFFFFFFFFFFFf");
 			// set params as
 			//FIXME need this ??
 			sb.append("--data '");
