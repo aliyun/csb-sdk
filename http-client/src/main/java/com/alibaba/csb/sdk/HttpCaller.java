@@ -544,6 +544,31 @@ public class HttpCaller {
 								String accessKey, String secretKey, Map<String, String> directParamsMap) throws HttpCallerException {
 		return doGet(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null, null);
 	}
+
+	private static String generateAsEncodeRequestUrl(String requestURL, Map<String, List<String>> urlParamsMap) {
+
+		requestURL = HttpClientHelper.trimUrl(requestURL);
+
+		StringBuffer params = new StringBuffer();
+		for (Entry<String, List<String>> kv : urlParamsMap.entrySet()) {
+			if (params.length() > 0) {
+				params.append("&");
+			}
+			if (kv.getValue() != null) {
+				List<String> vlist = kv.getValue();
+				for (String v : vlist) {
+					params.append(URLEncoder.encode(kv.getKey())).append("=").append(URLEncoder.encode(v));
+				}
+			}
+		}
+
+		String newRequestURL = requestURL;
+		if (params.length() > 0)
+			newRequestURL += "?" + params.toString();
+
+		HttpClientHelper.printDebugInfo("-- requestURL=" + newRequestURL);
+		return newRequestURL;
+	}
 	
 	private static String doGet(String requestURL, String apiName, String version, Map<String, String> paramsMap,
 			String accessKey, String secretKey, Map<String, String> directParamsMap, String restfulProtocolVersion, StringBuffer resHttpHeaders) throws HttpCallerException {
@@ -564,27 +589,8 @@ public class HttpCaller {
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
-		requestURL = HttpClientHelper.trimUrl(requestURL);
+		String newRequestURL = generateAsEncodeRequestUrl(requestURL, urlParamsMap);
 
-		StringBuffer params = new StringBuffer();
-		for (Entry<String, List<String>> kv : urlParamsMap.entrySet()) {
-			if (params.length() > 0) {
-				params.append("&");
-			}
-			if (kv.getValue() != null) {
-				List<String> vlist = kv.getValue();
-				for (String v:vlist){
-					params.append(URLEncoder.encode(kv.getKey())).append("=").append(URLEncoder.encode(v));
-				}
-			}
-		}
-
-		String newRequestURL = requestURL;
-		if (params.length() > 0)
-			newRequestURL += "?" + params.toString();
-
-		HttpClientHelper.printDebugInfo("-- requestURL=" + newRequestURL);
-		
 		if (isCurlResponse()) {
 			StringBuffer curl = new StringBuffer("curl ");
 			curl.append(HttpClientHelper.genCurlHeaders(directParamsMap));
@@ -849,9 +855,10 @@ public class HttpCaller {
 		HttpClientHelper.validateParams(apiName, accessKey, secretKey);
 
 		Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
+		String newRequestURL = generateAsEncodeRequestUrl(requestURL, urlParamsMap);
 		HttpClientHelper.mergeParams(urlParamsMap, paramsMap, false);
 
-		startProcessRestful(requestURL, restfulProtocolVersion, urlParamsMap);
+		startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
 				secretKey);
@@ -859,10 +866,10 @@ public class HttpCaller {
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
 		if (isCurlResponse()) {
-			return HttpClientHelper.createPostCurlString(requestURL, paramsMap, headerParamsMap, cb, directHheaderParamsMap);
+			return HttpClientHelper.createPostCurlString(newRequestURL, paramsMap, headerParamsMap, cb, directHheaderParamsMap);
 		}
 
-		HttpPost httpPost = HttpClientHelper.createPost(requestURL, paramsMap, headerParamsMap, cb);
+		HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb);
 
 		HttpClientHelper.setDirectHeaders(httpPost, directHheaderParamsMap);
 
@@ -875,7 +882,7 @@ public class HttpCaller {
 		}
 
 		try {
-			return doHttpReq(requestURL, httpPost, resHttpHeaders);
+			return doHttpReq(newRequestURL, httpPost, resHttpHeaders);
 		} finally {
 			if (DEBUG) {
 				HttpClientHelper.printDebugInfo("-- total = " + (System.currentTimeMillis() - startT) + " ms ");
