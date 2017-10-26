@@ -119,13 +119,22 @@ public class HttpClientHelper {
 		return ret;
 	}
 
-	public static void validateParams(String apiName, String accessKey, String securityKey) throws HttpCallerException {
+	public static void validateParams(String apiName, String accessKey, String securityKey, Map<String, String> paramsMap) throws HttpCallerException {
 		if (apiName == null)
 			throw new HttpCallerException(new InvalidParameterException("param apiName can not be null!"));
 
 		if (accessKey != null && securityKey == null)
 			throw new HttpCallerException(
 					new InvalidParameterException("param securityKey can not be null for a given accessKey!"));
+
+		if (paramsMap != null) {
+			for (Entry<String,String> kv:paramsMap.entrySet()) {
+				if (kv.getValue() == null) {
+					throw new HttpCallerException(new InvalidParameterException(
+							String.format("bad parasMap, the value for key [ %s ] is null, please remove the key or set its value, e.g. \"\"!", kv.getKey())));
+				}
+			}
+		}
 
 	}
 	

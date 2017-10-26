@@ -574,7 +574,7 @@ public class HttpCaller {
 			String accessKey, String secretKey, Map<String, String> directParamsMap, String restfulProtocolVersion, StringBuffer resHttpHeaders) throws HttpCallerException {
 		long startT = System.currentTimeMillis();
 		long initT = startT;
-		HttpClientHelper.validateParams(apiName, accessKey, secretKey);
+		HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
 
 		Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
 		HttpClientHelper.mergeParams(urlParamsMap, paramsMap, true);
@@ -852,7 +852,7 @@ public class HttpCaller {
 			ContentBody cb, String accessKey, String secretKey, Map<String, String> directHheaderParamsMap, 
 			String restfulProtocolVersion, StringBuffer resHttpHeaders) throws HttpCallerException {
 		long startT = System.currentTimeMillis();
-		HttpClientHelper.validateParams(apiName, accessKey, secretKey);
+		HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
 
 		Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
 		String newRequestURL = generateAsEncodeRequestUrl(requestURL, urlParamsMap);
