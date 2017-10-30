@@ -18,7 +18,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 <dependency>
   <groupId>com.alibaba.csb.sdk</groupId>
   <artifactId>http-client</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 
