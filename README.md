@@ -1,14 +1,17 @@
 # CSB-SDK README
 
+## [README of 中文](https://github.com/aliyun/csb-sdk/blob/master/README_cn.md)
+
 ## Introduction
 
 The CSB-SDK is a client-side invocation SDK for HTTP or Web Service API opened by the CSB (Cloud Service Bus) product. It is responsible for invoking the open API and signing the request information.
 
 ## Content in the CSB-SDK
-* common    base classes used by both HTTP-SDK and WS-SDK 
-* HTTP-SDK  The standalone client SDK for invoking HTTP API  [details](http-client/README.md)
+* common    Base classes used by both HTTP-SDK and WS-SDK
+* HTTP-SDK  The client SDK for invoking HTTP API  [details](http-client/README.md)
 * WS-SDK    The client SDK for binding security params into WebService client dispatch or port [details](ws-client/README.md)
 * Samples   Unit Tests for using above SDKs [details](samples/README.md)
+* others    HTTP-SDK for other Languages implementation, e.g. PHP, Go and Node.js
 
 ## RELEASE
 * Build as standalone client jar:
@@ -32,16 +35,18 @@ bash gen-standaloneJar.sh
   <dependency>
      <groupId>com.alibaba.csb.sdk</groupId>
      <artifactId>http-client</artifactId>
-     <version>1.1.0</version>
+     <version>${http.sdk.version}</version>
   </dependency>
 
   <!--To use WS-SDK-->
   <dependency>
      <groupId>com.alibaba.csb.sdk</groupId>
      <artifactId>ws-client</artifactId>
-     <version>1.1.0</version>
+     <version>${ws.sdk.version}</version>
   </dependency>
 ```
+
+Note: Please check latest release version from [here](release.md)
 
 2. Use snapshot dependency in your pom.xml
 
@@ -50,14 +55,14 @@ bash gen-standaloneJar.sh
   <dependency>
      <groupId>com.alibaba.csb.sdk</groupId>
      <artifactId>http-client</artifactId>
-     <version>1.0.4.4-SNAPSHOT</version>
+     <version>1.1.0-SNAPSHOT</version>
   </dependency>
 
   <!--To use WS-SDK-->
   <dependency>
      <groupId>com.alibaba.csb.sdk</groupId>
      <artifactId>ws-client</artifactId>
-     <version>1.0.4.4-SNAPSHOT</version>
+     <version>1.1.0-SNAPSHOT</version>
   </dependency>
      
      
@@ -83,13 +88,14 @@ bash gen-standaloneJar.sh
 
 ## Other-Languages support (beta version!!!)
 1. PHP based HTTP-SDK
-A http-sdk implemente by PHP script [details](others/php/README.md)
+A http-sdk implementation by PHP script [details](others/php/README.md)
 
-2. GO  based HTTP-SDK
-A http-sdk implemente by GO script [details](others/golang/README.md)
+2. Go  based HTTP-SDK
+A http-sdk implementation by Go script [details](others/golang/README.md)
 
 3. node.js based HTTP-SDK
-A http-sdk implemente by node.js [details](others/node.js/README.md)
+A http-sdk implementation by Node.js [details](others/node.js/README.md)
+
 ## Future Work
 
 - Support more Aliyun base service

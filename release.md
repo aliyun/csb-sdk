@@ -1,4 +1,9 @@
-# RELEASE History
+## Latest version/最新的版本
+
+1.  ${http.sdk.version} = 1.1.1
+2.  ${ws.sdk.version} = 1.1.0
+
+## RELEASE History
 
 | MajorV  | MinorV | Date(YYYYMMDD) | Changes                              | Details |
 | ------- | ------ | -------------- | ------------------------------------ | ------- |
