@@ -124,8 +124,8 @@ public class CmdWsCaller {
 
 	public static void main(String[] args) {
 		Options opt = new Options();
-		opt.addOption("ak", true, "accessKey");
-		opt.addOption("sk", true, "secretKey");
+		opt.addOption("ak", false, "accessKey");
+		opt.addOption("sk", false, "secretKey");
 		opt.addOption("api", true, "服务名");
 		opt.addOption("version", true, "服务版本");
 		opt.addOption("wa", true, "wsdl地址，e.g: http://broker-ip:9081/api/version/method?wsdl");
