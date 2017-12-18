@@ -242,6 +242,7 @@ public class HttpCaller {
 						connMgr.setDefaultMaxPerRoute(connMgr.getMaxTotal());
 					} catch (Exception e) {
 						// log it!
+						throw new HttpCallerException(String.format("[ERROR] CSB-SDK failed to create connection pool with %d connections", maxConn));
 					}
 				}
 				connMgr.setValidateAfterInactivity(VALIDATE_PERIOD);
