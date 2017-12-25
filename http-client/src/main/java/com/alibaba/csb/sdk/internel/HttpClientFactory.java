@@ -12,23 +12,28 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeaderElementIterator;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.ssl.SSLContextBuilder;
 
 import com.alibaba.csb.sdk.HttpCallerException;
+
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 public class HttpClientFactory {
 	private static ConnectionKeepAliveStrategy createKeepAliveStrategy() {
 		return new ConnectionKeepAliveStrategy() {
-			@Override
 			public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
 				HeaderElementIterator it = new BasicHeaderElementIterator(
 						response.headerIterator(HTTP.CONN_KEEP_ALIVE));
@@ -71,18 +76,12 @@ public class HttpClientFactory {
 			// ignore SSL certificate info with the below two setting:
 
 			// 1. trust https server certificate always.
-			SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-				@Override
-				public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType)
-						throws java.security.cert.CertificateException {
-					return true;
-				}
-			}).build();
+			SSLContext sslContext = createSSLContext();
 
 			// 2. hostname verifier pass
-			HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
+			//HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
 
-			SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+			SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, getHostnameVerifier());
 
 			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
 					.register("http", PlainConnectionSocketFactory.getSocketFactory())
@@ -93,4 +92,20 @@ public class HttpClientFactory {
 			throw new HttpCallerException("Failed to create httpclient: " + e.getMessage(), e);
 		}
 	}
+
+	public static X509HostnameVerifier getHostnameVerifier() {
+		return (X509HostnameVerifier)org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+	}
+
+
+	public static SSLContext createSSLContext() throws KeyManagementException, KeyStoreException, NoSuchAlgorithmException {
+		TrustStrategy ts = new TrustStrategy() {
+			public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+				return true;
+			}
+		};
+		return new SSLContextBuilder().loadTrustMaterial(null, ts).build();
+	}
 }
+
+

@@ -5,4 +5,5 @@ echo "commit=`git rev-parse --verify HEAD`" > ${TARGET_DIR}/csb-sdk-version.prop
 echo "build_time=`date`" >> ${TARGET_DIR}/csb-sdk-version.properties
 cat ${TARGET_DIR}/csb-sdk-version.properties
 #git log -n 1
-mvn assembly:assembly -P jdk1.6 -Dmaven.test.skip
+# -P jdk1.6
+mvn assembly:assembly -P jdk1.5 -Dmaven.test.skip -s ../settings.xml.csb-sdk 

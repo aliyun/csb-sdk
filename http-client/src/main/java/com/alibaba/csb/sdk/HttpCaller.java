@@ -12,14 +12,11 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
@@ -245,7 +242,7 @@ public class HttpCaller {
 						throw new HttpCallerException(String.format("[ERROR] CSB-SDK failed to create connection pool with %d connections", maxConn));
 					}
 				}
-				connMgr.setValidateAfterInactivity(VALIDATE_PERIOD);
+				//connMgr.setValidateAfterInactivity(VALIDATE_PERIOD);
 
 				HTTP_CLIENT = HttpClientFactory.createCloseableHttpClient(connMgr);
 
@@ -659,18 +656,8 @@ public class HttpCaller {
 		CloseableHttpClient httpClient = null;
 		if (isSSLProtocol(requestURL)) {
 			try {
-				httpClient = HttpClients.custom().setSslcontext(new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-				 	@Override
-				 	public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException 
-				 	{
-				 	 	return true;
-				 	}
-				 	 	}).build()).setSSLHostnameVerifier(new org.apache.http.conn.ssl.NoopHostnameVerifier()).build();
-			} catch (KeyManagementException e) {
-				throw new HttpCallerException(e);
-			} catch (NoSuchAlgorithmException e) {
-				throw new HttpCallerException(e);
-			} catch (KeyStoreException e) {
+				httpClient = HttpClients.custom().setSslcontext(HttpClientFactory.createSSLContext()).setHostnameVerifier(HttpClientFactory.getHostnameVerifier()).build();
+			} catch (Exception e) {
 				throw new HttpCallerException(e);
 			}
 		}else {
@@ -679,23 +666,15 @@ public class HttpCaller {
 		
 		return httpClient;
 	}
+
+	/*
 	private static CloseableHttpAsyncClient createAsyncHttpClient(String requestURL) throws HttpCallerException {
 		CloseableHttpAsyncClient httpClient = null;
 		if (isSSLProtocol(requestURL)) {
 			try {
 
-				httpClient = HttpAsyncClients.custom().setSSLHostnameVerifier(new org.apache.http.conn.ssl.NoopHostnameVerifier()).setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-
-					@Override
-					public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-						return true;
-					}
-				}).build()).build();
-			} catch (KeyManagementException e) {
-				throw new HttpCallerException(e);
-			} catch (NoSuchAlgorithmException e) {
-				throw new HttpCallerException(e);
-			} catch (KeyStoreException e) {
+				httpClient = HttpAsyncClients.custom().setSSLHostnameVerifier(HttpClientFactory.getHostnameVerifier()).setSSLContext(HttpClientFactory.createSSLContext()).build();
+			} catch (Exception e) {
 				throw new HttpCallerException(e);
 			}
 		}else {
@@ -704,6 +683,7 @@ public class HttpCaller {
 		httpClient.start();
 		return httpClient;
 	}
+	*/
 	
 	/**
 	 * 以GET的方式发送URL请求
@@ -895,7 +875,8 @@ public class HttpCaller {
 	private static String doHttpReq(String requestURL,HttpRequestBase httpRequestBase, StringBuffer sb)throws HttpCallerException {
 		boolean async = isAsync();
 		if(async){
-			return doAsyncHttpReq(requestURL, httpRequestBase, sb);
+			throw new IllegalArgumentException("Async invoke is not supportted in JDK1.5!");
+			//return doAsyncHttpReq(requestURL, httpRequestBase, sb);
 		}else {
 			return doSyncHttpReq(requestURL, httpRequestBase, sb);
 		}
@@ -953,6 +934,7 @@ public class HttpCaller {
 		}
 	}
 
+	/*
 	private static String doAsyncHttpReq(String requestURL,HttpRequestBase httpRequestBase, final StringBuffer resHttpHeaders) throws HttpCallerException {
 		if (DEBUG) {
 			HttpClientHelper.printDebugInfo("doAsyncHttpReq ");
@@ -994,6 +976,7 @@ public class HttpCaller {
 			throw new HttpCallerException(e);
 		}
 	}
+*/
 
 	/**
 	 * 使用POST方式调用HTTP服务

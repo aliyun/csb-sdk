@@ -36,16 +36,19 @@
 			<version>1.12.6</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<!--
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpasyncclient</artifactId>
 			<version>4.1</version>
 		</dependency>
+		-->
 
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.4.1</version>
+			<version>4.3.6</version>
 		</dependency>
 
 		<dependency>
@@ -77,15 +80,15 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>jdk1.6</id>
+			<id>jdk1.5</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
-				<jdk>1.6</jdk>
+				<jdk>1.5</jdk>
 			</activation>
 			<properties>
-				<maven.compiler.source>1.6</maven.compiler.source>
-				<maven.compiler.target>1.6</maven.compiler.target>
-				<maven.compiler.compilerVersion>1.6</maven.compiler.compilerVersion>
+				<maven.compiler.source>1.5</maven.compiler.source>
+				<maven.compiler.target>1.5</maven.compiler.target>
+				<maven.compiler.compilerVersion>1.5</maven.compiler.compilerVersion>
 			</properties>
 		</profile>
 	</profiles>
