@@ -3,6 +3,7 @@ package com.alibaba.csb.sdk;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 /**
  * Http Parameters 参数构造器，使用(Builder)模式构造http调用的所有参数
@@ -14,6 +15,7 @@ import java.util.Map.Entry;
  *
  */
 public class HttpParameters {
+	private static final Random random = new Random(System.currentTimeMillis());
 	private Builder builder;
 
 	String getApi() {
@@ -48,13 +50,16 @@ public class HttpParameters {
 		return builder.restfulProtocolVersion;
 	}
 	
-
 	Map<String, String> getParamsMap() {
 		return builder.paramsMap;
 	}
 	
 	Map<String, String> getHeaderParamsMap() {
 		return builder.headerParamsMap;
+	}
+
+	boolean isNonce() {
+		return builder.nonce;
 	}
 
 	/**
@@ -69,7 +74,7 @@ public class HttpParameters {
 		sb.append("\n accessKey=").append(this.getAccessKey());
 		sb.append("\n secretKey=").append("*********"); // hide this secret key!
 		sb.append("\n contentBody=").append(this.getContentBody());
-
+		sb.append("\n Nonce=").append(this.isNonce());
 		sb.append("\n params: \n");
 		for (Entry<String, String> entry : builder.paramsMap.entrySet()) {
 			sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
@@ -95,6 +100,7 @@ public class HttpParameters {
 		private String method = "GET";
 		private ContentBody contentBody = null;
 		private String requestUrl;
+		private boolean nonce;
 		private Map<String, String> paramsMap = new HashMap<String, String>();
 		private Map<String, String> headerParamsMap = new HashMap<String, String>();
 
@@ -163,6 +169,17 @@ public class HttpParameters {
 		}
 
 		/**
+		 *
+		 * @param nonceFlag, 是否生成nonce header
+		 * @return
+		 */
+		public Builder nonce(boolean nonceFlag) {
+			this.nonce = nonceFlag;
+
+			return this;
+		}
+
+		/**
 		 * 设置HTTP请求的URL串
 		 * @param url
 		 * @return
@@ -197,8 +214,12 @@ public class HttpParameters {
 		 * @param map
 		 * @return
 		 */
-		public Builder putParamsMapAll(HashMap<String, String> map) {
-			this.paramsMap.putAll(map);
+		public Builder putParamsMapAll(Map<String, String> map) {
+			if (map != null) {
+				this.paramsMap.putAll(map);
+			} else {
+				throw new IllegalArgumentException("empty map!!");
+			}
 			return this;
 		}
 		
@@ -227,14 +248,18 @@ public class HttpParameters {
 		 * @param map
 		 * @return
 		 */
-		public Builder putHeaderParamsMapAll(HashMap<String, String> map) {
-			this.headerParamsMap.putAll(map);
+		public Builder putHeaderParamsMapAll(Map<String, String> map) {
+			if (map != null) {
+				this.headerParamsMap.putAll(map);
+			} else {
+				throw new IllegalArgumentException("empty map!!");
+			}
 			return this;
 		}
 		
 		/**
 		 * 设置contentBody
-		 * @param ContentBody
+		 * @param cb
 		 * @return
 		 */
 		public Builder contentBody(ContentBody cb) {

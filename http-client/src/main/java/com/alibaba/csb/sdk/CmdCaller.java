@@ -100,6 +100,13 @@ public class CmdCaller {
 
 			if (headerProp != null) {
 				for (Entry<Object, Object> kv : headerProp.entrySet()) {
+					if ("NONCE".equalsIgnoreCase(String.valueOf(kv.getKey()))) {
+						//设置nonce flag
+						if("true".equalsIgnoreCase(String.valueOf(kv.getValue()))) {
+							System.out.println("---- set nonce as true ");
+							builder.nonce(true);
+						}
+					}
 					System.out.println("---- put http header " + (String) kv.getKey() + ":" + (String) kv.getValue());
 					builder.putHeaderParamsMap((String) kv.getKey(), (String) kv.getValue());
 				}

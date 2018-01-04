@@ -1,5 +1,6 @@
 settings.xml.csb-sdk
 target
+web-sdk
 doc
 # Package Files #
 *.jar

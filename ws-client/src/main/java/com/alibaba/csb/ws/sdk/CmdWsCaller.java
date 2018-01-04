@@ -1,18 +1,10 @@
 package com.alibaba.csb.ws.sdk;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
-import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
-import javax.xml.ws.Service;
-import javax.xml.ws.soap.SOAPBinding;
 
 import com.alibaba.csb.sdk.CommUtil;
 import org.apache.commons.cli.CommandLine;
@@ -51,10 +43,7 @@ public class CmdWsCaller {
 	/**
 	 * 使用Dispatch方式发送soap请求调用WS
 	 * 
-	 * @param ak
-	 * @param sk
-	 * @param api
-	 * @param version
+	 * @param params
 	 * @param ns
 	 * @param sname
 	 * @param pname
@@ -64,49 +53,16 @@ public class CmdWsCaller {
 	 * @param reqSoap
 	 * @throws Exception
 	 */
-	private static void invokeWithDispath(String ak, String sk, String api, String version, String ns, String sname,
+	private static void invokeWithDispath(WSParams params, String ns, String sname,
 			String pname, boolean isSoap12, String wa, String ea, String reqSoap) throws Exception {
-		// Service Qname as defined in the WSDL.
-		QName serviceName = new QName(ns, sname);
-
-		// Port QName as defined in the WSDL.
-		QName portName = new QName(ns, pname);
-
-		// Create a dynamic Service instance
-		Service service = Service.create(serviceName);
-
-		// Add a port to the Service
-		SOAPMessage request = null;
-		InputStream is = new ByteArrayInputStream(reqSoap.getBytes());
-		if (!isSoap12) {
-			service.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, wa);
-			// covert string to soap message
-			request = MessageFactory.newInstance().createMessage(null, is);
-		} else {
-			service.addPort(portName, SOAPBinding.SOAP12HTTP_BINDING, wa);
-			request = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL).createMessage(null, is);
-		}
-
-		// Create a dispatch instance
-		Dispatch<SOAPMessage> dispatch = service.createDispatch(portName, SOAPMessage.class, Service.Mode.MESSAGE);
-
-		BindingProvider bp = (BindingProvider) dispatch;
-		bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, ea);
-
-		// 使用SDK给dispatch设置 ak和sk !!!
-		if (ak != null) {
-		  dispatch = WSClientSDK.bind(dispatch, ak, sk, api, version, true);
-		}else  {
-			//TODO: print a log, not sign the request header with ak/sk
-			System.out.println("-- ignore signature process due to ak/sk are not defined");
-		}
-
-		// Invoke the endpoint synchronously
-		// Invoke endpoint operation and read response
+		Dispatch<SOAPMessage> dispatch = WSInvoker.createDispatch(params, ns, sname, pname, isSoap12, wa, ea);
+		SOAPMessage request = WSInvoker.createSOAPMessage(isSoap12, reqSoap);
 		SOAPMessage reply = dispatch.invoke(request);
 
-		if (reply != null)
-			System.out.println("\n-- 调用返回:\n" + DumpSoapUtil.dumpSoapMessage(reply));
+		String response = DumpSoapUtil.dumpSoapMessage(reply);
+
+		if (response != null)
+			System.out.println("\n-- 调用返回:\n" + response);
 		else
 			System.out.println("\n-- 调用返回为空");
 		
@@ -134,6 +90,7 @@ public class CmdWsCaller {
 		opt.addOption("sname", "serviceName", true, "在wsdl中定义的服务名");
 		opt.addOption("pname", "portName", true, "在wsdl中定义的端口名");
 		opt.addOption("soap12", false, "-soap12 为soap12调用, 不定义为soap11");
+		opt.addOption("nonce", false, "-nonce 是否做nonce防重放处理，不定义为不做nonce重放处理");
 		opt.addOption("h", "help", false, "打印帮助信息");
 		opt.addOption("d", "debug", false, "打印调试信息");
 		opt.addOption("rf", true, "soap请求文件，文件里存储soap请求的Message格式内容");
@@ -161,6 +118,7 @@ public class CmdWsCaller {
 			String rf = commandline.getOptionValue("rf");
 			String rd = commandline.getOptionValue("rd");
 			boolean isSoap12 = commandline.hasOption("soap12");
+			boolean nonce = commandline.hasOption("nonce");
 			isDebug = commandline.hasOption("d");
 
 			if (isDebug) {
@@ -170,6 +128,7 @@ public class CmdWsCaller {
 				System.out.println("api=" + api);
 				System.out.println("version=" + version);
 				System.out.println("isSoap12=" + isSoap12);
+				System.out.println("nonce=" + nonce);
 				System.out.println("wa=" + wa);
 				System.out.println("ea=" + ea);
 				System.out.println("ns=" + ns);
@@ -193,7 +152,8 @@ public class CmdWsCaller {
 				print(true, "-- 操作失败：文件%s请求报文为空", rf);
 				return;
 			}
-			invokeWithDispath(ak, sk, api, version, ns, sname, pname, isSoap12, wa, ea, reqData);
+			WSParams params = WSParams.create().accessKey(ak).secretKey(sk).api(api).version(version).nonce(nonce);
+			invokeWithDispath(params, ns, sname, pname, isSoap12, wa, ea, reqData);
 		} catch (Exception e) {
 			System.out.println("-- 操作失败：" + e.getMessage());
 			if (isDebug)

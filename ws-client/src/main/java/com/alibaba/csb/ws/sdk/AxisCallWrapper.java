@@ -52,6 +52,11 @@ public class AxisCallWrapper extends org.apache.axis.client.Call {
 	private String apiName;
 	private String apiVersion;
 	private String fingerStr;
+	private boolean nonce;
+
+	public void setNonce(boolean nonce) {
+		this.nonce = nonce;
+	}
 
 	public static org.apache.axis.client.Call createCallWrapper(org.apache.axis.client.Service service, String ak,
 			String sk, String api, String apiVersion) {
@@ -62,7 +67,6 @@ public class AxisCallWrapper extends org.apache.axis.client.Call {
 		call.apiVersion = apiVersion;
 		//TODO: fingerStr 可以根据自己的安全需要进行动态生成
 		call.fingerStr = "axisCaller";
-
 		return call;
 	}
 

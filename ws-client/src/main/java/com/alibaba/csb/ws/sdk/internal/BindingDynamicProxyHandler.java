@@ -1,5 +1,7 @@
 package com.alibaba.csb.ws.sdk.internal;
 
+import com.alibaba.csb.ws.sdk.WSParams;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -34,13 +36,6 @@ public class BindingDynamicProxyHandler implements InvocationHandler {
 		return (T) Proxy.newProxyInstance(business.getClass().getClassLoader(), ics, this);
 	}
 	
-	public void setASK(String ak, String sk, String apiName, String apiVersion, boolean dumpHeaders) {
-		interceptor.setASK(ak, sk);
-		interceptor.setApiName(apiName);
-		interceptor.setApiVersion(apiVersion);
-		interceptor.setDumpHeaders(dumpHeaders);
-	}
-
 	public void setMock(boolean isMock) {
 		interceptor.setMock(isMock);
 	}
@@ -55,5 +50,9 @@ public class BindingDynamicProxyHandler implements InvocationHandler {
 			interceptor.after(proxy1);
 		}
 		return result;
+	}
+
+	public void setParams(WSParams params) {
+		interceptor.setWSParams(params);
 	}
 }
