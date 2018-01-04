@@ -11,7 +11,7 @@
  <dependency>
    <groupId>com.alibaba.csb.sdk</groupId>
    <artifactId>ws-client</artifactId>
-   <version>1.1.0</version>
+   <version>1.1.4</version>
  </dependency>
  ```
 
@@ -38,6 +38,10 @@ String	sk	=	"xxxxx";
 String	apiName	=	xx;
 String	apiVersion	=	xx;
 proxy	=	WSClientSDK.bind(proxy,	ak,	sk,	apiName, apiVersion);
+//或者设置WSParams参数， SDK1.1.4以后
+WSParams params = WSParams.create().accessKey(ak).secretKey(sk).api(apiName).version(version).nonce(true);
+proxy	=	WSClientSDK.bind(proxy,	params);
+
 //使用返回的Proxy，调用客户端方法
 Response	response	=	proxy.method1(...);	
 …
@@ -92,6 +96,7 @@ usage: java -jar wsclient.jar [options...]
  -sk <arg>                    secretKey
  -sname,--serviceName <arg>   在wsdl中定义的服务名
  -soap12                      -soap12 为soap12调用, 不定义为soap11
+ -nonce                       如果设置则进行防止重放
  -version <arg>               服务版本
  -wa <arg>                    wsdl地址，e.g:
                               http://broker-ip:9081/api/version/method?wsdl
@@ -106,7 +111,7 @@ TIP: 如何从已知的WSDL中确定上述调用参数
 ### 4.2 命令行使用例子
 
 ```
-java -jar target/ws-client-1.0.4.4-SNAPSHOT.jar  -ak ak -sk sk -api PING -version vcsb \
+java -jar target/ws-client-1.1.4-SNAPSHOT.jar  -ak ak -sk sk -api PING -version vcsb \
   -wa http://11.239.187.178:9081/PING/vcsb/ws2restful?wsdl \
   -ea http://11.239.187.178:9081/PING/vcsb/ws2restful \
   -ns http://ws2restful.PING.csb/ -sname PING -pname ws2restfulPortType \
@@ -138,6 +143,7 @@ _api_name:api-name
 _api_version:1.0.0
 _api_timestamp:1473042916741
 _api_fingerprint:sayComplex
+_api_nonce:12121212    //注意： SDK 1.1.4后支持， 防止重放处理
 _api_signature:AAAF/e2Scg/vv6PWRl1X/0RgRcQ=
 mock_response:true [可选]
 ```
@@ -167,6 +173,7 @@ com.alibaba.csb.ws.sdk.AxisCallWrapper类的介绍
    Service service = new Service();
    // 首先，构造封装Call对象
    Call call = AxisCallWrapper.createCallWrapper(service, ak, sk, apiName, apiVersion); 
+   或者使用WSParams进行参数设置
    
    // 然后，使用封装Call对象进行方法调用
    call.setTargetEndpointAddress("http://localhost:9081/PING/vcsb.ws/ws2ws");

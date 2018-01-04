@@ -18,7 +18,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 <dependency>
   <groupId>com.alibaba.csb.sdk</groupId>
   <artifactId>http-client</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.4</version>
 </dependency>
 ```
 
@@ -28,7 +28,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 
 ```
-java [sys-props] -jar http-sdk-1.0.4.2plus.jar method url api version [ak sk]
+java [sys-props] -jar http-sdk-1.1.4.jar method url api version [ak sk]
 ```
 
 参数取值说明:
@@ -104,6 +104,9 @@ data2=value2
    //设置透传的HTTP Headers
    builder.putHeaderParamsMap("header1", "value1");
    builder.putHeaderParamsMap("header2", "value2");
+   
+   //设置是否生成防重放Nonce, 默认值是false, 这个功能在 SDK1.1.4及Broker 1.1.2后支持
+   builder.nonce(true);
       
    //进行调用 返回结果
    String result = null;
