@@ -47,7 +47,7 @@ public class CmdCallerTest {
 
 	@Test
 	public void testCPost() {
-		CmdCaller.main(new String[] { "cpost", "http://abc:123?a=b&c=abc", "testpost", "1.0.0", "ak", "sk" });
+		CmdCaller.main(new String[] { "cpost", "http://abc:123?a=b&c=abc", "testpost", "1.0.0", "ak", "sk","abc" });
 	}
 
 	@Test
