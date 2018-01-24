@@ -5,12 +5,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.http.NameValuePair;
@@ -36,7 +31,6 @@ import com.alibaba.csb.sdk.HttpCallerException;
  *
  */
 public class HttpClientHelper {
-
 	public static void printDebugInfo(String msg) {
 		if (HttpCaller.DEBUG)
 			System.out.println(msg);
@@ -53,59 +47,19 @@ public class HttpClientHelper {
 		}
 	}
 
-
+	/**
+	 * 根据输入的参数，关键值和扩展签名头列表 生成签名并返回最终的签名头列表
+	 * @param paramsMap
+	 * @param apiName
+	 * @param version
+	 * @param accessKey
+	 * @param securityKey
+	 * @param extSignHeaders 放在extSignHeaders里的kv都参与签名
+	 * @return
+	 */
 	public static Map<String, String> newParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
-			String accessKey, String securityKey) {
-		Map<String, List<String>> newParamsMap = new HashMap<String, List<String>>();
-		Map<String, String> headerParamsMap = new HashMap<String, String>();
-
-		if (paramsMap != null) {
-			newParamsMap.putAll(paramsMap);
-		}
-
-		// put apiName
-		if (apiName != null) {
-			newParamsMap.put(CsbSDKConstants.API_NAME_KEY, Arrays.asList(apiName));
-			headerParamsMap.put(CsbSDKConstants.API_NAME_KEY, apiName);
-		}
-		// put version
-		if (version != null) {
-			newParamsMap.put(CsbSDKConstants.VERSION_KEY, Arrays.asList(version));
-			headerParamsMap.put(CsbSDKConstants.VERSION_KEY, version);
-		}
-
-		// put timestamp
-		long ts = System.currentTimeMillis();
-		newParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, Arrays.asList(String.valueOf(ts)));
-		headerParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, String.valueOf(ts));
-
-		// last step, put accessKey & the generated signature
-		if (accessKey != null) {
-			headerParamsMap.put(CsbSDKConstants.ACCESS_KEY, accessKey);
-			newParamsMap.put(CsbSDKConstants.ACCESS_KEY, Arrays.asList(accessKey));
-			// ensure the signature and security are not sent !!
-			newParamsMap.remove(CsbSDKConstants.SIGNATURE_KEY);
-			newParamsMap.remove(CsbSDKConstants.SECRET_KEY);
-			long currT = System.currentTimeMillis();
-			String signKey = SignUtil.signMultiValueParams(newParamsMap, securityKey);
-			if (HttpCaller.DEBUG) {
-				System.out.println("sign parameters:");
-				boolean first = true;
-				for (String key:newParamsMap.keySet()) {
-					if (!first) {
-					  System.out.print(",");
-					}
-					System.out.print(key);
-					first = false;
-					
-				}
-				System.out.println("  == signature:" + signKey +  
-						" costs time =" + (System.currentTimeMillis() - currT)+ "ms");
-			}
-			headerParamsMap.put(CsbSDKConstants.SIGNATURE_KEY, signKey);
-		}
-
-		return headerParamsMap;
+			String accessKey, String securityKey, boolean nonceFlag,  Map<String, String> extSignHeaders) {
+		return SignUtil.newParamsMap(paramsMap, apiName, version, accessKey, securityKey, nonceFlag, extSignHeaders);
 	}
 
 	public static String trimUrl(String requestURL) {

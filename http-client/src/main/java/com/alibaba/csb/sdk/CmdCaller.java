@@ -17,11 +17,11 @@ import java.util.Properties;
  * 
  */
 public class CmdCaller {
-	private static final String SDK_VERSION = "1.0.4.2+";
+	private static final String SDK_VERSION = "1.1.4";
 
 	private static void usage() {
 		System.out
-				.println("Usage: java [-Dhfile=headers.prop] [-Ddfile=d.txt] -jar Http-client.jar method url apiName version [ak sk]");
+				.println("[Deprecated!] Usage: java [-Dhfile=headers.prop] [-Ddfile=d.txt] -jar Http-client.jar method url apiName version [ak sk]");
 		System.out.println("   method = get   :  call url with GET method ");
 		System.out.println("   method = post  :  call url with POST method ");
 		System.out.println("   method = cget  :  return curl request string with GET method,  ");
@@ -34,6 +34,9 @@ public class CmdCaller {
 		System.out.println("     data2=value2");
 		System.out.println("     ");
 		System.out.println("   print current SDK version: java -jar Http-client.jar -v ");
+		System.out.println("----------------------------");
+		System.out.println("Please use this recommend command line:");
+		CmdHttpCaller.usage();
 	}
 
 
@@ -100,6 +103,13 @@ public class CmdCaller {
 
 			if (headerProp != null) {
 				for (Entry<Object, Object> kv : headerProp.entrySet()) {
+					if ("NONCE".equalsIgnoreCase(String.valueOf(kv.getKey()))) {
+						//设置nonce flag
+						if("true".equalsIgnoreCase(String.valueOf(kv.getValue()))) {
+							System.out.println("---- set nonce as true ");
+							builder.nonce(true);
+						}
+					}
 					System.out.println("---- put http header " + (String) kv.getKey() + ":" + (String) kv.getValue());
 					builder.putHeaderParamsMap((String) kv.getKey(), (String) kv.getValue());
 				}

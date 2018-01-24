@@ -15,6 +15,7 @@ import javax.xml.ws.handler.MessageContext;
 //import org.apache.cxf.jaxb.JAXBDataBinding;
 import static com.alibaba.csb.sdk.CsbSDKConstants.*;
 import com.alibaba.csb.ws.sdk.WSClientException;
+import com.alibaba.csb.ws.sdk.WSParams;
 
 /**
  * Client invocation Interceptor, to set security related info into RequestContext of binding
@@ -26,39 +27,17 @@ public class BindingInterceptor {
 	//-Dws.sdk.headers.insoap=true is kept for backwards compatible 
 	private static boolean HEADERS_INSOAP = Boolean.getBoolean("ws.sdk.headers.insoap");
 	private static boolean SKIP_SIGN_APINAME = Boolean.getBoolean("ws.sdk.skip.sign.apiname");
-	private String accessKey;
-	private String secretKey;
-	private String apiName;
-	private String apiVersion;
-	private boolean dumpHeaders;
-	private boolean isMock;
 
 	private List<Handler> handlers;
 	private Handler shh;
+	private WSParams wsparams = WSParams.create();
 
 	/* packaged */ BindingInterceptor() {
 
 	}
 
-	/* packaged */ void setASK(String ak, String sk) {
-		accessKey = ak;
-		secretKey = sk;
-	}
-
-	/* packaged */ void setMock(boolean isMock) {
-		this.isMock = isMock;
-	}
-	
-	/* packaged */ void setApiName(String apiName) {
-		this.apiName = apiName;
-	}	
-	
-	/* packaged */ void setDumpHeaders(boolean dumpHeaders) {
-		this.dumpHeaders = dumpHeaders;
-	}
-	
-	/* packaged */ void setApiVersion(String apiVersion) {
-		this.apiVersion = apiVersion;
+	public void setMock(boolean mock) {
+		wsparams.mockRequest(mock);
 	}
 
 	/* packaged */ List<Handler> before(Object proxy, String fingerStr) throws JAXBException {
@@ -66,15 +45,15 @@ public class BindingInterceptor {
 		if (!(proxy instanceof BindingProvider)) {
 			throw new WSClientException("proxy is not a legal soap client, can not do the interceptor");
 		}
-		if (SKIP_SIGN_APINAME) {
-			apiName = null;
+		if (wsparams!=null && SKIP_SIGN_APINAME) {
+			wsparams.api(null);
 		}
 		// put security info into http request headers for over-proxy invocation
-		setSecrectHeaders((BindingProvider)proxy, accessKey, secretKey, apiName, apiVersion, fingerStr, isMock, dumpHeaders);
+		setSecrectHeaders((BindingProvider)proxy, wsparams, fingerStr);
 
 		// skip this soap header logic
 		if (HEADERS_INSOAP) {
-			shh = new SOAPHeaderHandler(accessKey, secretKey, apiName, apiVersion, fingerStr, isMock, dumpHeaders);
+			shh = new SOAPHeaderHandler(wsparams, fingerStr);
 
 			BindingProvider bp = (BindingProvider) proxy;
 			handlers = bp.getBinding().getHandlerChain();
@@ -92,7 +71,7 @@ public class BindingInterceptor {
 
 	}
 
-	private void setSecrectHeaders(BindingProvider proxy, String accessKey, String secretKey, String apiName, String apiVersion, String fingerStr, boolean isMock, boolean dumpHeaders) {
+	private void setSecrectHeaders(BindingProvider proxy, WSParams params, String fingerStr) {
 		//Add HTTP request Headers
 		Map<String, List<String>> requestHeaders = (Map<String, List<String>>)proxy.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
 		
@@ -100,7 +79,7 @@ public class BindingInterceptor {
 			requestHeaders = new HashMap<String, List<String>>();
 		}
 		
-		Map<String, List<String>> secHeaders = SOAPHeaderHandler.genSecrectHeaders(accessKey, secretKey, apiName, apiVersion, fingerStr, isMock, dumpHeaders);
+		Map<String, List<String>> secHeaders = SOAPHeaderHandler.genSecrectHeaders(params, fingerStr);
 		requestHeaders.putAll(secHeaders);
 		/*
 		if (dumpHeaders) {
@@ -128,5 +107,9 @@ public class BindingInterceptor {
 
 			bp.getBinding().setHandlerChain(handlers);
 		}
+	}
+
+	public void setWSParams(WSParams wsparams) {
+		this.wsparams = wsparams;
 	}
 }

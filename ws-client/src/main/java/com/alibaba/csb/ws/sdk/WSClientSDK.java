@@ -87,12 +87,21 @@ public class WSClientSDK {
 	public static <T> T bind(T proxy, String accessKey, String secretKey) throws WSClientException {
 		return bind(proxy, accessKey, secretKey, null, null);
 	}
+
+	public static <T> T bind(T proxy, WSParams params) throws WSClientException {
+		validateProxy(proxy);
+
+		BindingDynamicProxyHandler handler = getHandler((BindingProvider)proxy);
+		handler.setParams(params);
+		return handler.bind(proxy);
+	}
 	
 	public static <T> T bind(T proxy, String accessKey, String secretKey, String apiName, String apiVersion, boolean printHeaders) throws WSClientException {
 		validateProxy(proxy);
 		
 		BindingDynamicProxyHandler handler = getHandler((BindingProvider)proxy);
-		handler.setASK(accessKey, secretKey, apiName, apiVersion, printHeaders);
+		WSParams params = WSParams.create().accessKey(accessKey).secretKey(secretKey).api(apiName).version(apiVersion).debug(printHeaders);
+		handler.setParams(params);
 		return handler.bind(proxy);
 	}
 	
@@ -159,11 +168,12 @@ public class WSClientSDK {
 	 * @param fingerStr    指纹串
 	 * @param timestamp    时间戳
 	 * @return             根据输入参数信息生成的签名串
+	 *
 	 */
 	public static String genSignature(String ak, String sk, String apiName, String apiVersion,  String fingerStr, long timestamp) {
 		return SOAPHeaderHandler.generateSignature(ak, sk, apiName, apiVersion, fingerStr, String.valueOf(timestamp));
 	}
-	
+
 	/**
 	 * <pre>
 	 * 设置安全相关的headers到MimeHeaders对象内，以便在调用的时候传递该http header信息

@@ -537,13 +537,11 @@ public class HttpCaller {
 	 */
 	public static String doGet(String requestURL, String apiName, String version, Map<String, String> paramsMap,
 			String accessKey, String secretKey) throws HttpCallerException {
-		return doGet(requestURL, apiName, version, paramsMap, accessKey, secretKey, null);
-	}
+		HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
+				.accessKey(accessKey).secretKey(secretKey)
+				.build();
 
-
-	private static String doGet(String requestURL, String apiName, String version, Map<String, String> paramsMap,
-								String accessKey, String secretKey, Map<String, String> directParamsMap) throws HttpCallerException {
-		return doGet(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null, null);
+		return doGet(hp, null, null);
 	}
 
 	private static String generateAsEncodeRequestUrl(String requestURL, Map<String, List<String>> urlParamsMap) {
@@ -570,9 +568,19 @@ public class HttpCaller {
 		HttpClientHelper.printDebugInfo("-- requestURL=" + newRequestURL);
 		return newRequestURL;
 	}
-	
-	private static String doGet(String requestURL, String apiName, String version, Map<String, String> paramsMap,
-			String accessKey, String secretKey, Map<String, String> directParamsMap, String restfulProtocolVersion, StringBuffer resHttpHeaders) throws HttpCallerException {
+
+	private static String doGet(HttpParameters hp, StringBuffer resHttpHeaders, Map<String, String> extSignHeadersMap) throws HttpCallerException {
+		final String requestURL = hp.getRequestUrl();
+		String apiName = hp.getApi();
+		String version = hp.getVersion();
+		Map<String, String> paramsMap = hp.getParamsMap();
+		ContentBody cb = hp.getContentBody();
+		String accessKey = hp.getAccessKey();
+		String secretKey = hp.getSecretkey();
+		Map<String, String> directParamsMap = hp.getHeaderParamsMap();
+		String restfulProtocolVersion = hp.getRestfulProtocolVersion();
+		boolean nonceFlag = hp.isNonce();
+
 		long startT = System.currentTimeMillis();
 		long initT = startT;
 		HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
@@ -586,7 +594,7 @@ public class HttpCaller {
 		startProcessRestful(requestURL, restfulProtocolVersion, urlParamsMap);
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey);
+				secretKey, hp.isNonce() , extSignHeadersMap);
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
@@ -813,45 +821,30 @@ public class HttpCaller {
 	 */
 	public static String doPost(String requestURL, String apiName, String version, ContentBody cb, String accessKey,
 			String secretKey) throws HttpCallerException {
-		return doPost(requestURL, apiName, version, null, cb, accessKey, secretKey, null);
+		HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version)
+				.contentBody(cb).accessKey(accessKey).secretKey(secretKey)
+				.build();
+		return doPost(hp, null, null);
 	}
 
 	/**
 	 * 所有doPost的真正入口参数，httppost逻辑集成在这个方法中
-	 * @param requestURL
-	 * @param apiName
-	 * @param version
-	 * @param paramsMap
-	 * @param cb
-	 * @param accessKey
-	 * @param secretKey
-	 * @param directHheaderParamsMap 透传的header, 这些http header直接透传给后端的接入服务，不参与签名认证
-	 * @return
-	 * @throws HttpCallerException
-	 */
-	private static String doPost(final String requestURL, String apiName, String version, Map<String, String> paramsMap,
-								 ContentBody cb, String accessKey, String secretKey, Map<String, String> directHheaderParamsMap) throws HttpCallerException {
-		return doPost(requestURL, apiName, version, paramsMap, cb, accessKey, secretKey, directHheaderParamsMap, null, null);
-	}
-
-	/**
-	 * 所有doPost的真正入口参数，httppost逻辑集成在这个方法中
-	 * @param requestURL
-	 * @param apiName
-	 * @param version
-	 * @param paramsMap
-	 * @param cb
-	 * @param accessKey
-	 * @param secretKey
-	 * @param directHheaderParamsMap 透传的header, 这些http header直接透传给后端的接入服务，不参与签名认证
-	 * @param restfulProtocolVersion 区分是否是restful 协议调用，1.0标示restful调用
 	 * @param resHttpHeaders 是否返回http reponse headers, 如果请求参数不为空，会出现 {"_HTTP_HEADERS":[{"key":"value"}]}返回部分
 	 * @return
 	 * @throws HttpCallerException
 	 */
-	private static String doPost(final String requestURL, String apiName, String version, Map<String, String> paramsMap,
-			ContentBody cb, String accessKey, String secretKey, Map<String, String> directHheaderParamsMap, 
-			String restfulProtocolVersion, StringBuffer resHttpHeaders) throws HttpCallerException {
+	private static String doPost(HttpParameters hp, StringBuffer resHttpHeaders, Map<String, String> extSignHeadersMap) throws HttpCallerException {
+		final String requestURL = hp.getRequestUrl();
+		String apiName = hp.getApi();
+		String version = hp.getVersion();
+		Map<String, String> paramsMap = hp.getParamsMap();
+		ContentBody cb = hp.getContentBody();
+		String accessKey = hp.getAccessKey();
+		String secretKey = hp.getSecretkey();
+		Map<String, String> directHheaderParamsMap = hp.getHeaderParamsMap();
+		String restfulProtocolVersion = hp.getRestfulProtocolVersion();
+		boolean nonceFlag = hp.isNonce();
+
 		long startT = System.currentTimeMillis();
 		HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
 
@@ -862,7 +855,7 @@ public class HttpCaller {
 		startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey);
+				secretKey, nonceFlag, extSignHeadersMap);
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
@@ -1018,7 +1011,10 @@ public class HttpCaller {
 	 */
 	public static String doPost(String requestURL, String apiName, String version, Map<String, String> paramsMap,
 			String accessKey, String secretKey) throws HttpCallerException {
-		return doPost(requestURL, apiName, version, paramsMap, null, accessKey, secretKey, null);
+		HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
+				.accessKey(accessKey).secretKey(secretKey)
+				.build();
+		return doPost(hp, null, null);
 	}
 	
 	/**
@@ -1035,16 +1031,13 @@ public class HttpCaller {
 		HttpClientHelper.printDebugInfo("-- httpParameters=" + hp.toString());
 
 		hp.validate();
+		Map<String, String> extSignHeaders = new HashMap<String, String>();
 
 		if ("POST".equalsIgnoreCase(hp.getMethod()) ||
 				"CPOST".equalsIgnoreCase(hp.getMethod())) {
-			return doPost(hp.getRequestUrl(), hp.getApi(), hp.getVersion(), hp.getParamsMap(), hp.getContentBody(),
-					hp.getAccessKey(), hp.getSecretkey(), hp.getHeaderParamsMap(), hp.getRestfulProtocolVersion(), 
-					resHttpHeaders);
+			return doPost(hp, resHttpHeaders, extSignHeaders);
 		} else
-			return doGet(hp.getRequestUrl(), hp.getApi(), hp.getVersion(), hp.getParamsMap(), hp.getAccessKey(),
-					hp.getSecretkey(), hp.getHeaderParamsMap(), hp.getRestfulProtocolVersion(), 
-					resHttpHeaders);
+			return doGet(hp,resHttpHeaders, extSignHeaders);
 	}
 
 	/**
