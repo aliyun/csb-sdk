@@ -1,6 +1,7 @@
 package com.alibaba.csb.ws.sdk;
 
 import javax.xml.soap.MimeHeaders;
+import java.util.Map;
 
 /**
  * <pre>
@@ -47,26 +48,36 @@ import javax.xml.soap.MimeHeaders;
  *
  */
 public class AxisCallWrapper extends org.apache.axis.client.Call {
-	private String ak;
-	private String sk;
-	private String apiName;
-	private String apiVersion;
-	private String fingerStr;
-	private boolean nonce;
+	private WSParams params;
 
-	public void setNonce(boolean nonce) {
-		this.nonce = nonce;
-	}
-
+	/**
+	 *
+	 * @param service
+	 * @param ak
+	 * @param sk
+	 * @param api
+	 * @param apiVersion
+	 * @return
+	 *
+	 * @deprecated use WSParams as the requet parameter
+	 */
 	public static org.apache.axis.client.Call createCallWrapper(org.apache.axis.client.Service service, String ak,
 			String sk, String api, String apiVersion) {
 		AxisCallWrapper call = new AxisCallWrapper(service);
-		call.ak = ak;
-		call.sk = sk;
-		call.apiName = api;
-		call.apiVersion = apiVersion;
-		//TODO: fingerStr 可以根据自己的安全需要进行动态生成
-		call.fingerStr = "axisCaller";
+		call.params = WSParams.create();
+		call.params.api(api);
+		call.params.version(apiVersion);
+		call.params.accessKey(ak);
+		call.params.secretKey(sk);
+		call.params.timestamp(true);
+		call.params.fingerPrinter("axisCaller");
+
+		return call;
+	}
+
+	public static org.apache.axis.client.Call createCallWrapper(org.apache.axis.client.Service service, WSParams params) {
+		AxisCallWrapper call = new AxisCallWrapper(service);
+		call.params = params;
 		return call;
 	}
 
@@ -80,6 +91,18 @@ public class AxisCallWrapper extends org.apache.axis.client.Call {
 
 		//每次调用时，将安全相关的信息放到soap请求的http header里
 		MimeHeaders mimeHeaders = msg.getMimeHeaders();
-		WSClientSDK.addHttpHeaders(mimeHeaders, ak, sk, apiName, apiVersion, fingerStr, System.currentTimeMillis());
+		addHttpHeaders(mimeHeaders, params);
+	}
+
+	private boolean addHttpHeaders(MimeHeaders mimeHeaders, WSParams params) {
+		if (mimeHeaders != null) {
+			Map<String, String> headers =WSClientSDK.generateSignHeaders(params);
+			for(Map.Entry<String,String> kv:headers.entrySet()) {
+				mimeHeaders.addHeader(kv.getKey(), kv.getValue());
+			}
+			return true;
+		}
+
+		return false;
 	}
 }

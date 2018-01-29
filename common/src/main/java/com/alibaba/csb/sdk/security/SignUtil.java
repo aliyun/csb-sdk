@@ -88,9 +88,6 @@ public class SignUtil {
         return SpasSigner.sign(paramNodeList, secretKey);
     }
 
-
-
-
 	/**
 	 * 根据输入的参数，关键值和扩展签名头列表 生成签名并返回最终的签名头列表
 	 * @param paramsMap
@@ -98,11 +95,13 @@ public class SignUtil {
 	 * @param version
 	 * @param accessKey
 	 * @param securityKey
+	 * @param timestampFlag
 	 * @param extSignHeaders 放在extSignHeaders里的kv都参与签名
 	 * @return
 	 */
 	public static Map<String, String> newParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
-																								 String accessKey, String securityKey, boolean nonceFlag, Map<String, String> extSignHeaders) {
+																								 String accessKey, String securityKey, boolean timestampFlag, boolean nonceFlag,
+																								 Map<String, String> extSignHeaders) {
 		Map<String, List<String>> newParamsMap = new HashMap<String, List<String>>();
 		Map<String, String> headerParamsMap = new HashMap<String, String>();
 
@@ -140,8 +139,10 @@ public class SignUtil {
 		}
 
 
-		newParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, Arrays.asList(timestampStr));
-		headerParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, timestampStr);
+		if (timestampFlag) {
+			newParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, Arrays.asList(timestampStr));
+			headerParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, timestampStr);
+		}
 
 		if (extSignHeaders != null) {
 			for(Map.Entry<String,String> kv:extSignHeaders.entrySet()) {

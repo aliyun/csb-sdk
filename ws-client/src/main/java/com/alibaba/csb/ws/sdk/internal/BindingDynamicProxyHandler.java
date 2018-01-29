@@ -43,7 +43,7 @@ public class BindingDynamicProxyHandler implements InvocationHandler {
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		Object result = null;
-		interceptor.before(proxy1, method.getName());
+		interceptor.before(proxy1);
 		try {
 			result = method.invoke(proxy1, args);
 		} finally {

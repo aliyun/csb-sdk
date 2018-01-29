@@ -62,6 +62,10 @@ public class HttpParameters {
 		return builder.nonce;
 	}
 
+	boolean isTimestamp() {
+		return builder.timestamp;
+	}
+
 	/**
 	 * 显示所设置的各个属性值
 	 */
@@ -75,6 +79,7 @@ public class HttpParameters {
 		sb.append("\n secretKey=").append("*********"); // hide this secret key!
 		sb.append("\n contentBody=").append(this.getContentBody());
 		sb.append("\n Nonce=").append(this.isNonce());
+		sb.append("\n Timestamp=").append(this.isTimestamp());
 		sb.append("\n params: \n");
 		for (Entry<String, String> entry : builder.paramsMap.entrySet()) {
 			sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
@@ -101,6 +106,7 @@ public class HttpParameters {
 		private ContentBody contentBody = null;
 		private String requestUrl;
 		private boolean nonce;
+		private boolean timestamp = true;
 		private Map<String, String> paramsMap = new HashMap<String, String>();
 		private Map<String, String> headerParamsMap = new HashMap<String, String>();
 
@@ -165,6 +171,18 @@ public class HttpParameters {
 				throw new IllegalArgumentException("only support 'GET', 'CGET' or 'POST', 'CPOST' method");
 			}
 			this.method = method;
+			return this;
+		}
+
+
+		/**
+		 *
+		 * @param timestampFlag, 是否生成时间戳，默认是生成的
+		 * @return
+		 */
+		public Builder timestamp(boolean timestampFlag) {
+			this.timestamp = timestampFlag;
+
 			return this;
 		}
 

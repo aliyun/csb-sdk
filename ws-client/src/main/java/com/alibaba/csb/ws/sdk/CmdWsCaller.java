@@ -82,8 +82,8 @@ public class CmdWsCaller {
 		Options opt = new Options();
 		opt.addOption("ak", true, "accessKey, 可选");
 		opt.addOption("sk", true, "secretKey, 可选");
-		opt.addOption("api", true, "服务名");
-		opt.addOption("version", true, "服务版本");
+		opt.addOption("api", true, "服务名, 可选");
+		opt.addOption("version", true, "服务版本, 可选");
 		opt.addOption("wa", true, "wsdl地址，e.g: http://broker-ip:9081/api/version/method?wsdl");
 		opt.addOption("ea", true, "endpoint地址，e.g: http://broker-ip:9081/api/version/method");
 		opt.addOption("ns", true, "在wsdl中定义的服务的target namespace");
@@ -91,6 +91,8 @@ public class CmdWsCaller {
 		opt.addOption("pname", "portName", true, "在wsdl中定义的端口名");
 		opt.addOption("soap12", false, "-soap12 为soap12调用, 不定义为soap11");
 		opt.addOption("nonce", false, "-nonce 是否做nonce防重放处理，不定义为不做nonce重放处理");
+		opt.addOption("skipTimestamp", false, "-skipTimestamp 不设置时间戳，默认是设置");
+		opt.addOption("fingerStr", true, "签名指纹串, 可选");
 		opt.addOption("h", "help", false, "打印帮助信息");
 		opt.addOption("d", "debug", false, "打印调试信息");
 		opt.addOption("rf", true, "soap请求文件，文件里存储soap请求的Message格式内容");
@@ -117,8 +119,10 @@ public class CmdWsCaller {
 			String pname = commandline.getOptionValue("pname");
 			String rf = commandline.getOptionValue("rf");
 			String rd = commandline.getOptionValue("rd");
+			String fingerStr = commandline.getOptionValue("fingerStr");
 			boolean isSoap12 = commandline.hasOption("soap12");
 			boolean nonce = commandline.hasOption("nonce");
+			boolean skipTimestamp = commandline.hasOption("skipTimestamp");
 			isDebug = commandline.hasOption("d");
 
 			if (isDebug) {
@@ -138,9 +142,12 @@ public class CmdWsCaller {
 				if (isEmpty(rd)) {
 					System.out.println("rf=" + rf);
 				}
+				System.out.println("nonce=" + nonce);
+				System.out.println("skipTimestamp=" + skipTimestamp);
+				System.out.println("fingerStr=" + fingerStr);
 			}
 
-			if (isEmpty(api) || isEmpty(version) || isEmpty(ea) || isEmpty(wa) || isEmpty(ns) || isEmpty(sname)
+			if (isEmpty(ea) || isEmpty(wa) || isEmpty(ns) || isEmpty(sname)
 					|| isEmpty(pname) || (isEmpty(rf) && isEmpty(rd))) {
 				usage(opt);
 				return;
@@ -152,7 +159,8 @@ public class CmdWsCaller {
 				print(true, "-- 操作失败：文件%s请求报文为空", rf);
 				return;
 			}
-			WSParams params = WSParams.create().accessKey(ak).secretKey(sk).api(api).version(version).nonce(nonce);
+			WSParams params = WSParams.create().accessKey(ak).secretKey(sk).fingerPrinter(fingerStr)
+					.api(api).version(version).nonce(nonce).timestamp(!skipTimestamp).debug(isDebug);
 			invokeWithDispath(params, ns, sname, pname, isSoap12, wa, ea, reqData);
 		} catch (Exception e) {
 			System.out.println("-- 操作失败：" + e.getMessage());

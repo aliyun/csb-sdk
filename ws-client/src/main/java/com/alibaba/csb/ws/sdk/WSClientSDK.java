@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.ws.BindingProvider;
 
+import com.alibaba.csb.sdk.CsbSDKConstants;
 import com.alibaba.csb.sdk.security.SignUtil;
 import com.alibaba.csb.ws.sdk.internal.BindingDynamicProxyHandler;
 import com.alibaba.csb.ws.sdk.internal.SOAPHeaderHandler;
@@ -38,11 +39,12 @@ import com.alibaba.csb.ws.sdk.internal.SOAPHeaderHandler;
  *   
  *   
  *   //bind the dispatch with ak/sk
- *   String ak = "xxxxx";
- *   String sk = "xxxxx";
- *   String apiName = "xxxxx";
- *   String apiVersion = "xxxxx";
- *   dispatch = WSClientSDK.bind(dispatch, ak, sk, apiName, apiVersion);
+ *   WSParams params = WSParams.create();
+ *   params.accessKey("xxxxx");
+ *   params.secretKey("xxxxx");
+ *   params.api("xxxxx");
+ *   params.version("xxxxx");
+ *   dispatch = WSClientSDK.bind(dispatch, params);
  * 
  *   //invoke the methods with the returned dispatch
  *   ret = dispatch.invoke(...);
@@ -81,13 +83,23 @@ public class WSClientSDK {
 	 * @param accessKey    accessKey
 	 * @param secretKey    secretKey
 	 * @return             封装了accessKey和secretKey的proxy或者dispath, 调用逻辑要使用这个返回进行WS方法调用
-	 * @throws WSClientException  
-	 * @deprecated 使用bind（proxy, accesskey, secretKey, apiName, apiVersion）
+	 * @throws WSClientException
+	 *
+	 * @deprecated 使用 bind(T proxy, WSParams params)
 	 */
 	public static <T> T bind(T proxy, String accessKey, String secretKey) throws WSClientException {
 		return bind(proxy, accessKey, secretKey, null, null);
 	}
 
+	/**
+	 * 把签名和调用相关的参数绑定到ws客户端，以便调用时在SOAP请求中生成签名验证相关的http headers
+	 *
+	 * @param proxy
+	 * @param params
+	 * @param <T>
+	 * @return
+	 * @throws WSClientException
+	 */
 	public static <T> T bind(T proxy, WSParams params) throws WSClientException {
 		validateProxy(proxy);
 
@@ -95,7 +107,21 @@ public class WSClientSDK {
 		handler.setParams(params);
 		return handler.bind(proxy);
 	}
-	
+
+	/**
+	 *
+	 * @param proxy
+	 * @param accessKey
+	 * @param secretKey
+	 * @param apiName
+	 * @param apiVersion
+	 * @param printHeaders
+	 * @param <T>
+	 * @return
+	 * @throws WSClientException
+	 *
+	 * @deprecated 使用 bind(T proxy, WSParams params)
+	 */
 	public static <T> T bind(T proxy, String accessKey, String secretKey, String apiName, String apiVersion, boolean printHeaders) throws WSClientException {
 		validateProxy(proxy);
 		
@@ -114,7 +140,9 @@ public class WSClientSDK {
 	 * @param apiName      服务名
 	 * @param apiVersion   服务版本
 	 * @return             封装了accessKey和secretKey的proxy或者dispath, 调用逻辑要使用这个返回进行WS方法调用
-	 * @throws WSClientException  
+	 * @throws WSClientException
+	 *
+	 * @deprecated 使用 bind(T proxy, WSParams params)
 	 */
 	public static <T> T bind(T proxy, String accessKey, String secretKey, String apiName, String apiVersion) throws WSClientException {
 		return bind(proxy, accessKey, secretKey, apiName, apiVersion, false);
@@ -125,7 +153,9 @@ public class WSClientSDK {
 	 * @param proxy    客户端proxy或者dispatch
 	 * @param isMock   是否使用mock
 	 * @return         封装了mock标志的proxy或者dispath
-	 * @throws WSClientException  
+	 * @throws WSClientException
+	 *
+	 * @deprecated 使用 bind(T proxy, WSParams params) 使用WSParams来设置是否为mockResponse
 	 */
 	public static <T> T setResponseMock(T proxy, boolean isMock) throws WSClientException {
 		validateProxy(proxy);
@@ -158,58 +188,28 @@ public class WSClientSDK {
 		}
 	}
 
-	/**
-	 * 手动生成签名值
-	 * 
-	 * @param ak           accessKey
-	 * @param sk           secretKey
-	 * @param apiName      服务名
-	 * @param apiVersion   服务版本
-	 * @param fingerStr    指纹串
-	 * @param timestamp    时间戳
-	 * @return             根据输入参数信息生成的签名串
-	 *
-	 */
-	public static String genSignature(String ak, String sk, String apiName, String apiVersion,  String fingerStr, long timestamp) {
-		return SOAPHeaderHandler.generateSignature(ak, sk, apiName, apiVersion, fingerStr, String.valueOf(timestamp));
+	public static Map<String, String> genExtHeader(String fingerStr) {
+		Map<String, String> extSignHeaderMap = new HashMap<String, String>();
+		if (fingerStr != null) {
+			extSignHeaderMap.put(CsbSDKConstants.HEADER_FINGERPRINT, fingerStr);
+		}
+
+		return extSignHeaderMap;
 	}
 
 	/**
-	 * <pre>
-	 * 设置安全相关的headers到MimeHeaders对象内，以便在调用的时候传递该http header信息
-	 * 
-	 * 用法：
-	 *   import org.apache.axis.client.Call;
-	 *   ...
-	 *   
-	 *   Service service = new Service();
-	 *   Call call = (Call)service.createCall();
-	 *   ....
-	 *   
-	 *   MessageContext msgContext = call.getMessageContext();
-	 *   MimeHeaders hd = msgContext.getMessage().getMimeHeaders();
-	 *   
-	 *   call.invoke(...);
-	 * 
-	 * </pre>
-	 * @param mimeHeaders
-	 * @param ak
-	 * @param sk
-	 * @param apiName
-	 * @param apiVersion
-	 * @param fingerStr
-	 * @param timestamp
+	 * 生成签名相关的HTTP所有请求头
+	 *
+	 * @param params
 	 * @return
 	 */
-	public static boolean addHttpHeaders(MimeHeaders mimeHeaders, String ak, String sk, String apiName, String apiVersion,  String fingerStr, long timestamp) {
-		if (mimeHeaders != null) {
-			Map<String, String> headers = SOAPHeaderHandler.generateSignHeaders(ak, sk, apiName, apiVersion, fingerStr, String.valueOf(timestamp));
-			for(Entry<String,String> kv:headers.entrySet()) {
-				mimeHeaders.addHeader(kv.getKey(), kv.getValue());
-			}
-			return true;
-		}
-		
-		return false;
+	public static Map<String, String> generateSignHeaders(WSParams params) {
+		Map<String, String> extSignHeaderMap = genExtHeader(params.getFingerPrinter());
+		Map<String, String> requestHeaders = SignUtil.newParamsMap(null, params.getApi(), params.getVersion(), params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap);
+
+		if (params.isMockRequest())
+			requestHeaders.put(CsbSDKConstants.HEADER_MOCK, "true");
+
+		return requestHeaders;
 	}
 }

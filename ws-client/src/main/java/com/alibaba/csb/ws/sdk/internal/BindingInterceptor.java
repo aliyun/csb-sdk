@@ -26,7 +26,6 @@ public class BindingInterceptor {
 	// put signature related headers into soap header 
 	//-Dws.sdk.headers.insoap=true is kept for backwards compatible 
 	private static boolean HEADERS_INSOAP = Boolean.getBoolean("ws.sdk.headers.insoap");
-	private static boolean SKIP_SIGN_APINAME = Boolean.getBoolean("ws.sdk.skip.sign.apiname");
 
 	private List<Handler> handlers;
 	private Handler shh;
@@ -40,20 +39,17 @@ public class BindingInterceptor {
 		wsparams.mockRequest(mock);
 	}
 
-	/* packaged */ List<Handler> before(Object proxy, String fingerStr) throws JAXBException {
+	/* packaged */ List<Handler> before(Object proxy) throws JAXBException {
 		// 拦截器BindingInterceptor方法调用:before()!");
 		if (!(proxy instanceof BindingProvider)) {
 			throw new WSClientException("proxy is not a legal soap client, can not do the interceptor");
 		}
-		if (wsparams!=null && SKIP_SIGN_APINAME) {
-			wsparams.api(null);
-		}
 		// put security info into http request headers for over-proxy invocation
-		setSecrectHeaders((BindingProvider)proxy, wsparams, fingerStr);
+		setSecrectHeaders((BindingProvider)proxy, wsparams);
 
 		// skip this soap header logic
 		if (HEADERS_INSOAP) {
-			shh = new SOAPHeaderHandler(wsparams, fingerStr);
+			shh = new SOAPHeaderHandler(wsparams);
 
 			BindingProvider bp = (BindingProvider) proxy;
 			handlers = bp.getBinding().getHandlerChain();
@@ -71,7 +67,7 @@ public class BindingInterceptor {
 
 	}
 
-	private void setSecrectHeaders(BindingProvider proxy, WSParams params, String fingerStr) {
+	private void setSecrectHeaders(BindingProvider proxy, WSParams params) {
 		//Add HTTP request Headers
 		Map<String, List<String>> requestHeaders = (Map<String, List<String>>)proxy.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
 		
@@ -79,7 +75,7 @@ public class BindingInterceptor {
 			requestHeaders = new HashMap<String, List<String>>();
 		}
 		
-		Map<String, List<String>> secHeaders = SOAPHeaderHandler.genSecrectHeaders(params, fingerStr);
+		Map<String, List<String>> secHeaders = SOAPHeaderHandler.genSecrectHeaders(params);
 		requestHeaders.putAll(secHeaders);
 		/*
 		if (dumpHeaders) {

@@ -10,13 +10,15 @@ import java.util.Random;
  */
 @Getter
 public class WSParams {
-  private String api;
-  private String version;
-  private String ak;
-  private String sk;
-  private boolean mockRequest;
-  private boolean nonce;
-  private boolean debug;
+  private String api;           //api-name
+  private String version;       //api-version
+  private String ak;            //accessKey
+  private String sk;            //secretKey
+  private String fingerPrinter; //指纹
+  private boolean mockRequest;  //是否为mock请求
+  private boolean timestamp = true; //是否生成时间戳http-header
+  private boolean nonce;            //是否成成Nonce防重放http-header
+  private boolean debug;            //是否打印调试信息
 
   public static WSParams create() {
     return new WSParams();
@@ -31,6 +33,7 @@ public class WSParams {
     sb.append("ak=").append(ak);
     sb.append("sk=").append(sk);
     sb.append("mockRequest=").append(mockRequest);
+    sb.append("timestamp=").append(timestamp);
     sb.append("nonce=").append(nonce);
     sb.append("debug=").append(debug);
 
@@ -81,6 +84,18 @@ public class WSParams {
   }
 
   /**
+   * 是否设置时间戳，默认是true
+   *
+   * @param timestamp
+   * @return
+   */
+  public WSParams timestamp(boolean timestamp) {
+    this.timestamp = timestamp;
+
+    return this;
+  }
+
+  /**
    * 设置防重放号，是否开启nonce设置
    *
    * @param nonce
@@ -88,6 +103,18 @@ public class WSParams {
    */
   public WSParams nonce(boolean nonce) {
     this.nonce = nonce;
+
+    return this;
+  }
+
+  /**
+   * 设置指纹值
+   *
+   * @param fingerPrinter
+   * @return
+   */
+  public WSParams fingerPrinter(String fingerPrinter) {
+    this.fingerPrinter = fingerPrinter;
 
     return this;
   }
