@@ -15,7 +15,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 
 public class CmdWsCaller {
-	private static final String SDK_VERSION = "1.0.4.2+";
+	private static final String SDK_VERSION = "1.1.4.0";
 
 	private static void usage(Options opt) {
 		HelpFormatter formatter = new HelpFormatter();
