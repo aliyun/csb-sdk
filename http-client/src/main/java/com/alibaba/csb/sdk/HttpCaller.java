@@ -855,7 +855,7 @@ public class HttpCaller {
 		startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey, nonceFlag, extSignHeadersMap);
+				secretKey, true, nonceFlag, extSignHeadersMap);
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
