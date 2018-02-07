@@ -2,6 +2,8 @@ package com.alibaba.csb.ws.sdk;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
@@ -51,12 +53,14 @@ public class CmdWsCaller {
 	 * @param wa
 	 * @param ea
 	 * @param reqSoap
+	 * @param requestHeaders
 	 * @throws Exception
 	 */
 	private static void invokeWithDispath(WSParams params, String ns, String sname,
-			String pname, boolean isSoap12, String wa, String ea, String reqSoap) throws Exception {
+			String pname, boolean isSoap12, String wa, String ea, String reqSoap, Map<String, String> requestHeaders) throws Exception {
 		Dispatch<SOAPMessage> dispatch = WSInvoker.createDispatch(params, ns, sname, pname, isSoap12, wa, ea);
 		SOAPMessage request = WSInvoker.createSOAPMessage(isSoap12, reqSoap);
+		WSInvoker.setHttpHeaders(dispatch, requestHeaders);
 		SOAPMessage reply = dispatch.invoke(request);
 
 		String response = DumpSoapUtil.dumpSoapMessage(reply);
@@ -78,6 +82,7 @@ public class CmdWsCaller {
 		}
 	}
 
+
 	public static void main(String[] args) {
 		Options opt = new Options();
 		opt.addOption("ak", true, "accessKey, 可选");
@@ -93,6 +98,7 @@ public class CmdWsCaller {
 		opt.addOption("nonce", false, "-nonce 是否做nonce防重放处理，不定义为不做nonce重放处理");
 		opt.addOption("skipTimestamp", false, "-skipTimestamp 不设置时间戳，默认是设置");
 		opt.addOption("fingerStr", true, "签名指纹串, 可选");
+		opt.addOption("H", true, "http header, 格式: -H \"key:value\"");
 		opt.addOption("h", "help", false, "打印帮助信息");
 		opt.addOption("d", "debug", false, "打印调试信息");
 		opt.addOption("rf", true, "soap请求文件，文件里存储soap请求的Message格式内容");
@@ -120,6 +126,7 @@ public class CmdWsCaller {
 			String rf = commandline.getOptionValue("rf");
 			String rd = commandline.getOptionValue("rd");
 			String fingerStr = commandline.getOptionValue("fingerStr");
+			String[] headers = commandline.getOptionValues("H");
 			boolean isSoap12 = commandline.hasOption("soap12");
 			boolean nonce = commandline.hasOption("nonce");
 			boolean skipTimestamp = commandline.hasOption("skipTimestamp");
@@ -138,6 +145,7 @@ public class CmdWsCaller {
 				System.out.println("ns=" + ns);
 				System.out.println("sname=" + sname);
 				System.out.println("pname=" + pname);
+				System.out.println("headers=" + headers);
 				System.out.println("rd=" + rd);
 				if (isEmpty(rd)) {
 					System.out.println("rf=" + rf);
@@ -153,6 +161,19 @@ public class CmdWsCaller {
 				return;
 			}
 
+			String kv[];
+			Map<String, String> httpHeaders = new HashMap<String,String>();
+			if(headers != null) {
+				for (String header : headers) {
+					kv = header.split(":", 2);
+					if (kv == null || kv.length != 2) {
+						System.out.println("错误的HTTP头定义 正确格式: -H \"key:value\" !!" + header);
+						return;
+					}
+					httpHeaders.put(kv[0], kv[1]);
+				}
+			}
+
 			String reqData = (isEmpty(rd)) ? FileUtils.readFileToString(new File(rf)) : rd;
 			print(isDebug, "-- 请求报文: \n%s\n", reqData);
 			if (isEmpty(reqData)) {
@@ -161,7 +182,7 @@ public class CmdWsCaller {
 			}
 			WSParams params = WSParams.create().accessKey(ak).secretKey(sk).fingerPrinter(fingerStr)
 					.api(api).version(version).nonce(nonce).timestamp(!skipTimestamp).debug(isDebug);
-			invokeWithDispath(params, ns, sname, pname, isSoap12, wa, ea, reqData);
+			invokeWithDispath(params, ns, sname, pname, isSoap12, wa, ea, reqData, httpHeaders);
 		} catch (Exception e) {
 			System.out.println("-- 操作失败：" + e.getMessage());
 			if (isDebug)
