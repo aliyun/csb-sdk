@@ -16,11 +16,11 @@ public class MyRun {
 			requestURL = "http://localhost:8086/service";
 			apiName =  "getxmltoken_gdic154"; 
 			Map<String, String> paramsMap = new HashMap<String, String>();
-			paramsMap.put("key","af514f8170be43ea93ea70f9d43ca6f2");
-			paramsMap.put("signature","4O4xAxEh8RSCuyq6U3Yb9HwhCIE=");
+			paramsMap.put("key","replace_on_test");
+			paramsMap.put("signature","replace_on_test";
 			paramsMap.put("secret","gdjrb888");
-	        ak="2fba3c68960944089d1d61a3929474f1";
-	        sk="OeCjAkzI2DVwqKSb2yxpVVrGyKU=";
+	        ak="replace_on_test";
+	        sk="replace_on_testg";
 			try {
 				String result = HttpCaller.doPost(requestURL, apiName, version, paramsMap, ak, sk);
 				System.out.println(result);
