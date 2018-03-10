@@ -20,13 +20,75 @@ import com.alibaba.csb.ws.sdk.WSClientSDK;
 import com.alibaba.csb.ws.wsimpl.AttachmentWS;
 import com.alibaba.csb.ws.wsimpl.AttachmentWSService;
 /**
- * mtom case refers to : https://blogs.oracle.com/vijaya/ 
+ * mtom case refers to : https://blogs.oracle.com/vijaya/
+ *
+ *
+ *
+ *
  * @author liaotian.wq 2017年1月10日
  *
  */
+
+/*
+Mtom WS服务接入端端的参考代码
+
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
+import javax.xml.ws.soap.MTOM;
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+import javax.jws.WebMethod;
+import javax.xml.bind.annotation.XmlMimeType;
+import javax.xml.ws.WebServiceException;
+
+@MTOM
+@javax.jws.WebService
+public class AttachmentWS {
+	@WebMethod
+	public String echoBinaryAsString(byte[] bytes) {
+		String ret = "empty bytes array";
+		if(bytes != null && bytes.length>0) {
+			ret = new String(bytes);
+		}
+		System.out.println("---- echoBinaryAsString: rtn=" + ret);
+		return ret;
+	}
+
+	@WebMethod
+	public byte[] echoStringAsBinary(String str) {
+		if (str == null)
+			str = "null";
+		System.out.println("---- echoStringAsBinary: request=" + str);
+		return str.getBytes();
+	}
+
+	// Use @XmlMimeType to map to DataHandler on the client side
+	public void fileUpload(String fileName, @XmlMimeType("application/octet-stream") DataHandler data) {
+		try {
+			OutputStream os = new FileOutputStream(new File(fileName));
+			data.writeTo(os);
+			System.out.println("---- fileUpload: writeTo=" + fileName);
+		} catch (Exception e) {
+			throw new WebServiceException(e);
+		}
+	}
+
+	@XmlMimeType("application/octet-stream")
+	@WebMethod
+	public DataHandler fileDownload(String filename) {
+		System.out.println("---- fileDownload: file=" + filename);
+		return new DataHandler(new FileDataSource(filename));
+	}
+}
+
+*/
+
 public class MtomSDKTest {
-	private String ak = "a5865da73f79487aa6e4974c057f39c5";
-	private String sk = "Cf+kU+fpJFIOen6hvJG3OvMQYXU=";
+	private String ak = "ak";
+	private String sk = "sk";
 	private String wsdlAddr = System.getProperty("wsdl.addr");
 	private String endpointAddr = System.getProperty("endpoint.addr");
 	

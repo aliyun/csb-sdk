@@ -2,6 +2,7 @@ package com.alibaba.csb.sdk.ws;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.System;
 import java.net.URL;
 
 import org.junit.Assert;
@@ -23,7 +24,7 @@ import com.alibaba.csb.ws.sdk.WSClientSDK;
 
 import csb.ping.ws2restful.PING;
 import csb.ping.ws2restful.Ws2RestfulPortType;
-
+import csb.ping.ws2restful.Ws2RestfulResponse;
 /**
  * 一个WebService客户端调用的实例，用户可以使用标准的Proxy或者Dispath方式调用WebService服务，如果需要AK签名或其他操作(如，mock返回),
  * 则使用WSClientSDK对proxy或者dispatch进行wrapper设置, 这样在调用服务时会将请求SOAP进行签名处理。
@@ -64,8 +65,8 @@ public class WSSDKTest {
 		System.out.println("invoke broker wsdl addr=" + wsdlAddr);
 		System.out.println("invoke broker wsdl endpoint=" + endpointAddr);
 		
-		System.out.println("invoke broker ws2ws wsdl addr=" + wsdlAddr);
-		System.out.println("invoke broker ws2ws wsdl endpoint=" + endpointAddr);
+		System.out.println("invoke broker ws2ws wsdl addr=" + wsdlWS2WSAddr);
+		System.out.println("invoke broker ws2ws wsdl endpoint=" + endpointWS2WSAddr);
 	}
 	
 	@Test
@@ -81,12 +82,11 @@ public class WSSDKTest {
 		// Get the proxy port
 		Ws2RestfulPortType port = service.getWs2RestfulPort();
 		BindingProvider bp = (BindingProvider)port;  
-        SOAPBinding binding = (SOAPBinding)bp.getBinding();  
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddr); 
+		bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddr);
         
-		// 使用SDK将AK, SK传输的调用client端
+		// 使用SDK将AK, SK传输到调用client端
 		port = WSClientSDK.bind(port, ak, sk, "PING", "vcsb");
-		
+
 		// Call the method
 		Object rtn = port.ws2Restful(arg0);
 
