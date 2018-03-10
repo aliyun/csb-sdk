@@ -4,7 +4,7 @@
  2.  ${ws.sdk.version} = 1.1.0
 * SNAPSHOT
  1.  ${http.sdk.snapshot.version} = 1.1.4-SNAPSHOT
- 1.  ${ws.sdk.snapshot.version} = 1.1.0-SNAPSHOT
+ 1.  ${ws.sdk.snapshot.version} = 1.1.4-SNAPSHOT
 
 ## RELEASE History
 
