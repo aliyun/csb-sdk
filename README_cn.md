@@ -17,7 +17,7 @@
 
 ## 作为Maven依赖在pom.xml中引入
 
-1. 引用stable版本 (注意version版本, 参考[release](release.md)的说明)
+1. 引用stable版本 (注意具体的version版本, 参考[release](release.md)的说明)
 ```
   <!--To use HTTP-SDK-->
   <dependency>
@@ -34,21 +34,21 @@
   </dependency>
 ```
 
-2. 使用snapshot依赖
+2. 使用snapshot依赖 (注意具体snapshot的version版本, 参考[release](release.md)的说明)
 
 ```
   <!--To use HTTP-SDK-->
   <dependency>
      <groupId>com.alibaba.csb.sdk</groupId>
      <artifactId>http-client</artifactId>
-     <version>1.1.0-SNAPSHOT</version>
+     <version>${http.sdk.snapshot.version}</version>
   </dependency>
 
   <!--To use WS-SDK-->
   <dependency>
      <groupId>com.alibaba.csb.sdk</groupId>
      <artifactId>ws-client</artifactId>
-     <version>1.1.0-SNAPSHOT</version>
+     <version>${http.sdk.snapshot.version}</version>
   </dependency>
      
      

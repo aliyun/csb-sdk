@@ -55,14 +55,14 @@ Note: Please check latest release version from [here](release.md)
   <dependency>
      <groupId>com.alibaba.csb.sdk</groupId>
      <artifactId>http-client</artifactId>
-     <version>1.1.0-SNAPSHOT</version>
+     <version>${http.sdk.snapshot.version}</version>
   </dependency>
 
   <!--To use WS-SDK-->
   <dependency>
      <groupId>com.alibaba.csb.sdk</groupId>
      <artifactId>ws-client</artifactId>
-     <version>1.1.0-SNAPSHOT</version>
+     <version>${ws.sdk.snapshot.version}</version>
   </dependency>
      
      
@@ -82,6 +82,8 @@ Note: Please check latest release version from [here](release.md)
     </repository>
   </repositories>
 ```
+
+Note: Please check latest snapshot version from [here](release.md)
 
 * Release Notes
   [change history](release.md)

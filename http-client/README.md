@@ -12,13 +12,14 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里
 [http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)
+[最新的包 http-sdk-1.1.4.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.jar)
 * 如果用编程的方式,可以不下载这个standalone的Jar包,而是在用户的pom.xml里引用如下的dependency:
 
 ```
 <dependency>
   <groupId>com.alibaba.csb.sdk</groupId>
   <artifactId>http-client</artifactId>
-  <version>1.1.4</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -28,40 +29,26 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 
 ```
-java [sys-props] -jar http-sdk-1.1.4.jar method url api version [ak sk]
+java [sys-props] -jar http-sdk-1.1.4.jar [options...]
 ```
 
 参数取值说明:
-* **method**  调用Restful服务的方式，目前可以取值为：POST,GET,cpost,cget
-   POST   以post形式调用服务
-   GET    以get形式调用服务
-   cpost或者cget  SDK不去真正的调用开放的服务而是生成一个curl string, 用户可以使用这个串直接调用执行curl命令，而不再需要SDK
-* **url**        要调用的RESTful服务的URL,包括地址和调用参数
-* **api**        CSB发布的RESTful服务的全名
-* **version**    CSB发布的 RESTful服务的版本（当设置为“null”时为不设置version）
-* **ak** **sk**  即accessKey和secretKey，必须同时提供，如果不需要安全认证，则不要输入,或者输入任意的串值，如: "ak" "sk"
-* **-v**         打印当前的SDK版本
+ -ak <arg>        accessKey, 可选
+ -api <arg>       服务名
+ -D <arg>         请求参数, 格式: -D "key=value"
+ -d,--debug       打印调试信息
+ -H <arg>         http header, 格式: -H "key:value"
+ -h,--help        打印帮助信息
+ -method <arg>    请求类型, 默认get, 可选的值为: get, post, cget和cpost
+ -nonce           -nonce 是否做nonce防重放处理，不定义为不做nonce重放处理
+ -sk <arg>        secretKey, 可选
+ -url <arg>       请求地址，e.g: http://broker-ip:8086/CSB?p1=v1
+ -version <arg>   服务版本
 
 * **sys-props**      为可选的**JVM系统参数**, 可以设置如下的一项或者多项（空格分隔），具体包括：
   * -Dtest.stress.times=n   压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
-  * -Dhfile=hfile.prop      它定义一个属性文件定义要传递给服务端的http headers
-  * -Ddfile=dfile.prop      它定义一个属性文件定义要POST传递给服务端的http body 参数
 
--Dhfile 所指向的属性文件的为标准的属性文件格式如下：
-
-```
-#注解 设置我的header
-header1=test1
-header2=test2
-```
-
--Ddfile 所指向的属性文件的为标准的属性文件格式如下：
-
-```
-#注解 设置我的request body参数
-data1=value1
-data2=value2
-```
+* 注意：上述命令行方式在1.1.4版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
 
 ### 方式二: 使用编程方式调用
 
