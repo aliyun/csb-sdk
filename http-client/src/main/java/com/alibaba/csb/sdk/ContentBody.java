@@ -8,6 +8,8 @@ package com.alibaba.csb.sdk;
  * @since 2016
  */
 public class ContentBody {
+	// Json内容串 使用的key，会把json内容串作为 key=value 方式作为签名的一部分
+	/*packaged*/ static final String CONTENT_BODY_SIGN_KEY = System.getProperty("csb.sdk.jsonbody.sign.key", "_jsonbody_sign_key_");
 	/**
 	 * 指定ContentBody的类型
 	 *

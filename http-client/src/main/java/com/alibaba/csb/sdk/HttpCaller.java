@@ -854,6 +854,10 @@ public class HttpCaller {
 
 		startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);
 
+		if (cb != null && cb.getContentType() == ContentBody.Type.JSON && hp.isSignContentBody()) {
+			urlParamsMap.put(ContentBody.CONTENT_BODY_SIGN_KEY, Arrays.asList((String)cb.getContentBody()));
+		}
+
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
 				secretKey, true, nonceFlag, extSignHeadersMap);
 

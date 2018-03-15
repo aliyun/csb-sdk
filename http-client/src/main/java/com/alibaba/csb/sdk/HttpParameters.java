@@ -62,6 +62,10 @@ public class HttpParameters {
 		return builder.nonce;
 	}
 
+	boolean isSignContentBody() {
+		return builder.signContentBody;
+	}
+
 	boolean isTimestamp() {
 		return builder.timestamp;
 	}
@@ -79,6 +83,7 @@ public class HttpParameters {
 		sb.append("\n secretKey=").append("*********"); // hide this secret key!
 		sb.append("\n contentBody=").append(this.getContentBody());
 		sb.append("\n Nonce=").append(this.isNonce());
+		//sb.append("\n signContentBody=").append(this.isSignContentBody());
 		sb.append("\n Timestamp=").append(this.isTimestamp());
 		sb.append("\n params: \n");
 		for (Entry<String, String> entry : builder.paramsMap.entrySet()) {
@@ -107,6 +112,7 @@ public class HttpParameters {
 		private String requestUrl;
 		private boolean nonce;
 		private boolean timestamp = true;
+		private boolean signContentBody = false;
 		private Map<String, String> paramsMap = new HashMap<String, String>();
 		private Map<String, String> headerParamsMap = new HashMap<String, String>();
 
@@ -282,6 +288,19 @@ public class HttpParameters {
 		 */
 		public Builder contentBody(ContentBody cb) {
 			this.contentBody = cb;
+			return this;
+		}
+
+
+		/**
+		 * 对ContentBody内设置的json串进行签名
+		 * 注意： 对目前的任何CSB Broker版本，都还不支持对contentBody的签名验证，
+		 * 所以设置该选择为true时，会导致验签失败！
+		 * @param sign
+		 * @return
+		 */
+		public Builder sginContentBody(boolean sign) {
+			this.signContentBody = sign;
 			return this;
 		}
 
