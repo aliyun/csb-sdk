@@ -9,6 +9,9 @@ import org.junit.Test;
 
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
 
+/**
+ * 旧的命令行方式调用HttpCaller
+ */
 public class CmdCallerTest {
 	//@Test
 	public void testMultiTimes() throws Exception {

@@ -24,7 +24,7 @@ public class CommUtil {
   public static String geCurrenttVersionFile() throws IOException {
     InputStream in = CommUtil.class.getResourceAsStream(VER_FILE);
     if (in != null) {
-      return readFileAsText(new InputStreamReader(in));
+      return readFileAsText(new InputStreamReader(in, "UTF-8"));
     } else {
       return "no verbose version info";
     }

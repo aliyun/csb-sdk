@@ -19,6 +19,7 @@ public class CmdHttpCaller {
     opt.addOption("ak", true, "accessKey, 可选");
     opt.addOption("sk", true, "secretKey, 可选");
     opt.addOption("method", true, "请求类型, 默认get, 可选的值为: get, post, cget和cpost");
+    opt.addOption("proxy", true, "设置代理地址, 格式: proxy_hostname:proxy_port ");
     opt.addOption("H", true, "http header, 格式: -H \"key:value\"");
     opt.addOption("D", true, "请求参数, 格式: -D \"key=value\"");
     opt.addOption("nonce", false, "-nonce 是否做nonce防重放处理，不定义为不做nonce重放处理");
@@ -37,13 +38,13 @@ public class CmdHttpCaller {
     Boolean isDebug = false;
     try {
       CommandLine commandline = parser.parse(opt, args);
-      if(commandline.getOptions().length == 0 && commandline.getArgs().length>0) {
+      if (commandline.getOptions().length == 0 && commandline.getArgs().length > 0) {
         //use old style cmd line
         CmdCaller.main(args);
         return;
       }
       if (commandline.hasOption("h")) {
-        usage();
+        usage(null);
         return;
       }
 
@@ -55,6 +56,7 @@ public class CmdHttpCaller {
       String[] headers = commandline.getOptionValues("H");
       String[] params = commandline.getOptionValues("D");
       String url = commandline.getOptionValue("url");
+      String proxy = commandline.getOptionValue("proxy");
       boolean nonce = commandline.hasOption("nonce");
       isDebug = commandline.hasOption("d");
 
@@ -64,13 +66,24 @@ public class CmdHttpCaller {
         System.out.println("version=" + version);
         System.out.println("ak=" + ak);
         System.out.println("sk=" + sk);
+        System.out.println("proxy=" + proxy);
         System.out.println("nonce=" + nonce);
         printKV("HTTP Headers", headers);
         printKV("HTTP Params", params);
       }
 
-      if (isEmpty(api) || isEmpty(version) || isEmpty(url)) {
-        usage();
+      if (isEmpty(api)){
+        usage("请定义 -api 参数");
+        return;
+      }
+
+      if (isEmpty(version)){
+        usage("请定义 -version 参数");
+        return;
+      }
+
+      if (isEmpty(url)){
+        usage("请定义 -url 参数");
         return;
       }
 
@@ -111,6 +124,22 @@ public class CmdHttpCaller {
       }
 
       StringBuffer resHttpHeaders = new StringBuffer();
+      //set http proxy
+      if (proxy != null) {
+        String errMsg = String.format("错误的proxy代理设置 %s 正确格式: -proxy \"proxy_host:proxy_port\" !!", proxy);
+        String[] pcs = proxy.split(":");
+        if (pcs == null || pcs.length != 2) {
+          System.out.println(errMsg);
+          return;
+        }
+        try {
+          HttpCaller.setProxyHost(pcs[0], Integer.parseInt(pcs[1]), null);
+        }catch (Exception e) {
+          System.out.println(errMsg);
+          return;
+        }
+      }
+
       String ret = HttpCaller.invoke(builder.build(), resHttpHeaders);
 
       if (curlOnly) {
@@ -144,7 +173,10 @@ public class CmdHttpCaller {
     }
   }
 
-  static void usage() {
+  static void usage(String message) {
+    if (message != null)
+      System.out.println("参数错误:" + message);
+
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("java -jar http-client.jar [options...]", opt);
     System.out.println("\ncurrent SDK version:" + SDK_VERSION + "\n----");

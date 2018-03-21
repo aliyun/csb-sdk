@@ -41,6 +41,7 @@ java [sys-props] -jar http-sdk-1.1.4.jar [options...]
  -h,--help        打印帮助信息
  -method <arg>    请求类型, 默认get, 可选的值为: get, post, cget和cpost
  -nonce           -nonce 是否做nonce防重放处理，不定义为不做nonce重放处理
+ -proxy <arg>     设置代理地址, 格式: proxy_hostname:proxy_port
  -sk <arg>        secretKey, 可选
  -url <arg>       请求地址，e.g: http://broker-ip:8086/CSB?p1=v1
  -version <arg>   服务版本
@@ -226,8 +227,19 @@ CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来�
 
 ![alt http-sign-diagram](img/http-sign.png)
 
-### 4.1. 高级功能 关于连接参数的设置：
+### 4.1. 高级功能
+1. 设置代理地址
 
+```
+  String proxyHost = "...";
+  int proxyPort = ...;
+  HttpCaller.setProxyHost(proxyHost, proxyPort, null); //注意：本次设置只对本线程起作用
+  ...
+  HttpCaller.doPost(), doGet() or invoke();
+
+```
+
+2. 关于连接参数的设置：
 a. 可以为http/https设置以下的全局性系统参数：
 
 ```

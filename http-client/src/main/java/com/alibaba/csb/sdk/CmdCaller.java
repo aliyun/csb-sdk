@@ -35,8 +35,8 @@ public class CmdCaller {
 		System.out.println("     ");
 		System.out.println("   print current SDK version: java -jar Http-client.jar -v ");
 		System.out.println("----------------------------");
-		System.out.println("Please use this recommend command line:");
-		CmdHttpCaller.usage();
+		System.out.println("Please use this NEW command line:");
+		CmdHttpCaller.usage(null);
 	}
 
 

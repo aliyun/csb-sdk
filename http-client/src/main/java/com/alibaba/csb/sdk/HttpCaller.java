@@ -5,6 +5,7 @@ import com.alibaba.csb.sdk.internel.HttpClientHelper;
 import com.alibaba.csb.sdk.security.SignUtil;
 
 import org.apache.http.Header;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -169,7 +170,15 @@ import java.util.concurrent.TimeUnit;
  *      }     
  *     
  *  
- * 高级功能 关于连接参数的设置：
+ * 高级功能
+ * 1. 设置代理地址
+ *    String proxyHost = "...";
+ *    int proxyPort = ...;
+ *    HttpCaller.setProxyHost(proxyHost, proxyPort, null); //注意：本次设置只对本线程起作用
+ *    ...
+ *    HttpCaller.doPost(), doGet() or invoke();
+ *
+ * 2. 关于连接参数的设置：
  *   a. 可以为http/https设置以下的全局性系统参数： 
  *      -Dhttp.caller.connection.max          设置连接池的最大连接数，默认是20
  *      -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是-1， 永不超时
@@ -182,7 +191,7 @@ import java.util.concurrent.TimeUnit;
  *      sysParams.put("http.caller.connection.timeout","3000"); //设置连接超时为3秒
  *      HttpCaller.setConnectionParams(sysParams); //注意：本次设置只对本线程起作用
  *      ...
- *      HttpCaller.doPost() or doGet();
+ *      HttpCaller.doPost(), doGet() or invoke();
  * </pre>
  * 
  * @author Alibaba Middleware CSB Team
@@ -195,7 +204,7 @@ public class HttpCaller {
 	private static boolean warmupFlag = false;
 	private static CloseableHttpClient HTTP_CLIENT = null;
 	private static PoolingHttpClientConnectionManager connMgr = null;
-	private static final ThreadLocal<RequestConfig> requestConfigLocal = new ThreadLocal<RequestConfig>();
+
 	private static final String RESTFUL_PATH_SIGNATURE_KEY = "csb_restful_path_signature_key";
 	private static final String DEFAULT_RESTFUL_PROTOCOL_VERSION = "1.0";
 	private static final String RESTFUL_PROTOCOL_VERION_KEY = "restful_protocol_version";
@@ -225,8 +234,10 @@ public class HttpCaller {
 	private static String defaultSK = null;
 	
 	private static ThreadLocal<Boolean> toCurlCmd = new ThreadLocal<Boolean>();
+	private static ThreadLocal<HttpHost> proxyConfigThreadLocal = new ThreadLocal<HttpHost>();
 
-	private static final RequestConfig SysRequestConfig = createConnBuilder().build();
+	private static final RequestConfig.Builder requestConfigBuilder = createConnBuilder();
+	private static final ThreadLocal<RequestConfig.Builder> requestConfigBuilderLocal = new ThreadLocal<RequestConfig.Builder>();
 
 	static {
 		try {
@@ -362,6 +373,16 @@ public class HttpCaller {
 		//DefaultHttpParams.getDefaultParams().setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
 		return  configBuilder;
 	}
+
+	/**
+	 * 为接下来的调用设置代理参数。 注意：本次设置只对本线程起作用
+	 * @param hostname
+	 * @param port
+	 * @param scheme 如果设置为null时, scheme为 "http"
+	 */
+	public static void setProxyHost(final String hostname, final int port, final String scheme) {
+		proxyConfigThreadLocal.set(new HttpHost(hostname, port, scheme));
+	}
 	
 	/**
 	 * 为接下来的调用设置新的连接参数。 注意：本次设置只对本线程起作用
@@ -369,7 +390,7 @@ public class HttpCaller {
 	 */
 	public static void setConnectionParams(Map<String,String> params) {
 		if (params == null || params.size() == 0) {
-			requestConfigLocal.set(SysRequestConfig);
+			requestConfigBuilderLocal.set(requestConfigBuilder);
 		} else {
 			RequestConfig.Builder connBuilder = createConnBuilder();
 			for (Entry<String,String> es:params.entrySet()) {
@@ -388,16 +409,21 @@ public class HttpCaller {
 				} 
 				HttpClientHelper.printDebugInfo(String.format("set %s as %s",es.getKey(),es.getValue()));
 			}
-			requestConfigLocal.set(connBuilder.build());
+			requestConfigBuilderLocal.set(connBuilder);
 		}
 	}
 	
 	private static RequestConfig getRequestConfig() {
-		if(requestConfigLocal.get() == null) {
-			return SysRequestConfig;
+		RequestConfig.Builder rcBuilder = null;
+		if(requestConfigBuilderLocal.get() == null) {
+			rcBuilder = requestConfigBuilder;
 		} else {
-			return requestConfigLocal.get();
+			rcBuilder = requestConfigBuilderLocal.get();
 		}
+
+		rcBuilder.setProxy(proxyConfigThreadLocal.get());
+
+		return rcBuilder.build();
 	}
 	
 
