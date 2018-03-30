@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import static com.alibaba.csb.sdk.internel.HttpClientHelper.trimWhiteSpaces;
+
 /**
  * Http Parameters 参数构造器，使用(Builder)模式构造http调用的所有参数
  * 
@@ -345,5 +347,10 @@ public class HttpParameters {
 				// throw new IllegalArgumentException("Bad httpparameters: paramsMap must be empty when contentBody is set!");
 			}
 		}
+
+		builder.api = trimWhiteSpaces(this.getApi());
+		builder.version = trimWhiteSpaces(this.getVersion());
+		builder.ak = trimWhiteSpaces(this.getAccessKey());
+		builder.sk = trimWhiteSpaces(this.getSecretkey());
 	}
 }

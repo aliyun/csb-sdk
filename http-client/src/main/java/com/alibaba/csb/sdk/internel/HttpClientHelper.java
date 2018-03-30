@@ -62,6 +62,12 @@ public class HttpClientHelper {
 		return SignUtil.newParamsMap(paramsMap, apiName, version, accessKey, securityKey, timestampFlag, nonceFlag, extSignHeaders);
 	}
 
+	public static String trimWhiteSpaces(String value) {
+		if (value == null) return value;
+
+		return value.trim();
+	}
+
 	public static String trimUrl(String requestURL) {
 		int pos = requestURL.indexOf("?");
 		String ret = requestURL;

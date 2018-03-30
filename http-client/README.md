@@ -228,7 +228,7 @@ CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来�
 ![alt http-sign-diagram](img/http-sign.png)
 
 ### 4.1. 高级功能
-1. 设置代理地址
+1. 设置代理地址 （注意：从1.1.4开始支持）
 
 ```
   String proxyHost = "...";
