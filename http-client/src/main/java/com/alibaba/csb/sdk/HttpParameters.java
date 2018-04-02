@@ -176,7 +176,7 @@ public class HttpParameters {
 		public Builder method(String method) {
 			if (!"get".equalsIgnoreCase(method) && !"post".equalsIgnoreCase(method) && 
 					!"cget".equalsIgnoreCase(method) && !"cpost".equalsIgnoreCase(method)) {
-				throw new IllegalArgumentException("only support 'GET', 'CGET' or 'POST', 'CPOST' method");
+				throw new IllegalArgumentException("只支持 'GET', 'CGET' or 'POST', 'CPOST' method类型");
 			}
 			this.method = method;
 			return this;
