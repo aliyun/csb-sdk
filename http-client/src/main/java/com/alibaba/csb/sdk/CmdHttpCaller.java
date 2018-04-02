@@ -196,7 +196,6 @@ public class CmdHttpCaller {
     } catch (IOException e) {
       //
     }
-    System.exit(0);
   }
 
 }

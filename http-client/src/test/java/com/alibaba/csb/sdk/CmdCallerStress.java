@@ -18,16 +18,18 @@ import java.util.concurrent.Executors;
 public class CmdCallerStress {
 	private static void usage() {
 		System.out.println("Usage: java -jar Http-client.jar method url apiName version [ak sk]");
-		System.exit(0);
 	}
 	public static void main(String args[]) throws Exception {
 		//System.out.println("args.length="+args.length);
 		if (args.length != 6 && args.length != 8) {
 			usage();
+			return;
 		}
 		String method = args[0];
-		if (!"get".equalsIgnoreCase(method) && !"post".equalsIgnoreCase(method))
+		if (!"get".equalsIgnoreCase(method) && !"post".equalsIgnoreCase(method)) {
 			usage();
+			return;
+		}
 		
 		String lurl = args[1];
 		String apiName = args[2];
