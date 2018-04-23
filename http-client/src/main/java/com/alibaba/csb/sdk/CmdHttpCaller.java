@@ -22,7 +22,7 @@ public class CmdHttpCaller {
     opt.addOption("proxy", true, "设置代理地址, 格式: proxy_hostname:proxy_port ");
     opt.addOption("H", true, "http header, 格式: -H \"key:value\"");
     opt.addOption("D", true, "请求参数, 格式: -D \"key=value\"");
-    opt.addOption("cbJSON", true, "以JSON串方式post发送的请求body, 例如: -cbJSON '{\"name\":\"wiseking\"}'");
+    opt.addOption("cbJSON", true, "以JSON串方式post发送的请求body, 例如: -cbJSON \"{'name':'wiseking'}\"");
     opt.addOption("nonce", false, "-nonce 是否做nonce防重放处理，不定义为不做nonce重放处理");
     opt.addOption("h", "help", false, "打印帮助信息");
     opt.addOption("d", "debug", false, "打印调试信息");
@@ -122,7 +122,10 @@ public class CmdHttpCaller {
           System.out.println("当定义-cbJSON请求参数时， -method 必须为post方式!");
           return;
         }
-
+        if (cbJSON.startsWith("'")) {
+          System.out.println("定义cbJSON请求参数串错误，请以\"开头");
+          return;
+        }
         builder.contentBody(new ContentBody(cbJSON));
       }
 
