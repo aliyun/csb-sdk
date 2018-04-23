@@ -1,5 +1,6 @@
 package com.alibaba.csb.sdk;
 
+import com.alibaba.csb.sdk.i18n.MessageHelper;
 import org.apache.commons.cli.*;
 
 import java.io.File;
@@ -13,19 +14,19 @@ public class CmdHttpCaller {
   public static Options opt = new Options();
 
   static {
-    opt.addOption("url", true, "请求地址，e.g: http://broker-ip:8086/CSB?p1=v1");
-    opt.addOption("api", true, "服务名");
-    opt.addOption("version", true, "服务版本");
-    opt.addOption("ak", true, "accessKey, 可选");
-    opt.addOption("sk", true, "secretKey, 可选");
-    opt.addOption("method", true, "请求类型, 默认get, 可选的值为: get, post, cget和cpost");
-    opt.addOption("proxy", true, "设置代理地址, 格式: proxy_hostname:proxy_port ");
-    opt.addOption("H", true, "http header, 格式: -H \"key:value\"");
-    opt.addOption("D", true, "请求参数, 格式: -D \"key=value\"");
-    opt.addOption("cbJSON", true, "以JSON串方式post发送的请求body, 例如: -cbJSON \"{'name':'wiseking'}\"");
-    opt.addOption("nonce", false, "-nonce 是否做nonce防重放处理，不定义为不做nonce重放处理");
-    opt.addOption("h", "help", false, "打印帮助信息");
-    opt.addOption("d", "debug", false, "打印调试信息");
+    opt.addOption("url", true, "测试:"+MessageHelper.getMessage("cli.url"));
+    opt.addOption("api", true, MessageHelper.getMessage("cli.api"));
+    opt.addOption("version", true, MessageHelper.getMessage("cli.version"));
+    opt.addOption("ak", true, MessageHelper.getMessage("cli.ak"));
+    opt.addOption("sk", true, MessageHelper.getMessage("cli.sk"));
+    opt.addOption("method", true, MessageHelper.getMessage("cli.method"));
+    opt.addOption("proxy", true, MessageHelper.getMessage("cli.proxy"));
+    opt.addOption("H", true, MessageHelper.getMessage("cli.h"));
+    opt.addOption("D", true, MessageHelper.getMessage("cli.d"));
+    opt.addOption("cbJSON", true, MessageHelper.getMessage("cli.cbJSON"));
+    opt.addOption("nonce", false, MessageHelper.getMessage("cli.nonce"));
+    opt.addOption("h", "help", false, MessageHelper.getMessage("cli.help"));
+    opt.addOption("d", "debug", false, MessageHelper.getMessage("cli.debug"));
   }
 
   //TODO: move to  common
@@ -75,17 +76,17 @@ public class CmdHttpCaller {
       }
 
       if (isEmpty(api)){
-        usage("请定义 -api 参数");
+        usage(MessageHelper.getMessage("cli.defparam","-api"));
         return;
       }
 
       if (isEmpty(version)){
-        usage("请定义 -version 参数");
+        usage(MessageHelper.getMessage("cli.defparam","-version"));
         return;
       }
 
       if (isEmpty(url)){
-        usage("请定义 -url 参数");
+        usage(MessageHelper.getMessage("cli.defparam","-url"));
         return;
       }
 
@@ -99,7 +100,7 @@ public class CmdHttpCaller {
         for (String header : headers) {
           String[] kv = header.split(":", 2);
           if (kv == null || kv.length != 2) {
-            System.out.println("错误的HTTP头定义 正确格式: -H \"key:value\" !!" + header);
+            System.out.println("" + header);
             return;
           }
           builder.putHeaderParamsMap(kv[0], kv[1]);
@@ -110,7 +111,7 @@ public class CmdHttpCaller {
         for (String param : params) {
           String[] kv = param.split("=", 2);
           if (kv == null || kv.length != 2) {
-            System.out.println("错误的参数对定义 正确格式: -D \"key=value\" !!" + param);
+            System.out.println(MessageHelper.getMessage("cli.defh",param));
             return;
           }
           builder.putParamsMap(kv[0], kv[1]);
@@ -119,11 +120,11 @@ public class CmdHttpCaller {
 
       if (cbJSON != null) {
         if("cget".equalsIgnoreCase(method) || "cget".equalsIgnoreCase(method)) {
-          System.out.println("当定义-cbJSON请求参数时， -method 必须为post方式!");
+          System.out.println(MessageHelper.getMessage("cli.defpost"));
           return;
         }
         if (cbJSON.startsWith("'")) {
-          System.out.println("定义cbJSON请求参数串错误，请以\"开头");
+          System.out.println(MessageHelper.getMessage("cli.json.prefix"));
           return;
         }
         builder.contentBody(new ContentBody(cbJSON));
@@ -140,7 +141,7 @@ public class CmdHttpCaller {
       StringBuffer resHttpHeaders = new StringBuffer();
       //set http proxy
       if (proxy != null) {
-        String errMsg = String.format("错误的proxy代理设置 %s 正确格式: -proxy \"proxy_host:proxy_port\" !!", proxy);
+        String errMsg = MessageHelper.getMessage("cli.errproxy", proxy);
         String[] pcs = proxy.split(":");
         if (pcs == null || pcs.length != 2) {
           System.out.println(errMsg);
@@ -171,7 +172,7 @@ public class CmdHttpCaller {
         }
       }
     } catch (Exception e) {
-      System.out.println("-- 操作失败：" + e.getMessage());
+      System.out.println("-- operation error：" + e.getMessage());
       if (isDebug)
         e.printStackTrace(System.out);
     }
@@ -189,7 +190,7 @@ public class CmdHttpCaller {
 
   static void usage(String message) {
     if (message != null)
-      System.out.println("参数错误:" + message);
+      System.out.println("Bad param: " + message);
 
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("java -jar http-client.jar [options...]", opt);

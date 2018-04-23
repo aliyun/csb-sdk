@@ -395,7 +395,7 @@ public class HttpCaller {
 			RequestConfig.Builder connBuilder = createConnBuilder();
 			for (Entry<String,String> es:params.entrySet()) {
 				if(!SUPPORTED_CONNECTION_PARAMS.contains(es.getKey())){
-				throw new IllegalArgumentException("错误的connection参数:" + es.getKey());	
+				throw new IllegalArgumentException("error connection param:" + es.getKey());
 				}
 				if (connMgr != null && es.getKey().equals(SUPPORTED_CONNECTION_PARAMS.get(0))) {
 					connMgr.setMaxTotal(Integer.parseInt(es.getValue()));

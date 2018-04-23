@@ -1,0 +1,19 @@
+#generate this file with native2ascii
+cli.url:请求地址，e.g: http://broker-ip:8086/CSB?p1=v1
+cli.api:服务名
+cli.version:服务版本
+cli.ak:accessKey, 可选
+cli.sk:secretKey, 可选
+cli.method:请求类型, 默认get, 可选的值为: get, post, cget和cpost
+cli.proxy:设置代理地址, 格式: proxy_hostname:proxy_port
+cli.h:http header, 格式: -H "key:value"
+cli.d:请求参数, 格式: -D "key=value"
+cli.cbJSON:以JSON串方式post发送的请求body, 例如: -cbJSON "'{''name':'wiseking''}'"
+cli.nonce:是否做nonce防重放处理，不定义为不做nonce重放处理
+cli.help:打印帮助信息
+cli.debug:打印调试信息
+cli.defparam:请定义 {} 参数
+cli.defh:错误的HTTP头定义 {} 正确格式: -H "key:value" !!
+cli.defpost:当定义-cbJSON请求参数时， -method 必须为post方式!
+cli.json.prefix:定义cbJSON请求参数串错误，请以"开头
+cli.errproxy:错误的proxy代理设置 {} 正确格式: -proxy "proxy_host:proxy_port" !!
