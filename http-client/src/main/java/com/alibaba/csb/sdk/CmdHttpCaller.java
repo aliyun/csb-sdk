@@ -173,7 +173,7 @@ public class CmdHttpCaller {
       }
     } catch (Exception e) {
       System.out.println("-- operation error：" + e.getMessage());
-      if (isDebug)
+      //if (isDebug)
         e.printStackTrace(System.out);
     }
   }

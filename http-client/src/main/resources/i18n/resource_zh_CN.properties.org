@@ -12,8 +12,8 @@ cli.cbJSON:以JSON串方式post发送的请求body, 例如: -cbJSON "'{''name':'
 cli.nonce:是否做nonce防重放处理，不定义为不做nonce重放处理
 cli.help:打印帮助信息
 cli.debug:打印调试信息
-cli.defparam:请定义 {} 参数
-cli.defh:错误的HTTP头定义 {} 正确格式: -H "key:value" !!
+cli.defparam:请定义 {0} 参数
+cli.defh:错误的HTTP头定义 {0} 正确格式: -H "key:value" !!
 cli.defpost:当定义-cbJSON请求参数时， -method 必须为post方式!
 cli.json.prefix:定义cbJSON请求参数串错误，请以"开头
-cli.errproxy:错误的proxy代理设置 {} 正确格式: -proxy "proxy_host:proxy_port" !!
+cli.errproxy:错误的proxy代理设置 {0} 正确格式: -proxy "proxy_host:proxy_port" !!
