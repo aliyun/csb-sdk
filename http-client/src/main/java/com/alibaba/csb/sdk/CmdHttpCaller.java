@@ -23,7 +23,7 @@ public class CmdHttpCaller {
     opt.addOption("proxy", true, MessageHelper.getMessage("cli.proxy"));
     opt.addOption("H", true, MessageHelper.getMessage("cli.h"));
     opt.addOption("D", true, MessageHelper.getMessage("cli.d"));
-    opt.addOption("cbJSON", true, MessageHelper.getMessage("cli.cbJSON"));
+    opt.addOption("cbJSON", true, MessageHelper.getMessage("cli.cbJSON", "\"{'name':'wiseking'}\""));
     opt.addOption("nonce", false, MessageHelper.getMessage("cli.nonce"));
     opt.addOption("h", "help", false, MessageHelper.getMessage("cli.help"));
     opt.addOption("d", "debug", false, MessageHelper.getMessage("cli.debug"));
