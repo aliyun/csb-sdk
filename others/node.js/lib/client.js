@@ -154,7 +154,8 @@ class Client extends Base {
             timeout: opts.timeout
         }).then((response) => {
             entry.request = {
-            headers: response.req._headers
+            //commet out this line for runtime error in react
+            //headers: response.req._headers
             };
             entry.response = {
             statusCode: response.statusCode,
