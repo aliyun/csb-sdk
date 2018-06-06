@@ -14,6 +14,8 @@ import java.util.Properties;
  * @author liaotian.wq
  * 
  * @since 2016
+ *
+ * @deprecated, use the new CmdHttpCaller cmd line.
  * 
  */
 public class CmdCaller {
