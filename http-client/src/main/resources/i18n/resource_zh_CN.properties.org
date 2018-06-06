@@ -17,3 +17,4 @@ cli.defh:错误的HTTP头定义 {0} 正确格式: -H "key:value" !!
 cli.defpost:当定义-cbJSON请求参数时， -method 必须为post方式!
 cli.json.prefix:定义cbJSON请求参数串错误，请以"开头
 cli.errproxy:错误的proxy代理设置 {0} 正确格式: -proxy "proxy_host:proxy_port" !!
+cli.change.charset:返回值是否需要转换charset

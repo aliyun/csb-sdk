@@ -27,6 +27,7 @@ public class CmdHttpCaller {
     opt.addOption("nonce", false, MessageHelper.getMessage("cli.nonce"));
     opt.addOption("h", "help", false, MessageHelper.getMessage("cli.help"));
     opt.addOption("d", "debug", false, MessageHelper.getMessage("cli.debug"));
+    opt.addOption("cc", "changeCharset", false, MessageHelper.getMessage("cli.change.charset"));
   }
 
   //TODO: move to  common
@@ -62,6 +63,7 @@ public class CmdHttpCaller {
       String cbJSON = commandline.getOptionValue("cbJSON");
       boolean nonce = commandline.hasOption("nonce");
       isDebug = commandline.hasOption("d");
+      Boolean changeCharset = commandline.hasOption("cc");
 
       if (isDebug) {
         System.out.println("url=" + url);
@@ -119,7 +121,7 @@ public class CmdHttpCaller {
       }
 
       if (cbJSON != null) {
-        if("cget".equalsIgnoreCase(method) || "cget".equalsIgnoreCase(method)) {
+        if("cget".equalsIgnoreCase(method) || "get".equalsIgnoreCase(method)) {
           System.out.println(MessageHelper.getMessage("cli.defpost"));
           return;
         }
@@ -161,8 +163,11 @@ public class CmdHttpCaller {
         System.out.println("---- curlString = " + ret);
       } else {
         System.out.println("---- response http headers = " + resHttpHeaders.toString());
-        System.out.println("---- retStr = " + ret);
-        System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret));
+        if(changeCharset)  {
+          System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret));
+        }else {
+          System.out.println("---- retStr = " + ret);
+        }
 
         //call multi-times for stress or flow-ctrl testing
         int times = Integer.getInteger("test.stress.times", 0);
