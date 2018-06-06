@@ -167,12 +167,12 @@ public class SignUtil {
 					if (!first) {
 						System.out.print(",");
 					}
-					System.out.print(key);
+					System.out.print(String.format("%s=%s",key, newParamsMap.get(key)));
 					first = false;
 
 				}
-				System.out.println("  == signature:" + signKey +
-						" costs time =" + (System.currentTimeMillis() - currT) + "ms");
+				System.out.println("\nsignature:" + signKey +
+						"\ncosts time =" + (System.currentTimeMillis() - currT) + "ms");
 			}
 			headerParamsMap.put(CsbSDKConstants.SIGNATURE_KEY, signKey);
 		}

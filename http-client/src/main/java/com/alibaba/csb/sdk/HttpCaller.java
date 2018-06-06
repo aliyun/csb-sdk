@@ -647,9 +647,7 @@ public class HttpCaller {
 
 		// normal headers have the chance to overwrite the direct headers.
 		HttpClientHelper.setHeaders(httpGet, headerParamsMap);
-		if (accessKey != null && DEBUG) {
-			HttpClientHelper.printDebugInfo("-- signature parameters are " + urlParamsMap);
-		}
+
 		try {
 			return doHttpReq(requestURL, httpGet, resHttpHeaders);
 		}finally {
@@ -898,9 +896,7 @@ public class HttpCaller {
 		HttpClientHelper.setDirectHeaders(httpPost, directHheaderParamsMap);
 
 		httpPost.setConfig(getRequestConfig());
-		if (accessKey != null) {
-			HttpClientHelper.printDebugInfo("signature parameters are " + urlParamsMap);
-		}
+
 		if (DEBUG) {
 			HttpClientHelper.printDebugInfo("-- prepare time = " + (System.currentTimeMillis() - startT)+ " ms ");
 		}
