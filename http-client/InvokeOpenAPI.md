@@ -21,6 +21,8 @@ import java.util.List;
 /**
  * 单元测试, 使用HttpCaller进行Console OpenAPI的调用
  *
+ * 注意: 本SDK只能访问私有部署的CSB-Console, 不能访问公有云的CSB-Console. 安全限制的原因。
+ * 建议使用POP API方式调用公有云控制台。
  * <pre>
  *   首先在你的pom.xml中加入http-sdk依赖包
  *   <dependency>

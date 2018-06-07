@@ -207,7 +207,7 @@ java [sys-props] -jar http-sdk-1.1.4.jar [options...]
 ```
 
 ## 4. 附录 
-### 4.0. 签名机制的说明
+### 4.1. 签名机制的说明
 如果CSB 控制台发布出来的HTTP 服务声明需要鉴权处理，则客户端调用该服务试CSB 要对每个访问请求进行身份验证。这就要求客户端无论使用HTTP 还是HTTPS协议提交请求，都需要在请求中包含签名（Signature）信息。
 CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来验证请求的发送者身份。 Access Key ID 和Access Key Secret由在管理控制台在服务订购时候指定和确认，HTTP SDK在访问时，按照下面的方法对请求进行签名处理：
 
@@ -228,7 +228,10 @@ CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来�
 
 ![alt http-sign-diagram](img/http-sign.png)
 
-### 4.1. 高级功能
+####  请求参数中包含中文导致签名验证失败的问题
+SDK在将参数签名完成后，在发送给服务端之前，会把请求参数进行URLEncoder编码，编码方式为当前Java系统中的file.encoding系统参数所指定的值。如请求参数中包含有中文，并且客户单的系统Charset编码参数与服务端的不一致的时候，当使用GET方式调用就可能出现验签失败的问题；当这种情况发生时要检查两端的Charset编码是否一致， 可以在SDK客户端设置编码方式(如: -Dfile.encoding=UTF-8)使编码与服务器一致。如果你的中文参数是写死在Java程序代码中，需要保证源码的编码方式与服务端要求的一致，否则也会出现签名失败的问题.
+
+### 4.2. 高级功能
 1. 设置代理地址 （注意：从1.1.4开始支持）
 
 ```
@@ -261,11 +264,11 @@ b. 也可以使用下面的方法设置以上的某一个或者多个参数：
       ...
       HttpCaller.doPost() or doGet();
 ```
-### 4.2. 使用http-sdk调用CSB控制台的Open API
+### 4.3. 使用http-sdk调用CSB控制台的Open API
 
 使用HTTP-SDK可以对控制台提供的OpenAPI进行调用,具体的例子[参见](InvokeOpenAPI.md)
 
-### 4.3. 在无Java对象的情况下，使用泛化的形式转换json串的工具
+### 4.4. 在无Java对象的情况下，使用泛化的形式转换json串的工具
 
 ```
   一个辅助工具类Java对象到JSON串的泛化转换，在不定义复杂对象类的情况下，把HTTP参数转换为Json串
