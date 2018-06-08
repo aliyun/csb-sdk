@@ -961,13 +961,17 @@ public class HttpCaller {
 	private static void fetchResHeaders(final HttpResponse response, final StringBuffer resHttpHeaders) {
 		if (response != null && resHttpHeaders != null) {
 			StringBuffer body = new StringBuffer();
+			//add response http status
+			body.append(String.format("\"%s\":\"%s\"", "HTTP-STATUS", response.getStatusLine()));
 			for (Header header:response.getAllHeaders()) {
 				if(body.length() > 0)
 					body.append(",");
 				body.append(String.format("\"%s\":\"%s\"", header.getName(), header.getValue()));
 			}
-			
-			resHttpHeaders.setLength(0);
+
+
+
+					resHttpHeaders.setLength(0);
 			resHttpHeaders.append(String.format("{%s}", body.toString()));
 		}
 	}
