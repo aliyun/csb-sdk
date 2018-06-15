@@ -19,6 +19,7 @@ public class WSParams {
   private boolean timestamp = true; //是否生成时间戳http-header
   private boolean nonce;            //是否成成Nonce防重放http-header
   private boolean debug;            //是否打印调试信息
+  private String signImpl;          //设置spi签名实现类
 
   public static WSParams create() {
     return new WSParams();
@@ -137,6 +138,16 @@ public class WSParams {
    */
   public WSParams mockRequest(boolean mockRequest) {
     this.mockRequest = mockRequest;
+    return this;
+  }
+
+  /**
+   * 设置其它的签名方法实现类
+   * @param signImpl
+   * @return
+   */
+  public WSParams signImpl(String signImpl) {
+    this.signImpl = signImpl;
     return this;
   }
 }

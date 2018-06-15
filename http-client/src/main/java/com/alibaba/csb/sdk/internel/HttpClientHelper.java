@@ -58,8 +58,8 @@ public class HttpClientHelper {
 	 * @return
 	 */
 	public static Map<String, String> newParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
-			String accessKey, String securityKey, boolean timestampFlag, boolean nonceFlag,  Map<String, String> extSignHeaders) {
-		return SignUtil.newParamsMap(paramsMap, apiName, version, accessKey, securityKey, timestampFlag, nonceFlag, extSignHeaders);
+			String accessKey, String securityKey, boolean timestampFlag, boolean nonceFlag,  Map<String, String> extSignHeaders, String spiImpl) {
+		return SignUtil.newParamsMap(paramsMap, apiName, version, accessKey, securityKey, timestampFlag, nonceFlag, extSignHeaders, spiImpl);
 	}
 
 	public static String trimWhiteSpaces(String value) {

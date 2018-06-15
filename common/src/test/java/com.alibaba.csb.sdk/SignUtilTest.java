@@ -1,5 +1,6 @@
 package com.alibaba.csb.sdk;
 
+import com.alibaba.csb.sdk.security.DefaultSignServiceImpl;
 import com.alibaba.csb.sdk.security.SignUtil;
 import org.junit.Test;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ public class SignUtilTest {
     params.put("_api_name", Arrays.asList("testa"));
     params.put("_api_version", Arrays.asList("1.0.0"));
     params.put("_api_access_key", Arrays.asList("4f196fb61c1f46ffbf71691ffad35dbb"));
-    String res = SignUtil.signMultiValueParams(params, sk);
+    String res = DefaultSignServiceImpl.getInstance().signMultiValueParams(params, sk);
     System.out.println("res="+res);
   }
 }

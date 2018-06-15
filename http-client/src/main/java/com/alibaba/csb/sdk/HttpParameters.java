@@ -17,7 +17,6 @@ import static com.alibaba.csb.sdk.internel.HttpClientHelper.trimWhiteSpaces;
  *
  */
 public class HttpParameters {
-	private static final Random random = new Random(System.currentTimeMillis());
 	private Builder builder;
 
 	String getApi() {
@@ -72,6 +71,11 @@ public class HttpParameters {
 		return builder.timestamp;
 	}
 
+
+	public String getSignImpl() {
+		return builder.signImpl;
+	}
+
 	/**
 	 * 显示所设置的各个属性值
 	 */
@@ -87,6 +91,7 @@ public class HttpParameters {
 		sb.append("\n Nonce=").append(this.isNonce());
 		//sb.append("\n signContentBody=").append(this.isSignContentBody());
 		sb.append("\n Timestamp=").append(this.isTimestamp());
+		sb.append("\n signImpl=").append(this.getSignImpl());
 		sb.append("\n params: \n");
 		for (Entry<String, String> entry : builder.paramsMap.entrySet()) {
 			sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
@@ -112,6 +117,7 @@ public class HttpParameters {
 		private String method = "GET";
 		private ContentBody contentBody = null;
 		private String requestUrl;
+		private String signImpl;
 		private boolean nonce;
 		private boolean timestamp = true;
 		private boolean signContentBody = false;
@@ -303,6 +309,16 @@ public class HttpParameters {
 		 */
 		public Builder sginContentBody(boolean sign) {
 			this.signContentBody = sign;
+			return this;
+		}
+
+		/**
+		 * 设置SPI签名实现类, 不使用默认的签名实现方法，而是使用自定义的并且与CSB-Broker协商过的实现
+		 * @param signImpl
+		 * @return
+		 */
+		public Builder signImpl(String signImpl) {
+			this.signImpl = signImpl;
 			return this;
 		}
 

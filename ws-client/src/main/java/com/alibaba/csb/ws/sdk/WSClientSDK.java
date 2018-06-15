@@ -8,6 +8,7 @@ import javax.xml.soap.MimeHeaders;
 import javax.xml.ws.BindingProvider;
 
 import com.alibaba.csb.sdk.CsbSDKConstants;
+import com.alibaba.csb.sdk.security.DefaultSignServiceImpl;
 import com.alibaba.csb.sdk.security.SignUtil;
 import com.alibaba.csb.ws.sdk.internal.BindingDynamicProxyHandler;
 import com.alibaba.csb.ws.sdk.internal.SOAPHeaderHandler;
@@ -72,7 +73,7 @@ public class WSClientSDK {
 		if (warmupFlag) {
 			return; 
 		}
-		SignUtil.sign(new HashMap<String,String>(), "sk");
+		DefaultSignServiceImpl.getInstance().sign(new HashMap<String, String>(), "sk");
 		warmupFlag = true;
 	}
 	
@@ -205,7 +206,8 @@ public class WSClientSDK {
 	 */
 	public static Map<String, String> generateSignHeaders(WSParams params) {
 		Map<String, String> extSignHeaderMap = genExtHeader(params.getFingerPrinter());
-		Map<String, String> requestHeaders = SignUtil.newParamsMap(null, params.getApi(), params.getVersion(), params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap);
+		Map<String, String> requestHeaders = SignUtil.newParamsMap(null, params.getApi(), params.getVersion(),
+				params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap, params.getSignImpl());
 
 		if (params.isMockRequest())
 			requestHeaders.put(CsbSDKConstants.HEADER_MOCK, "true");

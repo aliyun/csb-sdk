@@ -2,6 +2,7 @@ package com.alibaba.csb.sdk;
 
 import com.alibaba.csb.sdk.internel.HttpClientFactory;
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
+import com.alibaba.csb.sdk.security.DefaultSignServiceImpl;
 import com.alibaba.csb.sdk.security.SignUtil;
 
 import org.apache.http.Header;
@@ -324,7 +325,7 @@ public class HttpCaller {
 		if (warmupFlag) {
 			return; 
 		}
-		SignUtil.sign(new HashMap<String,String>(), "sk");
+		DefaultSignServiceImpl.getInstance().sign(new HashMap<String, String>(), "sk");
 		warmupFlag = true;
 	}
 	
@@ -567,7 +568,7 @@ public class HttpCaller {
 				.accessKey(accessKey).secretKey(secretKey)
 				.build();
 
-		return doGet(hp, null, null);
+		return doGet(hp, null, null, null);
 	}
 
 	private static String generateAsEncodeRequestUrl(String requestURL, Map<String, List<String>> urlParamsMap) {
@@ -595,7 +596,7 @@ public class HttpCaller {
 		return newRequestURL;
 	}
 
-	private static String doGet(HttpParameters hp, StringBuffer resHttpHeaders, Map<String, String> extSignHeadersMap) throws HttpCallerException {
+	private static String doGet(HttpParameters hp, StringBuffer resHttpHeaders, Map<String, String> extSignHeadersMap, String spiImpl) throws HttpCallerException {
 		final String requestURL = hp.getRequestUrl();
 		String apiName = hp.getApi();
 		String version = hp.getVersion();
@@ -620,7 +621,7 @@ public class HttpCaller {
 		startProcessRestful(requestURL, restfulProtocolVersion, urlParamsMap);
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey, hp.isTimestamp(), hp.isNonce() , extSignHeadersMap);
+				secretKey, hp.isTimestamp(), hp.isNonce() , extSignHeadersMap, spiImpl);
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
@@ -848,7 +849,7 @@ public class HttpCaller {
 		HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version)
 				.contentBody(cb).accessKey(accessKey).secretKey(secretKey)
 				.build();
-		return doPost(hp, null, null);
+		return doPost(hp, null, null, null);
 	}
 
 	/**
@@ -857,7 +858,7 @@ public class HttpCaller {
 	 * @return
 	 * @throws HttpCallerException
 	 */
-	private static String doPost(HttpParameters hp, StringBuffer resHttpHeaders, Map<String, String> extSignHeadersMap) throws HttpCallerException {
+	private static String doPost(HttpParameters hp, StringBuffer resHttpHeaders, Map<String, String> extSignHeadersMap, String spiImpl) throws HttpCallerException {
 		final String requestURL = hp.getRequestUrl();
 		String apiName = hp.getApi();
 		String version = hp.getVersion();
@@ -883,7 +884,7 @@ public class HttpCaller {
 		}
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey, true, nonceFlag, extSignHeadersMap);
+				secretKey, true, nonceFlag, extSignHeadersMap, spiImpl);
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
@@ -1044,7 +1045,7 @@ public class HttpCaller {
 		HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
 				.accessKey(accessKey).secretKey(secretKey)
 				.build();
-		return doPost(hp, null, null);
+		return doPost(hp, null, null, null);
 	}
 	
 	/**
@@ -1065,9 +1066,9 @@ public class HttpCaller {
 
 		if ("POST".equalsIgnoreCase(hp.getMethod()) ||
 				"CPOST".equalsIgnoreCase(hp.getMethod())) {
-			return doPost(hp, resHttpHeaders, extSignHeaders);
+			return doPost(hp, resHttpHeaders, extSignHeaders, hp.getSignImpl());
 		} else
-			return doGet(hp,resHttpHeaders, extSignHeaders);
+			return doGet(hp,resHttpHeaders, extSignHeaders, hp.getSignImpl());
 	}
 
 	/**
