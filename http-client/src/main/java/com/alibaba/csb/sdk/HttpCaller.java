@@ -3,7 +3,6 @@ package com.alibaba.csb.sdk;
 import com.alibaba.csb.sdk.internel.HttpClientFactory;
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
 import com.alibaba.csb.sdk.security.DefaultSignServiceImpl;
-import com.alibaba.csb.sdk.security.SignUtil;
 
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -210,7 +209,6 @@ public class HttpCaller {
 	private static final String DEFAULT_RESTFUL_PROTOCOL_VERSION = "1.0";
 	private static final String RESTFUL_PROTOCOL_VERION_KEY = "restful_protocol_version";
 
-	public static final Boolean DEBUG = Boolean.getBoolean("http.caller.DEBUG");
 	// 设置是否使用连接池的开关 -Dhttp.caller.skip.connection.pool=true 不使用连接池
 	public static final Boolean SKIP_CONN_POOL = Boolean.getBoolean("http.caller.skip.connection.pool");
 	// 检查连接池中不可用的连接的间隔 (单位ms, 默认 100ms)
@@ -265,14 +263,14 @@ public class HttpCaller {
 				clearThread.setDaemon(true);
 				clearThread.start();
 			} else {
-				if (DEBUG) {
-					System.out.println("[WARNING] skip using connection pool");
+				if (SdkLogger.isLoggable()) {
+					SdkLogger.print("[WARNING] skip using connection pool");
 				}
 			}
 		} catch (HttpCallerException e) {
 			HTTP_CLIENT = null;
 			System.out.println("[WARNING] failed to create a pooled http client with the error : " + e.getMessage());
-			if (DEBUG) {
+			if (SdkLogger.isLoggable()) {
 				e.printStackTrace(System.out);
 			}
 		}
@@ -528,7 +526,7 @@ public class HttpCaller {
 	 * @param accessKey
 	 *            访问key
 	 * @param secretKey
-	 *            安全key
+	 *            安全keyx
 	 * @return 调用的返回值，按约定进行解析 (如 JOSN串转换成对象)
 	 * @throws HttpCallerException
 	 *             调用过程中发生的任何异常   
@@ -568,7 +566,7 @@ public class HttpCaller {
 				.accessKey(accessKey).secretKey(secretKey)
 				.build();
 
-		return doGet(hp, null, null, null);
+		return doGet(hp, null).response;
 	}
 
 	private static String generateAsEncodeRequestUrl(String requestURL, Map<String, List<String>> urlParamsMap) {
@@ -596,7 +594,7 @@ public class HttpCaller {
 		return newRequestURL;
 	}
 
-	private static String doGet(HttpParameters hp, StringBuffer resHttpHeaders, Map<String, String> extSignHeadersMap, String spiImpl) throws HttpCallerException {
+	private static HttpReturn doGet(HttpParameters hp, Map<String, String> extSignHeadersMap) throws HttpCallerException {
 		final String requestURL = hp.getRequestUrl();
 		String apiName = hp.getApi();
 		String version = hp.getVersion();
@@ -606,7 +604,6 @@ public class HttpCaller {
 		String secretKey = hp.getSecretkey();
 		Map<String, String> directParamsMap = hp.getHeaderParamsMap();
 		String restfulProtocolVersion = hp.getRestfulProtocolVersion();
-		boolean nonceFlag = hp.isNonce();
 
 		long startT = System.currentTimeMillis();
 		long initT = startT;
@@ -614,18 +611,20 @@ public class HttpCaller {
 
 		Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
 		HttpClientHelper.mergeParams(urlParamsMap, paramsMap, true);
-		if (DEBUG) {
-			  HttpClientHelper.printDebugInfo("--+++ prepare params costs = " + (System.currentTimeMillis() - startT)+ " ms ");
+		if (SdkLogger.isLoggable()) {
+			  SdkLogger.print("--+++ prepare params costs = " + (System.currentTimeMillis() - startT) + " ms ");
 			  startT = System.currentTimeMillis();
 		}
 		startProcessRestful(requestURL, restfulProtocolVersion, urlParamsMap);
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey, hp.isTimestamp(), hp.isNonce() , extSignHeadersMap, spiImpl);
+				secretKey, hp.isTimestamp(), hp.isNonce() , extSignHeadersMap, hp.getSignImpl());
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
 		String newRequestURL = generateAsEncodeRequestUrl(requestURL, urlParamsMap);
+
+		HttpReturn ret = new HttpReturn();
 
 		if (isCurlResponse()) {
 			StringBuffer curl = new StringBuffer("curl ");
@@ -633,11 +632,11 @@ public class HttpCaller {
 			curl.append(HttpClientHelper.genCurlHeaders(headerParamsMap));
 			curl.append(" -k ");
 			curl.append("\"").append(newRequestURL).append("\"");
-			
-			return curl.toString();
+			ret.response=curl.toString();
+			return  ret;
 		}
 
-		if (DEBUG) {
+		if (SdkLogger.isLoggable()) {
 			  startT = System.currentTimeMillis();
 		}	
 		HttpGet httpGet = new HttpGet(newRequestURL);
@@ -649,11 +648,12 @@ public class HttpCaller {
 		// normal headers have the chance to overwrite the direct headers.
 		HttpClientHelper.setHeaders(httpGet, headerParamsMap);
 
+
 		try {
-			return doHttpReq(requestURL, httpGet, resHttpHeaders);
+			return doHttpReq(requestURL, httpGet, ret);
 		}finally {
-			if (DEBUG) {
-				HttpClientHelper.printDebugInfo("-- total = " + (System.currentTimeMillis() - initT) + " ms ");
+			if (SdkLogger.isLoggable()) {
+				SdkLogger.print("-- total = " + (System.currentTimeMillis() - initT) + " ms ");
 			}
 		}
 	}
@@ -751,7 +751,7 @@ public class HttpCaller {
 		httpGet.setConfig(getRequestConfig());
 		HttpClientHelper.printDebugInfo("requestURL=" + requestURL);
 
-		return doHttpReq(requestURL,httpGet, null);
+		return doHttpReq(requestURL,httpGet, null).response;
 	}
 
 	/**
@@ -849,16 +849,16 @@ public class HttpCaller {
 		HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version)
 				.contentBody(cb).accessKey(accessKey).secretKey(secretKey)
 				.build();
-		return doPost(hp, null, null, null);
+		return doPost(hp, null).response;
 	}
 
 	/**
 	 * 所有doPost的真正入口参数，httppost逻辑集成在这个方法中
-	 * @param resHttpHeaders 是否返回http reponse headers, 如果请求参数不为空，会出现 {"_HTTP_HEADERS":[{"key":"value"}]}返回部分
+	 * resHttpHeaders 是否返回http reponse headers, 如果请求参数不为空，会出现 {"_HTTP_HEADERS":[{"key":"value"}]}返回部分
 	 * @return
 	 * @throws HttpCallerException
 	 */
-	private static String doPost(HttpParameters hp, StringBuffer resHttpHeaders, Map<String, String> extSignHeadersMap, String spiImpl) throws HttpCallerException {
+	private static HttpReturn doPost(HttpParameters hp, Map<String, String> extSignHeadersMap) throws HttpCallerException {
 		final String requestURL = hp.getRequestUrl();
 		String apiName = hp.getApi();
 		String version = hp.getVersion();
@@ -869,6 +869,8 @@ public class HttpCaller {
 		Map<String, String> directHheaderParamsMap = hp.getHeaderParamsMap();
 		String restfulProtocolVersion = hp.getRestfulProtocolVersion();
 		boolean nonceFlag = hp.isNonce();
+
+		HttpReturn ret = new HttpReturn();
 
 		long startT = System.currentTimeMillis();
 		HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
@@ -884,12 +886,12 @@ public class HttpCaller {
 		}
 
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey, true, nonceFlag, extSignHeadersMap, spiImpl);
+				secretKey, true, nonceFlag, extSignHeadersMap, hp.getSignImpl());
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
 		if (isCurlResponse()) {
-			return HttpClientHelper.createPostCurlString(newRequestURL, paramsMap, headerParamsMap, cb, directHheaderParamsMap);
+			return new HttpReturn(HttpClientHelper.createPostCurlString(newRequestURL, paramsMap, headerParamsMap, cb, directHheaderParamsMap));
 		}
 
 		HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb);
@@ -898,33 +900,38 @@ public class HttpCaller {
 
 		httpPost.setConfig(getRequestConfig());
 
-		if (DEBUG) {
-			HttpClientHelper.printDebugInfo("-- prepare time = " + (System.currentTimeMillis() - startT)+ " ms ");
+		if (SdkLogger.isLoggable()) {
+			SdkLogger.print("-- prepare time = " + (System.currentTimeMillis() - startT) + " ms ");
 		}
 
 		try {
-			return doHttpReq(newRequestURL, httpPost, resHttpHeaders);
+			return doHttpReq(newRequestURL, httpPost, ret);
 		} finally {
-			if (DEBUG) {
-				HttpClientHelper.printDebugInfo("-- total = " + (System.currentTimeMillis() - startT) + " ms ");
+			if (SdkLogger.isLoggable()) {
+				SdkLogger.print("-- total = " + (System.currentTimeMillis() - startT) + " ms ");
 			}
 		}
 
 	}
 
-	private static String doHttpReq(String requestURL,HttpRequestBase httpRequestBase, StringBuffer sb)throws HttpCallerException {
+	private static HttpReturn doHttpReq(String requestURL,HttpRequestBase httpRequestBase, final HttpReturn ret)throws HttpCallerException {
 		boolean async = isAsync();
 		if(async){
-			return doAsyncHttpReq(requestURL, httpRequestBase, sb);
+			return doAsyncHttpReq(requestURL, httpRequestBase, ret);
 		}else {
-			return doSyncHttpReq(requestURL, httpRequestBase, sb);
+			return doSyncHttpReq(requestURL, httpRequestBase, ret);
 		}
 
 	}
-	private static String doSyncHttpReq(String requestURL,HttpRequestBase httpRequestBase, final StringBuffer resHttpHeaders) throws HttpCallerException {
-		if (DEBUG) {
-			HttpClientHelper.printDebugInfo("doSyncHttpReq ");
+	private static HttpReturn doSyncHttpReq(String requestURL,HttpRequestBase httpRequestBase, final HttpReturn ret) throws HttpCallerException {
+		if (SdkLogger.isLoggable()) {
+			SdkLogger.print("doSyncHttpReq ");
 		}
+		HttpReturn rret = ret;
+		if(ret==null) {
+			rret = new HttpReturn();
+		}
+
 		long startT = System.currentTimeMillis();
 		CloseableHttpResponse response = null;
 		CloseableHttpClient httpClient = null;
@@ -933,15 +940,19 @@ public class HttpCaller {
 		} else {
 			httpClient = createSyncHttpClient(requestURL);
 		}
-		if (DEBUG) {
-			HttpClientHelper.printDebugInfo("--+++ get httpclient costs = " + (System.currentTimeMillis() - startT)+ " ms ");
+		if (SdkLogger.isLoggable()) {
+			SdkLogger.print("--+++ get httpclient costs = " + (System.currentTimeMillis() - startT) + " ms ");
 			startT = System.currentTimeMillis();
 		}
 		try {
 			try {
 				response = httpClient.execute(httpRequestBase);
-				fetchResHeaders(response, resHttpHeaders);
-				return EntityUtils.toString(response.getEntity());
+				if(rret.diagnosticFlag) {
+					rret.responseHeaders = fetchResHeaders(response);
+				}
+				rret.response = EntityUtils.toString(response.getEntity());
+
+				return rret;
 			} finally {
 				if (response != null) {
 					response.close();
@@ -950,8 +961,8 @@ public class HttpCaller {
 				if (HTTP_CLIENT == null) {
 					httpClient.close();
 				}
-				if (DEBUG) {
-					HttpClientHelper.printDebugInfo("-- http req & resp time = " + (System.currentTimeMillis() - startT)+ " ms ");
+				if (SdkLogger.isLoggable()) {
+					SdkLogger.print("-- http req & resp time = " + (System.currentTimeMillis() - startT) + " ms ");
 				}
 			}
 		} catch (Exception e) {
@@ -959,8 +970,8 @@ public class HttpCaller {
 		}
 	}
 
-	private static void fetchResHeaders(final HttpResponse response, final StringBuffer resHttpHeaders) {
-		if (response != null && resHttpHeaders != null) {
+	private static String fetchResHeaders(final HttpResponse response) {
+		if (response != null) {
 			StringBuffer body = new StringBuffer();
 			//add response http status
 			body.append(String.format("\"%s\":\"%s\"", "HTTP-STATUS", response.getStatusLine()));
@@ -969,24 +980,27 @@ public class HttpCaller {
 					body.append(",");
 				body.append(String.format("\"%s\":\"%s\"", header.getName(), header.getValue()));
 			}
-
-
-
-					resHttpHeaders.setLength(0);
-			resHttpHeaders.append(String.format("{%s}", body.toString()));
+			return String.format("{%s}", body.toString());
 		}
+
+		return null;
 	}
 
-	private static String doAsyncHttpReq(String requestURL,HttpRequestBase httpRequestBase, final StringBuffer resHttpHeaders) throws HttpCallerException {
-		if (DEBUG) {
-			HttpClientHelper.printDebugInfo("doAsyncHttpReq ");
+	private static HttpReturn doAsyncHttpReq(String requestURL,HttpRequestBase httpRequestBase, final HttpReturn ret) throws HttpCallerException {
+		if (SdkLogger.isLoggable()) {
+			SdkLogger.print("doAsyncHttpReq ");
+		}
+
+		HttpReturn rret = ret;
+		if(ret==null) {
+			rret = new HttpReturn();
 		}
 
 		long startT = System.currentTimeMillis();
 		HttpResponse response = null;
 		CloseableHttpAsyncClient httpClient = createAsyncHttpClient(requestURL);
-		if (DEBUG) {
-			HttpClientHelper.printDebugInfo("--+++ get httpclient costs = " + (System.currentTimeMillis() - startT)+ " ms ");
+		if (SdkLogger.isLoggable()) {
+			SdkLogger.print("--+++ get httpclient costs = " + (System.currentTimeMillis() - startT) + " ms ");
 			startT = System.currentTimeMillis();
 		}
 		try {
@@ -997,8 +1011,8 @@ public class HttpCaller {
 
 				long waitTime = getFutureGetTimeOut();
 
-				if (DEBUG) {
-					HttpClientHelper.printDebugInfo("future waitTime :" + waitTime);
+				if (SdkLogger.isLoggable()) {
+					SdkLogger.print("future waitTime :" + waitTime);
 				}
 
 				if(waitTime>0) {
@@ -1006,12 +1020,17 @@ public class HttpCaller {
 				}else{
 					response = asyncFuture.get();
 				}
-				fetchResHeaders(response, resHttpHeaders);
-				return EntityUtils.toString(response.getEntity());
+
+				rret.response = EntityUtils.toString(response.getEntity());
+				if(rret.diagnosticFlag) {
+					rret.responseHeaders = fetchResHeaders(response);
+				}
+
+				return rret;
 			} finally {
 				httpClient.close();
-				if (DEBUG) {
-					HttpClientHelper.printDebugInfo("-- http req & resp time = " + (System.currentTimeMillis() - startT)+ " ms ");
+				if (SdkLogger.isLoggable()) {
+					SdkLogger.print("-- http req & resp time = " + (System.currentTimeMillis() - startT) + " ms ");
 				}
 			}
 		} catch (Exception e) {
@@ -1045,7 +1064,7 @@ public class HttpCaller {
 		HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
 				.accessKey(accessKey).secretKey(secretKey)
 				.build();
-		return doPost(hp, null, null, null);
+		return doPost(hp, null).response;
 	}
 	
 	/**
@@ -1057,6 +1076,16 @@ public class HttpCaller {
 	 * @throws HttpCallerException
 	 */
 	public static String invoke(HttpParameters hp, StringBuffer resHttpHeaders) throws HttpCallerException {
+		HttpReturn res = invokeWithDiagnostic(hp);
+		if(resHttpHeaders!=null && res.responseHeaders != null) {
+			resHttpHeaders.setLength(0);
+			resHttpHeaders.append(res.responseHeaders);
+		}
+
+		return res.response;
+	}
+
+	public static HttpReturn invokeWithDiagnostic(HttpParameters hp) throws HttpCallerException {
 		if (hp == null)
 			throw new IllegalArgumentException("null parameter!");
 		HttpClientHelper.printDebugInfo("-- httpParameters=" + hp.toString());
@@ -1066,9 +1095,9 @@ public class HttpCaller {
 
 		if ("POST".equalsIgnoreCase(hp.getMethod()) ||
 				"CPOST".equalsIgnoreCase(hp.getMethod())) {
-			return doPost(hp, resHttpHeaders, extSignHeaders, hp.getSignImpl());
+			return doPost(hp, extSignHeaders);
 		} else
-			return doGet(hp,resHttpHeaders, extSignHeaders, hp.getSignImpl());
+			return doGet(hp,extSignHeaders);
 	}
 
 	/**

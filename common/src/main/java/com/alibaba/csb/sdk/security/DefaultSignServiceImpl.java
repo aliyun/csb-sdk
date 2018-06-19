@@ -1,6 +1,7 @@
 package com.alibaba.csb.sdk.security;
 
 import com.alibaba.csb.sdk.CsbSDKConstants;
+import com.alibaba.csb.sdk.SdkLogger;
 import com.alibaba.csb.security.spi.SignService;
 
 import java.util.*;
@@ -11,7 +12,6 @@ import java.util.*;
  */
 public class DefaultSignServiceImpl implements SignService {
   private static final Random random = new Random(System.currentTimeMillis());
-  private static boolean DEBUG = Boolean.getBoolean("csb.sdk.DEBUG") || Boolean.getBoolean("http.caller.DEBUG");
 
   private static DefaultSignServiceImpl singleton = new DefaultSignServiceImpl();
 
@@ -84,19 +84,21 @@ public class DefaultSignServiceImpl implements SignService {
       newParamsMap.remove(CsbSDKConstants.SECRET_KEY);
       long currT = System.currentTimeMillis();
       String signKey = signMultiValueParams(newParamsMap, securityKey);
-      if (DEBUG) {
-        System.out.println("sign parameters:");
+      if (SdkLogger.isLoggable()) {
+        StringBuffer msg = new StringBuffer();
+        msg.append("sign parameters:\n");
         boolean first = true;
         for (String key:newParamsMap.keySet()) {
           if (!first) {
-            System.out.print(",");
+            msg.append(",");
           }
-          System.out.print(String.format("%s=%s",key, newParamsMap.get(key)));
+          msg.append(String.format("%s=%s", key, newParamsMap.get(key)));
           first = false;
 
         }
-        System.out.println("\nsignature:" + signKey +
+        msg.append("\nsignature:" + signKey +
             "\ncosts time =" + (System.currentTimeMillis() - currT) + "ms");
+        SdkLogger.print(msg.toString());
       }
       headerParamsMap.put(CsbSDKConstants.SIGNATURE_KEY, signKey);
     }

@@ -8,6 +8,7 @@ import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.alibaba.csb.sdk.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -18,12 +19,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
-import com.alibaba.csb.sdk.ContentBody;
-import com.alibaba.csb.sdk.HttpCaller;
 import com.alibaba.csb.sdk.ContentBody.Type;
-import com.alibaba.csb.sdk.CsbSDKConstants;
 import com.alibaba.csb.sdk.security.SignUtil;
-import com.alibaba.csb.sdk.HttpCallerException;
 //import com.alibaba.fastjson.JSONObject;
 
 /**
@@ -32,8 +29,8 @@ import com.alibaba.csb.sdk.HttpCallerException;
  */
 public class HttpClientHelper {
 	public static void printDebugInfo(String msg) {
-		if (HttpCaller.DEBUG)
-			System.out.println(msg);
+		if (SdkLogger.isLoggable())
+			SdkLogger.print(msg);
 	}
 
 	public static void mergeParams(Map<String, List<String>> urlParamsMap, Map<String, String> paramsMap, boolean decodeFlag) throws HttpCallerException {
