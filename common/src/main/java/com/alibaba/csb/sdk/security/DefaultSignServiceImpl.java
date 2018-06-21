@@ -22,10 +22,10 @@ public class DefaultSignServiceImpl implements SignService {
   }
 
   @Override
-  public Map<String, String> signParamsMap(Map<String, List<String>> paramsMap,
+  public Map<String, String> signParamsMap(final Map<String, List<String>> paramsMap,
                                            String apiName, String version,
                                            String accessKey, String securityKey,
-                                           boolean timestampFlag, boolean nonceFlag, Map<String, String> extSignHeaders) {
+                                           boolean timestampFlag, boolean nonceFlag, final StringBuffer signDiagnosticInfo, final Map<String, String> extSignHeaders) {
     Map<String, List<String>> newParamsMap = new HashMap<String, List<String>>();
     Map<String, String> headerParamsMap = new HashMap<String, String>();
 
@@ -84,7 +84,7 @@ public class DefaultSignServiceImpl implements SignService {
       newParamsMap.remove(CsbSDKConstants.SECRET_KEY);
       long currT = System.currentTimeMillis();
       String signKey = signMultiValueParams(newParamsMap, securityKey);
-      if (SdkLogger.isLoggable()) {
+      if (SdkLogger.isLoggable() || signDiagnosticInfo != null) {
         StringBuffer msg = new StringBuffer();
         msg.append("sign parameters:\n");
         boolean first = true;
@@ -98,7 +98,14 @@ public class DefaultSignServiceImpl implements SignService {
         }
         msg.append("\nsignature:" + signKey +
             "\ncosts time =" + (System.currentTimeMillis() - currT) + "ms");
-        SdkLogger.print(msg.toString());
+        if(signDiagnosticInfo!=null) {
+          signDiagnosticInfo.setLength(0);
+          signDiagnosticInfo.append(msg.toString());
+        }
+
+        if(SdkLogger.isLoggable()) {
+          SdkLogger.print(msg.toString());
+        }
       }
       headerParamsMap.put(CsbSDKConstants.SIGNATURE_KEY, signKey);
     }

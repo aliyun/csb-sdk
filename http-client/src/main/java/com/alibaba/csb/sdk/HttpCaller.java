@@ -1,30 +1,26 @@
 package com.alibaba.csb.sdk;
 
-import com.alibaba.csb.sdk.internel.HttpClientFactory;
+import com.alibaba.csb.sdk.internel.DiagnosticHelper;
+import com.alibaba.csb.sdk.internel.HttpClientConnManager;
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
 import com.alibaba.csb.sdk.security.DefaultSignServiceImpl;
 
-import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
-import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -35,7 +31,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -202,27 +197,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpCaller {
 	private static boolean warmupFlag = false;
-	private static CloseableHttpClient HTTP_CLIENT = null;
-	private static PoolingHttpClientConnectionManager connMgr = null;
 
 	private static final String RESTFUL_PATH_SIGNATURE_KEY = "csb_restful_path_signature_key";
 	private static final String DEFAULT_RESTFUL_PROTOCOL_VERSION = "1.0";
 	private static final String RESTFUL_PROTOCOL_VERION_KEY = "restful_protocol_version";
 
-	// 设置是否使用连接池的开关 -Dhttp.caller.skip.connection.pool=true 不使用连接池
-	public static final Boolean SKIP_CONN_POOL = Boolean.getBoolean("http.caller.skip.connection.pool");
-	// 检查连接池中不可用的连接的间隔 (单位ms, 默认 100ms)
-	private static final int VALIDATE_PERIOD = Integer.getInteger("http.caller.connection.validate.span", 100);  
-	// 清除连接池中过期或者长时间限制的连接的时间间隔 (单位ms, 默认 5000ms)
-	private static final int CLEAN_PERIOD = Integer.getInteger("http.caller.connection.clean.span", 5000);  
-	private static final int MAX_CONNECTION_TIMEOUT = -1;  
-	private static final int MAX_SOCKET_TIMEOUT = -1;    
-	private static final int MAX_CR_TIMEOUT = -1;  
-	private static final List<String> SUPPORTED_CONNECTION_PARAMS = Arrays.asList("http.caller.connection.max",
-			"http.caller.connection.timeout",
-			"http.caller.connection.so.timeout",
-			"http.caller.connection.cr.timeout",
-			"http.caller.connection.async");
 
 	// TODO: must set truststore for ssl
 	public static final String trustCA = System.getProperty("http.caller.ssl.trustca");
@@ -235,81 +214,8 @@ public class HttpCaller {
 	private static ThreadLocal<Boolean> toCurlCmd = new ThreadLocal<Boolean>();
 	private static ThreadLocal<HttpHost> proxyConfigThreadLocal = new ThreadLocal<HttpHost>();
 
-	private static final RequestConfig.Builder requestConfigBuilder = createConnBuilder();
+	private static final RequestConfig.Builder requestConfigBuilder = HttpClientConnManager.createConnBuilder();
 	private static final ThreadLocal<RequestConfig.Builder> requestConfigBuilderLocal = new ThreadLocal<RequestConfig.Builder>();
-
-	static {
-		try {
-			if (!SKIP_CONN_POOL) {
-				// 设置连接池
-				connMgr = HttpClientFactory.createConnManager();
-				// 设置连接池大小
-				String maxConn = System.getProperty(SUPPORTED_CONNECTION_PARAMS.get(0));
-				if (maxConn != null) {
-					try {
-						int imaxConn = Integer.parseInt(maxConn);
-						connMgr.setMaxTotal(imaxConn);
-						connMgr.setDefaultMaxPerRoute(connMgr.getMaxTotal());
-					} catch (Exception e) {
-						// log it!
-						throw new HttpCallerException(String.format("[ERROR] CSB-SDK failed to create connection pool with %d connections", maxConn));
-					}
-				}
-				connMgr.setValidateAfterInactivity(VALIDATE_PERIOD);
-
-				HTTP_CLIENT = HttpClientFactory.createCloseableHttpClient(connMgr);
-
-				final IdleConnectionMonitorThread clearThread = new IdleConnectionMonitorThread(connMgr);
-				clearThread.setDaemon(true);
-				clearThread.start();
-			} else {
-				if (SdkLogger.isLoggable()) {
-					SdkLogger.print("[WARNING] skip using connection pool");
-				}
-			}
-		} catch (HttpCallerException e) {
-			HTTP_CLIENT = null;
-			System.out.println("[WARNING] failed to create a pooled http client with the error : " + e.getMessage());
-			if (SdkLogger.isLoggable()) {
-				e.printStackTrace(System.out);
-			}
-		}
-	}
-	
-	public static class IdleConnectionMonitorThread extends Thread {
-	    private final HttpClientConnectionManager connMgr;
-	    private volatile boolean shutdown;
-	    
-	    public IdleConnectionMonitorThread(HttpClientConnectionManager connMgr) {
-	        super();
-	        this.connMgr = connMgr;
-	    }
-
-	    @Override
-	    public void run() {
-	        try {
-	            while (!shutdown) {
-	                synchronized (this) {
-	                    wait(CLEAN_PERIOD);
-	                    // Close expired connections
-	                    connMgr.closeExpiredConnections();
-	                    // Optionally, close connections
-	                    // that have been idle longer than 30 sec
-	                    connMgr.closeIdleConnections(30, TimeUnit.SECONDS);
-	                }
-	            }
-	        } catch (InterruptedException ex) {
-	            // terminate
-	        }
-	    }
-	    
-	    public void shutdown() {
-	        shutdown = true;
-	        synchronized (this) {
-	            notifyAll();
-	        }
-	    }
-	}
 
 	private HttpCaller() {
 	}
@@ -327,52 +233,6 @@ public class HttpCaller {
 		warmupFlag = true;
 	}
 	
-	private static RequestConfig.Builder createConnBuilder() {
-		RequestConfig.Builder configBuilder = RequestConfig.custom();
-		String CONN_TIMEOUT = System.getProperty(SUPPORTED_CONNECTION_PARAMS.get(1));
-		String SO_TIMEOUT = System.getProperty(SUPPORTED_CONNECTION_PARAMS.get(2));
-		String CR_TIMEOUT = System.getProperty(SUPPORTED_CONNECTION_PARAMS.get(3));
-		
-		// 设置连接超时
-		int  iconnTimeout = MAX_CONNECTION_TIMEOUT;
-		if (CONN_TIMEOUT != null) {
-			try {
-				iconnTimeout = Integer.parseInt(CONN_TIMEOUT);
-			} catch (Exception e) {
-				// log it!
-			}
-		}
-		configBuilder.setConnectTimeout(iconnTimeout);
-		// 设置读取超时
-		int  isoTimeout = MAX_SOCKET_TIMEOUT;
-		if (SO_TIMEOUT != null) {
-			try {
-				isoTimeout = Integer.parseInt(SO_TIMEOUT);
-			} catch (Exception e) {
-				// log it!
-			}
-		}
-		configBuilder.setSocketTimeout(isoTimeout);
-		// 设置从连接池获取连接实例的超时
-		int  icrTimeout = MAX_CR_TIMEOUT;
-		if (CR_TIMEOUT != null) {
-			try {
-				icrTimeout = Integer.parseInt(CR_TIMEOUT);
-			} catch (Exception e) {
-				// log it!
-			}
-		}
-		configBuilder.setConnectionRequestTimeout(icrTimeout);
-		// 在提交请求之前 测试连接是否可用
-		// 不要使用下面这个过期的方法，它的效率会很低
-		//configBuilder.setStaleConnectionCheckEnabled(true);
-		
-		// 设置cookie ignore 
-		configBuilder.setCookieSpec(CookieSpecs.IGNORE_COOKIES);
-		//DefaultHttpParams.getDefaultParams().setParameter("http.protocol.cookie-policy", CookiePolicy.BROWSER_COMPATIBILITY);
-		return  configBuilder;
-	}
-
 	/**
 	 * 为接下来的调用设置代理参数。 注意：本次设置只对本线程起作用
 	 * @param hostname
@@ -391,24 +251,7 @@ public class HttpCaller {
 		if (params == null || params.size() == 0) {
 			requestConfigBuilderLocal.set(requestConfigBuilder);
 		} else {
-			RequestConfig.Builder connBuilder = createConnBuilder();
-			for (Entry<String,String> es:params.entrySet()) {
-				if(!SUPPORTED_CONNECTION_PARAMS.contains(es.getKey())){
-				throw new IllegalArgumentException("error connection param:" + es.getKey());
-				}
-				if (connMgr != null && es.getKey().equals(SUPPORTED_CONNECTION_PARAMS.get(0))) {
-					connMgr.setMaxTotal(Integer.parseInt(es.getValue()));
-					
-				} else if (es.getKey().equals(SUPPORTED_CONNECTION_PARAMS.get(1))) {
-					connBuilder.setConnectTimeout(Integer.parseInt(es.getValue()));
-				} else if (es.getKey().equals(SUPPORTED_CONNECTION_PARAMS.get(2))) {
-					connBuilder.setSocketTimeout(Integer.parseInt(es.getValue()));
-				} else if (es.getKey().equals(SUPPORTED_CONNECTION_PARAMS.get(3))) {
-					connBuilder.setConnectionRequestTimeout(Integer.parseInt(es.getValue()));
-				} 
-				HttpClientHelper.printDebugInfo(String.format("set %s as %s",es.getKey(),es.getValue()));
-			}
-			requestConfigBuilderLocal.set(connBuilder);
+			requestConfigBuilderLocal.set(HttpClientConnManager.createConnBuilder(params));
 		}
 	}
 	
@@ -569,31 +412,6 @@ public class HttpCaller {
 		return doGet(hp, null).response;
 	}
 
-	private static String generateAsEncodeRequestUrl(String requestURL, Map<String, List<String>> urlParamsMap) {
-
-		requestURL = HttpClientHelper.trimUrl(requestURL);
-
-		StringBuffer params = new StringBuffer();
-		for (Entry<String, List<String>> kv : urlParamsMap.entrySet()) {
-			if (params.length() > 0) {
-				params.append("&");
-			}
-			if (kv.getValue() != null) {
-				List<String> vlist = kv.getValue();
-				for (String v : vlist) {
-					params.append(URLEncoder.encode(kv.getKey())).append("=").append(URLEncoder.encode(v));
-				}
-			}
-		}
-
-		String newRequestURL = requestURL;
-		if (params.length() > 0)
-			newRequestURL += "?" + params.toString();
-
-		HttpClientHelper.printDebugInfo("-- requestURL=" + newRequestURL);
-		return newRequestURL;
-	}
-
 	private static HttpReturn doGet(HttpParameters hp, Map<String, String> extSignHeadersMap) throws HttpCallerException {
 		final String requestURL = hp.getRequestUrl();
 		String apiName = hp.getApi();
@@ -605,8 +423,11 @@ public class HttpCaller {
 		Map<String, String> directParamsMap = hp.getHeaderParamsMap();
 		String restfulProtocolVersion = hp.getRestfulProtocolVersion();
 
+		HttpReturn ret = new HttpReturn();
+		ret.diagnosticFlag = hp.isDiagnostic();
 		long startT = System.currentTimeMillis();
 		long initT = startT;
+		DiagnosticHelper.setStartTime(ret, initT);
 		HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
 
 		Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
@@ -617,14 +438,16 @@ public class HttpCaller {
 		}
 		startProcessRestful(requestURL, restfulProtocolVersion, urlParamsMap);
 
+		StringBuffer signDiagnosticInfo = DiagnosticHelper.getSignDiagnosticInfo(ret);
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey, hp.isTimestamp(), hp.isNonce() , extSignHeadersMap, hp.getSignImpl());
+				secretKey, hp.isTimestamp(), hp.isNonce() , extSignHeadersMap, signDiagnosticInfo, hp.getSignImpl());
+		DiagnosticHelper.setSignDiagnosticInfo(ret, signDiagnosticInfo);
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
-		String newRequestURL = generateAsEncodeRequestUrl(requestURL, urlParamsMap);
+		String newRequestURL = HttpClientHelper.generateAsEncodeRequestUrl(requestURL, urlParamsMap);
 
-		HttpReturn ret = new HttpReturn();
+
 
 		if (isCurlResponse()) {
 			StringBuffer curl = new StringBuffer("curl ");
@@ -638,7 +461,8 @@ public class HttpCaller {
 
 		if (SdkLogger.isLoggable()) {
 			  startT = System.currentTimeMillis();
-		}	
+		}
+		DiagnosticHelper.calcRequestSize(ret, newRequestURL, null, null);
 		HttpGet httpGet = new HttpGet(newRequestURL);
 		httpGet.setConfig(getRequestConfig());
 		// first step to set the direct http headers
@@ -647,10 +471,14 @@ public class HttpCaller {
 
 		// normal headers have the chance to overwrite the direct headers.
 		HttpClientHelper.setHeaders(httpGet, headerParamsMap);
-
+		DiagnosticHelper.setRequestHeaders(ret, httpGet.getAllHeaders());
 
 		try {
-			return doHttpReq(requestURL, httpGet, ret);
+			ret = doHttpReq(requestURL, httpGet, ret);
+			DiagnosticHelper.setEndTime(ret, System.currentTimeMillis());
+			DiagnosticHelper.setInvokeTime(ret, System.currentTimeMillis()-initT);
+
+			return ret;
 		}finally {
 			if (SdkLogger.isLoggable()) {
 				SdkLogger.print("-- total = " + (System.currentTimeMillis() - initT) + " ms ");
@@ -871,12 +699,13 @@ public class HttpCaller {
 		boolean nonceFlag = hp.isNonce();
 
 		HttpReturn ret = new HttpReturn();
-
+		ret.diagnosticFlag = hp.isDiagnostic();
 		long startT = System.currentTimeMillis();
+		DiagnosticHelper.setStartTime(ret, startT);
 		HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
 
 		Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
-		String newRequestURL = generateAsEncodeRequestUrl(requestURL, urlParamsMap);
+		String newRequestURL = HttpClientHelper.generateAsEncodeRequestUrl(requestURL, urlParamsMap);
 		HttpClientHelper.mergeParams(urlParamsMap, paramsMap, false);
 
 		startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);
@@ -885,16 +714,19 @@ public class HttpCaller {
 			urlParamsMap.put(ContentBody.CONTENT_BODY_SIGN_KEY, Arrays.asList((String)cb.getContentBody()));
 		}
 
+		StringBuffer signDiagnosticInfo = DiagnosticHelper.getSignDiagnosticInfo(ret);
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-				secretKey, true, nonceFlag, extSignHeadersMap, hp.getSignImpl());
+				secretKey, true, nonceFlag, extSignHeadersMap, signDiagnosticInfo, hp.getSignImpl());
+		DiagnosticHelper.setSignDiagnosticInfo(ret, signDiagnosticInfo);
 
 		endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
 		if (isCurlResponse()) {
 			return new HttpReturn(HttpClientHelper.createPostCurlString(newRequestURL, paramsMap, headerParamsMap, cb, directHheaderParamsMap));
 		}
-
+		DiagnosticHelper.calcRequestSize(ret, newRequestURL, paramsMap, cb);
 		HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb);
+		DiagnosticHelper.setRequestHeaders(ret, httpPost.getAllHeaders());
 
 		HttpClientHelper.setDirectHeaders(httpPost, directHheaderParamsMap);
 
@@ -905,7 +737,10 @@ public class HttpCaller {
 		}
 
 		try {
-			return doHttpReq(newRequestURL, httpPost, ret);
+			ret = doHttpReq(newRequestURL, httpPost, ret);
+			DiagnosticHelper.setEndTime(ret, System.currentTimeMillis());
+			DiagnosticHelper.setInvokeTime(ret, System.currentTimeMillis() - startT);
+			return ret;
 		} finally {
 			if (SdkLogger.isLoggable()) {
 				SdkLogger.print("-- total = " + (System.currentTimeMillis() - startT) + " ms ");
@@ -935,8 +770,8 @@ public class HttpCaller {
 		long startT = System.currentTimeMillis();
 		CloseableHttpResponse response = null;
 		CloseableHttpClient httpClient = null;
-		if (HTTP_CLIENT != null) {
-			httpClient = HTTP_CLIENT;
+		if (HttpClientConnManager.HTTP_CLIENT != null) {
+			httpClient = HttpClientConnManager.HTTP_CLIENT;
 		} else {
 			httpClient = createSyncHttpClient(requestURL);
 		}
@@ -947,9 +782,8 @@ public class HttpCaller {
 		try {
 			try {
 				response = httpClient.execute(httpRequestBase);
-				if(rret.diagnosticFlag) {
-					rret.responseHeaders = fetchResHeaders(response);
-				}
+				rret.responseHttpStatus = response.getStatusLine().toString();
+				rret.responseHeaders = HttpClientHelper.fetchResHeaders(response);
 				rret.response = EntityUtils.toString(response.getEntity());
 
 				return rret;
@@ -958,7 +792,7 @@ public class HttpCaller {
 					response.close();
 				}
 				//don't close the client for reusing
-				if (HTTP_CLIENT == null) {
+				if (HttpClientConnManager.HTTP_CLIENT == null) {
 					httpClient.close();
 				}
 				if (SdkLogger.isLoggable()) {
@@ -968,22 +802,6 @@ public class HttpCaller {
 		} catch (Exception e) {
 			throw new HttpCallerException(e);
 		}
-	}
-
-	private static String fetchResHeaders(final HttpResponse response) {
-		if (response != null) {
-			StringBuffer body = new StringBuffer();
-			//add response http status
-			body.append(String.format("\"%s\":\"%s\"", "HTTP-STATUS", response.getStatusLine()));
-			for (Header header:response.getAllHeaders()) {
-				if(body.length() > 0)
-					body.append(",");
-				body.append(String.format("\"%s\":\"%s\"", header.getName(), header.getValue()));
-			}
-			return String.format("{%s}", body.toString());
-		}
-
-		return null;
 	}
 
 	private static HttpReturn doAsyncHttpReq(String requestURL,HttpRequestBase httpRequestBase, final HttpReturn ret) throws HttpCallerException {
@@ -1022,9 +840,8 @@ public class HttpCaller {
 				}
 
 				rret.response = EntityUtils.toString(response.getEntity());
-				if(rret.diagnosticFlag) {
-					rret.responseHeaders = fetchResHeaders(response);
-				}
+				rret.responseHttpStatus = response.getStatusLine().toString();
+				rret.responseHeaders = HttpClientHelper.fetchResHeaders(response);
 
 				return rret;
 			} finally {

@@ -9,6 +9,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import com.alibaba.csb.sdk.*;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -55,8 +57,8 @@ public class HttpClientHelper {
 	 * @return
 	 */
 	public static Map<String, String> newParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
-			String accessKey, String securityKey, boolean timestampFlag, boolean nonceFlag,  Map<String, String> extSignHeaders, String spiImpl) {
-		return SignUtil.newParamsMap(paramsMap, apiName, version, accessKey, securityKey, timestampFlag, nonceFlag, extSignHeaders, spiImpl);
+			String accessKey, String securityKey, boolean timestampFlag, boolean nonceFlag,  Map<String, String> extSignHeaders, final StringBuffer signDiagnosticInfo, String spiImpl) {
+		return SignUtil.newParamsMap(paramsMap, apiName, version, accessKey, securityKey, timestampFlag, nonceFlag, extSignHeaders, signDiagnosticInfo, spiImpl);
 	}
 
 	public static String trimWhiteSpaces(String value) {
@@ -301,6 +303,50 @@ public class HttpClientHelper {
 		}
 		String path = urlStr.getPath();
 		return path;
+	}
+
+
+
+	public static String fetchResHeaders(final HttpResponse response) {
+		if (response != null) {
+			StringBuffer body = new StringBuffer();
+			//add response http status
+			body.append(String.format("\"%s\":\"%s\"", "HTTP-STATUS", response.getStatusLine()));
+			for (Header header:response.getAllHeaders()) {
+				if(body.length() > 0)
+					body.append(",");
+				body.append(String.format("\"%s\":\"%s\"", header.getName(), header.getValue()));
+			}
+			return String.format("{%s}", body.toString());
+		}
+
+		return null;
+	}
+
+
+	public static String generateAsEncodeRequestUrl(String requestURL, Map<String, List<String>> urlParamsMap) {
+
+		requestURL = HttpClientHelper.trimUrl(requestURL);
+
+		StringBuffer params = new StringBuffer();
+		for (Entry<String, List<String>> kv : urlParamsMap.entrySet()) {
+			if (params.length() > 0) {
+				params.append("&");
+			}
+			if (kv.getValue() != null) {
+				List<String> vlist = kv.getValue();
+				for (String v : vlist) {
+					params.append(URLEncoder.encode(kv.getKey())).append("=").append(URLEncoder.encode(v));
+				}
+			}
+		}
+
+		String newRequestURL = requestURL;
+		if (params.length() > 0)
+			newRequestURL += "?" + params.toString();
+
+		HttpClientHelper.printDebugInfo("-- requestURL=" + newRequestURL);
+		return newRequestURL;
 	}
 
 }

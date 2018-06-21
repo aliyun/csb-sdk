@@ -71,8 +71,8 @@ public class HttpParameters {
 		return builder.timestamp;
 	}
 
-	boolean isDiagnosticResponse() {
-		return builder.diagnosticResponse;
+	boolean isDiagnostic() {
+		return builder.diagnostic;
 	}
 
 	public String getSignImpl() {
@@ -95,7 +95,7 @@ public class HttpParameters {
 		//sb.append("\n signContentBody=").append(this.isSignContentBody());
 		sb.append("\n Timestamp=").append(this.isTimestamp());
 		sb.append("\n signImpl=").append(this.getSignImpl());
-		sb.append("\n isDiagnosticResponse=").append(this.isDiagnosticResponse());
+		sb.append("\n isDiagnostic=").append(this.isDiagnostic());
 		sb.append("\n params: \n");
 		for (Entry<String, String> entry : builder.paramsMap.entrySet()) {
 			sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
@@ -127,7 +127,7 @@ public class HttpParameters {
 		private boolean signContentBody = false;
 		private Map<String, String> paramsMap = new HashMap<String, String>();
 		private Map<String, String> headerParamsMap = new HashMap<String, String>();
-		private boolean diagnosticResponse = false;
+		private boolean diagnostic = false;
 
 		/**
 		 * 设置服务的api名
@@ -329,11 +329,11 @@ public class HttpParameters {
 
 		/**
 		 * 是否返回diagnostic信息
-		 * @param diagnosticResponse
+		 * @param diagnostic
 		 * @return
 		 */
-		public Builder diagnosticResponse(boolean diagnosticResponse) {
-			this.diagnosticResponse = diagnosticResponse;
+		public Builder diagnostic(boolean diagnostic) {
+			this.diagnostic = diagnostic;
 			return this;
 		}
 

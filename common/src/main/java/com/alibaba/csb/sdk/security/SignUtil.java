@@ -11,10 +11,10 @@ import java.util.*;
  *
  */
 public class SignUtil {
-	public static Map<String, String> newParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
+	public static Map<String, String> newParamsMap(final Map<String, List<String>> paramsMap, String apiName, String version,
 																								 String accessKey, String securityKey, boolean timestampFlag, boolean nonceFlag,
-																								 Map<String, String> extSignHeaders, String signSPI) {
+																								 final Map<String, String> extSignHeaders, final StringBuffer signInfo, String signSPI) {
 		return SignServiceRuntime.pickSignService(signSPI).signParamsMap(
-				paramsMap,apiName,version, accessKey, securityKey, timestampFlag, nonceFlag, extSignHeaders);
+				paramsMap,apiName,version, accessKey, securityKey, timestampFlag, nonceFlag, signInfo, extSignHeaders);
 	}
 }

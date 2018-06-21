@@ -18,13 +18,13 @@ public interface SignService {
    * @param securityKey    securityKey 进行签名的安全吗
    * @param timestampFlag  是否当前系统的时间戳参与签名
    * @param nonceFlag      是否防重放随机数参与签名
-   * @param extSignHeaders 附加的参与签名的key=value键值对
-   * @return 将生成的签名及一些关键字段以key=value的方式返回
+   * @param signDiagnosticInfo       返回参与签名的所有key vlaue 信息， 这是一个诊断相关的返回串
+   *@param extSignHeaders 附加的参与签名的key=value键值对  @return 将生成的签名及一些关键字段以key=value的方式返回
    */
-  Map<String, String> signParamsMap(Map<String, List<String>> paramsMap, String apiName, String version,
-                                   String accessKey, String securityKey,
-                                   boolean timestampFlag, boolean nonceFlag,
-                                   Map<String, String> extSignHeaders);
+  Map<String, String> signParamsMap(final Map<String, List<String>> paramsMap, String apiName, String version,
+                                    String accessKey, String securityKey,
+                                    boolean timestampFlag, boolean nonceFlag,
+                                    final StringBuffer signDiagnosticInfo, final Map<String, String> extSignHeaders);
 
 
 }

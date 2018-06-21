@@ -2,6 +2,9 @@ package com.alibaba.csb.security.spi;
 
 import com.alibaba.csb.sdk.security.DefaultSignServiceImpl;
 
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
@@ -42,6 +45,7 @@ public class SignServiceRuntime {
       //return the first one
       return it.next();
     } else {
+      //find from spi definition
       SignService ss = null;
       while(it.hasNext()) {
         ss = it.next();
@@ -49,8 +53,31 @@ public class SignServiceRuntime {
           return  ss;
         }
       }
+      final AccessControlContext acc = (System.getSecurityManager() != null) ? AccessController.getContext() : null;
+      //load by myself
+      try {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        ClassLoader loader = (cl == null) ? ClassLoader.getSystemClassLoader() : cl;
+        final Class<?> cc = Class.forName(pickImpl, false, loader);
 
-      throw new IllegalArgumentException(String.format("Can not found SPI provider for name:%s", pickImpl));
+        if(!SignService.class.isAssignableFrom(cc)){
+          throw new IllegalArgumentException(String.format("The class %s is not implement interface: com.alibaba.csb.security.spi.SignService", pickImpl));
+        }
+        PrivilegedAction<SignService> action = new PrivilegedAction<SignService>() {
+          public SignService run() {
+            try {
+              return SignService.class.cast(cc.newInstance());
+            }catch(Throwable e) {
+              throw new Error(e);
+            }
+          }
+        };
+        return AccessController.doPrivileged(action, acc);
+      } catch (ClassNotFoundException x) {
+        throw new IllegalArgumentException(String.format("Can not class-found SPI provider for name:%s", pickImpl));
+      }
+
+
     }
 
   }

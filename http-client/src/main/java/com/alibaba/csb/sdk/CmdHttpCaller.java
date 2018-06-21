@@ -134,6 +134,10 @@ public class CmdHttpCaller {
 
       builder.nonce(nonce);
 
+      if(isDebug) {
+        builder.diagnostic(true); //打印诊断信息
+      }
+
       boolean curlOnly = false;
       if (method.toLowerCase().startsWith("c")) {
         curlOnly = true;
@@ -157,23 +161,26 @@ public class CmdHttpCaller {
         }
       }
 
-      String ret = HttpCaller.invoke(builder.build(), resHttpHeaders);
+      HttpReturn ret = HttpCaller.invokeWithDiagnostic(builder.build());
 
       if (curlOnly) {
-        System.out.println("---- curlString = " + ret);
+        System.out.println("---- curlString = " + ret.response);
       } else {
-        System.out.println("---- response http headers = " + resHttpHeaders.toString());
+        if(isDebug) {
+          System.out.println("Diagnostic Info:" + ret.diagnosticInfo);
+        }
+        System.out.println("---- response http headers = " + ret.responseHeaders);
         if(changeCharset)  {
-          System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret));
+          System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret.response));
         }else {
-          System.out.println("---- retStr = " + ret);
+          System.out.println("---- retStr = " + ret.response);
         }
 
         //call multi-times for stress or flow-ctrl testing
         int times = Integer.getInteger("test.stress.times", 0);
         for (int i = 2; i <= times; i++) {
-          ret = HttpCaller.invoke(builder.build(), null);
-          System.out.println("---- retStr [#" + i + "] = " + ret);
+          ret = HttpCaller.invokeWithDiagnostic(builder.build());
+          System.out.println("---- retStr [#" + i + "] = " + ret.response);
         }
       }
     } catch (Exception e) {

@@ -207,7 +207,7 @@ public class WSClientSDK {
 	public static Map<String, String> generateSignHeaders(WSParams params) {
 		Map<String, String> extSignHeaderMap = genExtHeader(params.getFingerPrinter());
 		Map<String, String> requestHeaders = SignUtil.newParamsMap(null, params.getApi(), params.getVersion(),
-				params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap, params.getSignImpl());
+				params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap, null, params.getSignImpl());
 
 		if (params.isMockRequest())
 			requestHeaders.put(CsbSDKConstants.HEADER_MOCK, "true");

@@ -66,9 +66,13 @@ public class CmdCallerTest {
 	@Test
 	public void testSign() {
 		HashMap<String, List<String>> urlParamsMap = new HashMap<String, List<String>>();
+		StringBuffer signDiagnostic = new StringBuffer();
 		urlParamsMap.put("MT_B8_ECCTOWMS_REQUEST", Arrays.asList("abc"));
 		Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap,
 				"After_sale_information_query", "1.0.0", "6073f9ba68ff49baa0add7dbe9521a6a",
-				"1LZd4oOltnNkA6DMXWDayzDa3Lc=", true, true, null, null);
+				"1LZd4oOltnNkA6DMXWDayzDa3Lc=", true, true, null, signDiagnostic, null);
+
+		System.out.println("headerParamsMap="+headerParamsMap);
+		System.out.println("signDiagnostic="+signDiagnostic);
 	}
 }
