@@ -5,11 +5,14 @@ import java.util.Map;
 
 /**
  * Http Return 对象 包含调用的返回结果，并且包含一些诊断相关的信息包括：
+ * <pre>
+ *
+ *
  * 1. response                调用的返回值
  * 2. responseHeaders         返回的http headers，其中key值_inner_ecsb_broker_ip指向调用的broker的IP地址
  * 3. responseHttpStatus      返回的http状态
  *
- * 4. diagnosticInfo {
+ * 4. diagnosticInfo { // Map类型 包括如下key信息：
  *       requestHeaders          请求headers
  *       signParams              参与签名的字段
  *       startTime               调用的起始时间
@@ -19,6 +22,8 @@ import java.util.Map;
  *       responseSize            本次响应的大小
  *
  * }
+ *
+ * </pre>
  *
  * @author Alibaba Middleware CSB Team
  * @author liaotian.wq

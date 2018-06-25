@@ -1,7 +1,5 @@
 package com.alibaba.csb.sdk.security;
 
-import com.alibaba.csb.sdk.CsbSDKConstants;
-import com.alibaba.csb.sdk.SdkLogger;
 import com.alibaba.csb.security.spi.SignService;
 
 import java.util.*;
@@ -11,8 +9,6 @@ import java.util.*;
  * Created by wiseking on 18/6/15.
  */
 public class DefaultSignServiceImpl implements SignService {
-  private static final Random random = new Random(System.currentTimeMillis());
-
   private static DefaultSignServiceImpl singleton = new DefaultSignServiceImpl();
 
   private DefaultSignServiceImpl() {}
@@ -22,95 +18,8 @@ public class DefaultSignServiceImpl implements SignService {
   }
 
   @Override
-  public Map<String, String> signParamsMap(final Map<String, List<String>> paramsMap,
-                                           String apiName, String version,
-                                           String accessKey, String securityKey,
-                                           boolean timestampFlag, boolean nonceFlag, final StringBuffer signDiagnosticInfo, final Map<String, String> extSignHeaders) {
-    Map<String, List<String>> newParamsMap = new HashMap<String, List<String>>();
-    Map<String, String> headerParamsMap = new HashMap<String, String>();
-
-    if (paramsMap != null) {
-      newParamsMap.putAll(paramsMap);
-    }
-
-    // put apiName
-    if (apiName != null) {
-      newParamsMap.put(CsbSDKConstants.API_NAME_KEY, Arrays.asList(apiName));
-      headerParamsMap.put(CsbSDKConstants.API_NAME_KEY, apiName);
-    }
-    // put version
-    if (version != null) {
-      newParamsMap.put(CsbSDKConstants.VERSION_KEY, Arrays.asList(version));
-      headerParamsMap.put(CsbSDKConstants.VERSION_KEY, version);
-    }
-
-    // put timestamp
-    String timestampStr = System.getProperty("timestamp");
-    if(timestampStr == null) {
-      Long ts = System.currentTimeMillis();
-      timestampStr = ts.toString();
-    }
-
-    if (nonceFlag && CsbSDKConstants.isNonceEnabled) {
-      // put nonce
-      String nonceStr = System.getProperty("nonce");
-      if (nonceStr == null) {
-        Long nonce = random.nextLong();
-        nonceStr = nonce.toString();
-      }
-      newParamsMap.put(CsbSDKConstants.NONCE_KEY, Arrays.asList(nonceStr));
-      headerParamsMap.put(CsbSDKConstants.NONCE_KEY, nonceStr);
-    }
-
-
-    if (timestampFlag) {
-      newParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, Arrays.asList(timestampStr));
-      headerParamsMap.put(CsbSDKConstants.TIMESTAMP_KEY, timestampStr);
-    }
-
-    if (extSignHeaders != null) {
-      for(Map.Entry<String,String> kv:extSignHeaders.entrySet()) {
-        newParamsMap.put(kv.getKey(), Arrays.asList(kv.getValue()));
-        headerParamsMap.put(kv.getKey(), kv.getValue());
-      }
-    }
-
-    // last step, put accessKey & the generated signature
-    if (accessKey != null) {
-      headerParamsMap.put(CsbSDKConstants.ACCESS_KEY, accessKey);
-      newParamsMap.put(CsbSDKConstants.ACCESS_KEY, Arrays.asList(accessKey));
-      // ensure the signature and security are not sent !!
-      newParamsMap.remove(CsbSDKConstants.SIGNATURE_KEY);
-      newParamsMap.remove(CsbSDKConstants.SECRET_KEY);
-      long currT = System.currentTimeMillis();
-      String signKey = signMultiValueParams(newParamsMap, securityKey);
-      if (SdkLogger.isLoggable() || signDiagnosticInfo != null) {
-        StringBuffer msg = new StringBuffer();
-        msg.append("sign parameters:\n");
-        boolean first = true;
-        for (String key:newParamsMap.keySet()) {
-          if (!first) {
-            msg.append(",");
-          }
-          msg.append(String.format("%s=%s", key, newParamsMap.get(key)));
-          first = false;
-
-        }
-        msg.append("\nsignature:" + signKey +
-            "\ncosts time =" + (System.currentTimeMillis() - currT) + "ms");
-        if(signDiagnosticInfo!=null) {
-          signDiagnosticInfo.setLength(0);
-          signDiagnosticInfo.append(msg.toString());
-        }
-
-        if(SdkLogger.isLoggable()) {
-          SdkLogger.print(msg.toString());
-        }
-      }
-      headerParamsMap.put(CsbSDKConstants.SIGNATURE_KEY, signKey);
-    }
-
-    return headerParamsMap;
+  public String generateSignature(final Map<String, List<String>> paramsMap, final String securityKey) {
+      return signMultiValueParams(paramsMap, securityKey);
   }
   /**
    * convert parameter to Signature requried ParamNode format

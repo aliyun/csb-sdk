@@ -8,6 +8,7 @@ public class CsbSDKConstants {
 	public static final String SECRET_KEY = "_api_secret_key";
 	public static final String SIGNATURE_KEY = "_api_signature";
 	public static final String TIMESTAMP_KEY = "_api_timestamp";
+	public static final String SIGN_SPI_IMPL_KEY = "_api_sign_impl";
 
 	public static final String NONCE_KEY = "_api_nonce";
 

@@ -3,7 +3,6 @@ package com.alibaba.csb.sdk;
 import com.alibaba.csb.sdk.i18n.MessageHelper;
 import org.apache.commons.cli.*;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -161,7 +160,7 @@ public class CmdHttpCaller {
         }
       }
 
-      HttpReturn ret = HttpCaller.invokeWithDiagnostic(builder.build());
+      HttpReturn ret = HttpCaller.invokeReturn(builder.build());
 
       if (curlOnly) {
         System.out.println("---- curlString = " + ret.response);
@@ -179,7 +178,7 @@ public class CmdHttpCaller {
         //call multi-times for stress or flow-ctrl testing
         int times = Integer.getInteger("test.stress.times", 0);
         for (int i = 2; i <= times; i++) {
-          ret = HttpCaller.invokeWithDiagnostic(builder.build());
+          ret = HttpCaller.invokeReturn(builder.build());
           System.out.println("---- retStr [#" + i + "] = " + ret.response);
         }
       }

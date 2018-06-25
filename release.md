@@ -12,8 +12,9 @@
 | ------- | ------ | -------------- | ------------------------------------ | ------- |
 | 1.0.4.4 |        | 20170613       | Support return http response headers | [go](release/r20170613.md)|
 | 1.0.4.4 |        | 20170719       | Support aixis call wrapper in ws-sdk | [go](release/r20170719.md)|
-| 1.1.4   | snapshot |20180301     | support new CLI for http-sdk          |        |
+| 1.1.4   | snapshot |20180301     | support new CLI for http-sdk          | [go](release/r20180301.md)       |
 | 1.1.4   | snapshot |20180321     | support proxy for http-sdk          |   [go](release/r20180321.md)     |
 | 1.1.4   | snapshot |20180402     | support -cbJSON parameter for http-sdk  |  enable passing json body String in CLI  |
+| 1.1.2.0 |        | 20180622      | support SignUtil SPI  <br> Support Diagnostic <br>| [go](release/r20180622.md) |
 |         |        |                |                                      |         |
 

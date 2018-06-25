@@ -3,8 +3,8 @@ package com.alibaba.csb.sdk;
 import com.alibaba.csb.sdk.internel.DiagnosticHelper;
 import com.alibaba.csb.sdk.internel.HttpClientConnManager;
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
-import com.alibaba.csb.sdk.security.DefaultSignServiceImpl;
 
+import com.alibaba.csb.sdk.security.SignUtil;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -229,7 +229,7 @@ public class HttpCaller {
 		if (warmupFlag) {
 			return; 
 		}
-		DefaultSignServiceImpl.getInstance().sign(new HashMap<String, String>(), "sk");
+		SignUtil.warmup();
 		warmupFlag = true;
 	}
 	
@@ -434,7 +434,6 @@ public class HttpCaller {
 		HttpClientHelper.mergeParams(urlParamsMap, paramsMap, true);
 		if (SdkLogger.isLoggable()) {
 			  SdkLogger.print("--+++ prepare params costs = " + (System.currentTimeMillis() - startT) + " ms ");
-			  startT = System.currentTimeMillis();
 		}
 		startProcessRestful(requestURL, restfulProtocolVersion, urlParamsMap);
 
@@ -459,9 +458,6 @@ public class HttpCaller {
 			return  ret;
 		}
 
-		if (SdkLogger.isLoggable()) {
-			  startT = System.currentTimeMillis();
-		}
 		DiagnosticHelper.calcRequestSize(ret, newRequestURL, null, null);
 		HttpGet httpGet = new HttpGet(newRequestURL);
 		httpGet.setConfig(getRequestConfig());
@@ -893,7 +889,7 @@ public class HttpCaller {
 	 * @throws HttpCallerException
 	 */
 	public static String invoke(HttpParameters hp, StringBuffer resHttpHeaders) throws HttpCallerException {
-		HttpReturn res = invokeWithDiagnostic(hp);
+		HttpReturn res = invokeReturn(hp);
 		if(resHttpHeaders!=null && res.responseHeaders != null) {
 			resHttpHeaders.setLength(0);
 			resHttpHeaders.append(res.responseHeaders);
@@ -902,7 +898,13 @@ public class HttpCaller {
 		return res.response;
 	}
 
-	public static HttpReturn invokeWithDiagnostic(HttpParameters hp) throws HttpCallerException {
+	/**
+	 * 新方法，支持复杂的返回对象(包括诊断信息)
+	 * @param hp
+	 * @return
+	 * @throws HttpCallerException
+	 */
+	public static HttpReturn invokeReturn(HttpParameters hp) throws HttpCallerException {
 		if (hp == null)
 			throw new IllegalArgumentException("null parameter!");
 		HttpClientHelper.printDebugInfo("-- httpParameters=" + hp.toString());

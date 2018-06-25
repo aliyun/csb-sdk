@@ -73,7 +73,7 @@ public class WSClientSDK {
 		if (warmupFlag) {
 			return; 
 		}
-		DefaultSignServiceImpl.getInstance().sign(new HashMap<String, String>(), "sk");
+		SignUtil.warmup();
 		warmupFlag = true;
 	}
 	
