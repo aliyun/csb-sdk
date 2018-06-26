@@ -9,7 +9,7 @@ import java.io.IOException;
  * Created by wiseking on 18/1/8.
  */
 public class CmdHttpCaller {
-  private static final String SDK_VERSION = "1.1.4";
+  private static final String SDK_VERSION = "1.1.4.0";
   public static Options opt = new Options();
 
   static {

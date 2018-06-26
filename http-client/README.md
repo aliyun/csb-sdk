@@ -11,15 +11,15 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 ## 1. 工具包的下载地址
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里
-[http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)
-[最新的包 http-sdk-1.1.4.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.jar)
+[最新的包 http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)
+[旧的http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)
 * 如果用编程的方式,可以不下载这个standalone的Jar包,而是在用户的pom.xml里引用如下的dependency:
 
 ```
 <dependency>
   <groupId>com.alibaba.csb.sdk</groupId>
   <artifactId>http-client</artifactId>
-  <version>1.1.3</version>
+  <version>1.1.4.0</version>
 </dependency>
 ```
 
@@ -50,7 +50,7 @@ java [sys-props] -jar http-sdk-1.1.4.jar [options...]
 * **sys-props**      为可选的**JVM系统参数**, 可以设置如下的一项或者多项（空格分隔），具体包括：
   * -Dtest.stress.times=n   压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
 
-* 注意：上述命令行方式在1.1.4版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
+* 注意：上述命令行方式在1.1.4.0版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
 
 ### 方式二: 使用编程方式调用
 
@@ -94,13 +94,16 @@ java [sys-props] -jar http-sdk-1.1.4.jar [options...]
    builder.putHeaderParamsMap("header1", "value1");
    builder.putHeaderParamsMap("header2", "value2");
    
-   //设置是否生成防重放Nonce, 默认值是false, 这个功能在 SDK1.1.4及Broker 1.1.2后支持
+   //设置是否生成防重放Nonce, 默认值是false, 这个功能仅在SDK1.1.4及CSB-Broker 1.1.2后支持
    builder.nonce(true);
       
    //进行调用 返回结果
    String result = null;
    try {
       	result = HttpCaller.invoke(builder.build());
+      	// 或者使用下面的调用方法, 可以返回更多的信息，包括诊断信息,这个功能仅在SDK1.1.4.0以后版本支持
+      	HttpReturn res = HttpCaller.invokeReturn(builder.build()); //然后在res里获取相关的信息
+      	
       	
         // 如果期望获取返回的http headers, 则需要在invoke中加入第二个参数，如下：
         // 用这个参数变量获取调用后返回的http headers, 内容为
