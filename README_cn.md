@@ -74,6 +74,10 @@
 下面的命令可以把SDK代码及其依赖的底层JAR包统一打包成一个包,客户直接在其CLASSPATH中应用这个唯一的包即可执行SDK的调用功能
 
 ```
+# Build common module
+cd common
+mvn install 
+
 # Build http SDK
 cd http-client
 bash gen-standaloneJar.sh
