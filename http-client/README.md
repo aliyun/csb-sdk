@@ -29,15 +29,15 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 
 ```
-java [sys-props] -jar http-sdk-1.1.4.jar [options...]
+java [sys-props] -jar http-sdk-1.1.4.0.jar [options...]
 ```
 
 参数取值说明:
  -ak <arg>        accessKey, 可选
  -api <arg>       服务名
- -D <arg>         请求参数, 格式: -D "key=value"
+ -D <arg>         请求参数, 格式: -D "key=value" 可以定多个-D参数
  -d,--debug       打印调试信息
- -H <arg>         http header, 格式: -H "key:value"
+ -H <arg>         http header, 格式: -H "key:value" 可以定义多个-H参数
  -h,--help        打印帮助信息
  -method <arg>    请求类型, 默认get, 可选的值为: get, post, cget和cpost
  -nonce           -nonce 是否做nonce防重放处理，不定义为不做nonce重放处理
@@ -46,6 +46,8 @@ java [sys-props] -jar http-sdk-1.1.4.jar [options...]
  -url <arg>       请求地址，e.g: http://broker-ip:8086/CSB?p1=v1
  -version <arg>   服务版本
  -cbJSON          以JSON串方式post发送的请求body, 例如: -cbJSON '{"name":"wiseking"}'
+ -cc,--changeCharset   返回值是否需要转换charset
+
 
 * **sys-props**      为可选的**JVM系统参数**, 可以设置如下的一项或者多项（空格分隔），具体包括：
   * -Dtest.stress.times=n   压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
