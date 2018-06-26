@@ -17,6 +17,10 @@ The CSB-SDK is a client-side invocation SDK for HTTP or Web Service API opened b
 * Build as standalone client jar:
 
 ```
+# Build and install common module
+cd common
+mvn install 
+ 
 # Build http SDK
 cd http-client
 bash gen-standaloneJar.sh
