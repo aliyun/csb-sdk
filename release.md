@@ -4,8 +4,12 @@
  2.  ${ws.sdk.version} = 1.1.4.0
 * SNAPSHOT
  1.  ${http.sdk.snapshot.version} = 1.1.4-SNAPSHOT
- 1.  ${ws.sdk.snapshot.version} = 1.1.4-SNAPSHOT
+ 2.  ${ws.sdk.snapshot.version} = 1.1.4-SNAPSHOT
 
+## Maven项目依赖
+ 1. [http.sdk](https://mvnrepository.com/artifact/com.alibaba.csb.sdk/http-client)
+ 2. [ws.sdk](https://mvnrepository.com/artifact/com.alibaba.csb.sdk/ws-client)
+ 
 ## RELEASE History
 
 | MajorV  | MinorV | Date(YYYYMMDD) | Changes                              | Details |
