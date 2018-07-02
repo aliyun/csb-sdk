@@ -62,6 +62,7 @@ http://broker-vip:9081/$api_name/$api_version/ws2restful?wsdl
   $api_name 为发布的服务名；
   $api_version 为发布的服务版本；
   "ws2restful"为固定值。  
+
 b. 如果接入是 HSF 协议， 则开放出来的 WSDL 地址是：
 ```
 http://broker-vip:9081/$api_name/$api_version/$method?wsdl
@@ -69,6 +70,7 @@ http://broker-vip:9081/$api_name/$api_version/$method?wsdl
   $api_name 为发布的服务名；
   $api_version 为发布的服务版本；
   $method 为发布服务时对应的接入方法名。
+
 c. 如果接入是 WS 协议（即WS透传）， 则开放出来的 WSDL 地址是：
 ```
 http://broker-vip:9081/$api_name/$api_version/ws2ws?wsdl
