@@ -206,6 +206,7 @@ public class CmdHttpCaller {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("java -jar http-client.jar [options...]", opt);
     System.out.println("\ncurrent SDK version:" + SDK_VERSION + "\n----");
+    System.out.println("\nCurrent JDK Env: file.encoding=" + System.getProperty("file.encoding") + "");
     try {
       System.out.println(CommUtil.geCurrenttVersionFile());
     } catch (IOException e) {
