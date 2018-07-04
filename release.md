@@ -1,7 +1,7 @@
 ## Latest version/最新的版本
 * RELEASE
- 1.  ${http.sdk.version} = 1.1.4.0
- 2.  ${ws.sdk.version} = 1.1.4.0
+ 1.  ${http.sdk.version} = 1.1.4.1
+ 2.  ${ws.sdk.version} = 1.1.4.1
 * SNAPSHOT
  1.  ${http.sdk.snapshot.version} = 1.1.4-SNAPSHOT
  2.  ${ws.sdk.snapshot.version} = 1.1.4-SNAPSHOT
@@ -20,5 +20,6 @@
 | 1.1.4   | snapshot |20180321     | support proxy for http-sdk          |   [go](release/r20180321.md)     |
 | 1.1.4   | snapshot |20180402     | support -cbJSON parameter for http-sdk  |  enable passing json body String in CLI  |
 | 1.1.4.0 |        | 20180622      | support SignUtil SPI  <br> Support Diagnostic <br>| [go](release/r20180622.md) |
+| 1.1.4.1 |        | 20180702      | | |
 |         |        |                |                                      |         |
 
