@@ -7,26 +7,44 @@
 The CSB-SDK is a client-side invocation SDK for HTTP or Web Service API opened by the CSB (Cloud Service Bus) product. It is responsible for invoking the open API and signing the request information.
 
 ## Content in the CSB-SDK
-* common    Base classes used by both HTTP-SDK and WS-SDK
-* HTTP-SDK  The client SDK for invoking HTTP API  [details](http-client/README.md)
-* WS-SDK    The client SDK for binding security params into WebService client dispatch or port [details](ws-client/README.md)
-* Samples   Unit Tests for using above SDKs [details](samples/README.md)
-* others    HTTP-SDK for other Languages implementation, e.g. PHP, Go and Node.js
+* common       Base classes used by both HTTP-SDK and WS-SDK
+* http-client  The client SDK for invoking HTTP API  [details](http-client/README.md)
+* ws-client    The client SDK for binding security params into WebService client dispatch or port [details](ws-client/README.md)
+* samples      Unit Tests for using above SDKs [details](samples/README.md)
+* others       HTTP-SDK for other Languages' implementation, e.g. PHP, Go and Node.js
 
-## RELEASE
-* Build as standalone client jar:
+## Build from source code
 
 ```
-# Build and install common module
+# 1. download sourcefrom Github (once time only)
+git clone https://github.com/aliyun/csb-sdk.git
+cd csb-sdk
+     
+
+# 2. show and switch to desired branch, e.g.
+git branch
+git checkout 1.1.4.0
+
+# 3. Build common module
 cd common
-mvn install 
- 
-# Build http SDK
-cd http-client
+mvn clean install 
+
+# 4. Build http SDK
+cd ../http-client
+
+# 4.1 install as maven dependency to local repository
+mvn clean install  -Dmaven.test.skip
+
+# 4.2 build as a standalone jar
 bash gen-standaloneJar.sh
 
-# Build WS SDK
-cd ws-client
+# 5. Build WS SDK
+cd ../ws-client
+
+# 5.1 install as maven dependency to local repository
+mvn clean install  -Dmaven.test.skip
+
+# 5.2 build as a standalone jar
 bash gen-standaloneJar.sh
 
 ```
