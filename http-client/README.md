@@ -22,9 +22,10 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 <dependency>
   <groupId>com.alibaba.csb.sdk</groupId>
   <artifactId>http-client</artifactId>
-  <version>1.1.4.0</version>
+  <version>${ws.sdk.version}</version>
 </dependency>
 ```
+注意: 具体版本请参考[release](../release.md)里的说明,推荐使用最新版本
 
 ## 2. HTTP Client SDK 使用方式
 

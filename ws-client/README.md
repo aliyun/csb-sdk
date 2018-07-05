@@ -15,9 +15,12 @@
  <dependency>
    <groupId>com.alibaba.csb.sdk</groupId>
    <artifactId>ws-client</artifactId>
-   <version>1.1.4.0</version>
+   <version>${http.sdk.version}</version>
  </dependency>
+ 
+ 
  ```
+ 注意: 具体版本请参考[release](../release.md)里的说明,推荐使用最新版本
 
 ## 2. WS-SDK功能
 
