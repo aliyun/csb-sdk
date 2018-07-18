@@ -5,6 +5,7 @@ import com.alibaba.csb.sdk.internel.HttpClientConnManager;
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
 
 import com.alibaba.csb.sdk.security.SignUtil;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -780,8 +781,13 @@ public class HttpCaller {
 				response = httpClient.execute(httpRequestBase);
 				rret.responseHttpStatus = response.getStatusLine().toString();
 				rret.responseHeaders = HttpClientHelper.fetchResHeaders(response);
-				rret.response = EntityUtils.toString(response.getEntity());
-
+				HttpEntity entity = response.getEntity();
+				rret.response = EntityUtils.toString(entity);
+				if (entity != null) {
+					// ConnectTimeoutException after 5 to 6 hrs
+					// http://httpcomponents.10934.n7.nabble.com/ConnectTimeoutException-after-5-to-6-hrs-td14767.html
+					EntityUtils.consume(response.getEntity());
+				}
 				return rret;
 			} finally {
 				if (response != null) {

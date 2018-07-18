@@ -1,10 +1,8 @@
 package com.alibaba.csb.sdk;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import com.alibaba.fastjson.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +15,7 @@ import com.alibaba.fastjson.parser.Feature;
 public class OtherTest {
 	@Before
 	public void before() {
-		System.setProperty("http.caller.DEBUG", "true");
+		System.setProperty("http.caller.DEBUG1", "true");
 	}
 	
 	@Test 
@@ -73,5 +71,47 @@ public class OtherTest {
 			System.out.println("sv=" + sv + " costs=" + (System.currentTimeMillis() - startT) + "ms");
 		}
 		System.out.println("avg="+(System.currentTimeMillis()-iniT)/10000);
+	}
+
+	@Test
+	public void testLarge() {
+		try {
+			HttpParameters.Builder hp = HttpParameters.newBuilder();
+			hp.api("lt-http2ws").requestURL("http://118.31.48.251:8086/CSB");
+			hp.version("1.0.0");
+			hp.method("post");
+			/*
+			//hp.putParamsMap("arg0", "{\"itemName\":\"wiseking\", \"items\":[{\"p1\":\"love\", \"p2\":\"test\"}]}");
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("itemName", "wiseking");
+			List<Map<String,String>> items = new ArrayList<Map<String, String>>();
+			Map<String,String> map = new HashMap<String, String>();
+			for (int i=0; i<300000; i++) {
+				map = new HashMap<String, String>();
+				map.put("p1", "testvaluetestvaluetestvaluetestvaluetestvaluetestvaluetestvaluetestvaluetestvalue"+i);
+				map.put("p2", "testvaluetestvaluetestvaluetestvaluetestvaluetestvaluetestvaluetestvaluetestvalue"+i);
+				items.add(map);
+			}
+			jsonObject.put("items", items);
+			String req = jsonObject.toJSONString();
+			System.out.println("reqSize=="+req.length());
+			*/
+			StringBuffer sb = new StringBuffer();
+			for (int i=0; i<400000; i++) {
+				sb.append("wisekingtesttest");
+			}
+			hp.putParamsMap("arg0", sb.toString());
+			hp.putParamsMap("arg1", "10");
+			System.out.println("reqSize=="+sb.length());
+			String ret = null;
+			ret = HttpCaller.invoke(hp.build());
+			if (ret!=null && ret.length()>30000) {
+				System.out.println("ret=big big ret");
+			}else {
+				System.out.println("ret=" + ret);
+			}
+		} catch (HttpCallerException e) {
+			e.printStackTrace();
+		}
 	}
 }
