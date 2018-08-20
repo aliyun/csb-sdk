@@ -187,6 +187,8 @@ import java.util.concurrent.TimeUnit;
  *      HttpCaller.setConnectionParams(sysParams); //注意：本次设置只对本线程起作用
  *      ...
  *      HttpCaller.doPost(), doGet() or invoke();
+ * 3. 设置debug：
+ *    -Dhttp.caller.DEBUG=true
  * </pre>
  * 
  * @author Alibaba Middleware CSB Team
