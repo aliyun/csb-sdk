@@ -1,6 +1,7 @@
 package com.alibaba.csb.sdk;
 
 import com.alibaba.csb.sdk.i18n.MessageHelper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.cli.*;
 
 import java.io.IOException;
@@ -9,7 +10,8 @@ import java.io.IOException;
  * Created by wiseking on 18/1/8.
  */
 public class CmdHttpCaller {
-  private static final String SDK_VERSION = "1.1.4.0";
+  private static final String SDK_VERSION = "1.1.5.0";
+
   public static Options opt = new Options();
 
   static {
@@ -27,6 +29,7 @@ public class CmdHttpCaller {
     opt.addOption("h", "help", false, MessageHelper.getMessage("cli.help"));
     opt.addOption("d", "debug", false, MessageHelper.getMessage("cli.debug"));
     opt.addOption("cc", "changeCharset", false, MessageHelper.getMessage("cli.change.charset"));
+    opt.addOption("sdkv", "sdk-version", false, MessageHelper.getMessage("cli.sdk.version"));
   }
 
   //TODO: move to  common
@@ -54,6 +57,7 @@ public class CmdHttpCaller {
       String sk = commandline.getOptionValue("sk");
       String api = commandline.getOptionValue("api");
       String version = commandline.getOptionValue("version");
+      Boolean sdkv = commandline.hasOption("sdkv");
       String method = commandline.getOptionValue("method");
       String[] headers = commandline.getOptionValues("H");
       String[] params = commandline.getOptionValues("D");
@@ -63,6 +67,11 @@ public class CmdHttpCaller {
       boolean nonce = commandline.hasOption("nonce");
       isDebug = commandline.hasOption("d");
       Boolean changeCharset = commandline.hasOption("cc");
+
+      if(sdkv) {
+        Version.version();
+        return;
+      }
 
       if (isDebug) {
         System.out.println("url=" + url);
@@ -207,11 +216,7 @@ public class CmdHttpCaller {
     formatter.printHelp("java -jar http-client.jar [options...]", opt);
     System.out.println("\ncurrent SDK version:" + SDK_VERSION + "\n----");
     System.out.println("\nCurrent JDK Env: file.encoding=" + System.getProperty("file.encoding") + "");
-    try {
-      System.out.println(CommUtil.geCurrenttVersionFile());
-    } catch (IOException e) {
-      //
-    }
+    Version.version();
   }
 
 }
