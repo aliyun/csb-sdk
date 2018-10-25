@@ -519,8 +519,7 @@ public class HttpCaller {
 		if (isSSLProtocol(requestURL)) {
 			try {
 				httpClient = HttpClients.custom().setSslcontext(new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-				 	@Override
-				 	public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException 
+				 	public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException
 				 	{
 				 	 	return true;
 				 	}
@@ -544,8 +543,6 @@ public class HttpCaller {
 			try {
 
 				httpClient = HttpAsyncClients.custom().setSSLHostnameVerifier(new org.apache.http.conn.ssl.NoopHostnameVerifier()).setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-
-					@Override
 					public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
 						return true;
 					}
