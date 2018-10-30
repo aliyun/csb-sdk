@@ -98,7 +98,8 @@ public class SignUtil {
                 headerParamsMap.put(CsbSDKConstants.SIGN_SPI_IMPL_KEY, signSPI);
             }
 
-            String signKey = signService.generateSignature(newParamsMap, securityKey);
+            List<ParamNode> paramNodeList = convertMultiValueParams(newParamsMap);
+            String signKey = signService.generateSignature(paramNodeList, accessKey, securityKey);
             if (SdkLogger.isLoggable() || signDiagnosticInfo != null) {
                 StringBuffer msg = new StringBuffer();
                 msg.append("sign parameters:\n");
@@ -128,7 +129,37 @@ public class SignUtil {
         return headerParamsMap;
     }
 
+    /**
+     * convert parameter to Signature requried ParamNode format
+     *
+     * @param map
+     * @return
+     */
+    public static List<ParamNode> convertMultiValueParams(Map<String, List<String>> map) {
+        List<ParamNode> pnList = new ArrayList<ParamNode>();
+        if (map == null) {
+            return pnList;
+        }
+
+        String key;
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            key = entry.getKey();
+            List<String> vlist = entry.getValue();
+            if (vlist == null) {
+                ParamNode node = new ParamNode(key, null);
+                pnList.add(node);
+            } else {
+                for (String v : vlist) {
+                    ParamNode node = new ParamNode(key, v);
+                    pnList.add(node);
+                }
+            }
+        }
+
+        return pnList;
+    }
+
     public static void warmup() {
-        SignServiceRuntime.pickSignService(null).generateSignature(null, "sk");
+        SignServiceRuntime.pickSignService(null).generateSignature(new ArrayList<ParamNode>(), "ak", "sk");
     }
 }
