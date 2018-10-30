@@ -30,7 +30,7 @@ public class SignUtil {
      */
     public static Map<String, String> newParamsMap(final Map<String, List<String>> paramsMap, String apiName, String version,
                                                    String accessKey, String securityKey, boolean timestampFlag, boolean nonceFlag,
-                                                   final Map<String, String> extSignHeaders, final StringBuffer signDiagnosticInfo, String signSPI) {
+                                                   final Map<String, String> extSignHeaders, final StringBuffer signDiagnosticInfo, String signImpl, String vefifySignImpl) {
 
         Map<String, List<String>> newParamsMap = new HashMap<String, List<String>>();
         Map<String, String> headerParamsMap = new HashMap<String, String>();
@@ -81,6 +81,11 @@ public class SignUtil {
             }
         }
 
+        if (vefifySignImpl != null) {
+            newParamsMap.put(CsbSDKConstants.VERIFY_SIGN_IMPL_KEY, Arrays.asList(vefifySignImpl));
+            headerParamsMap.put(CsbSDKConstants.VERIFY_SIGN_IMPL_KEY, vefifySignImpl);
+        }
+
         // last step, put accessKey & the generated signature
         if (accessKey != null) {
             headerParamsMap.put(CsbSDKConstants.ACCESS_KEY, accessKey);
@@ -90,12 +95,12 @@ public class SignUtil {
             newParamsMap.remove(CsbSDKConstants.SECRET_KEY);
             long currT = System.currentTimeMillis();
 
-            SignService signService = SignServiceRuntime.pickSignService(signSPI);
+            SignService signService = SignServiceRuntime.pickSignService(signImpl);
             //Add an extra http-header to tell what signimpl is being used on client side
-            signSPI = signService.getClass().getCanonicalName();
-            if (signSPI.equals(DefaultSignServiceImpl.class.getSimpleName()) == false) {
-                newParamsMap.put(CsbSDKConstants.SIGN_SPI_IMPL_KEY, Arrays.asList(signSPI));
-                headerParamsMap.put(CsbSDKConstants.SIGN_SPI_IMPL_KEY, signSPI);
+            signImpl = signService.getClass().getCanonicalName();
+            if (signImpl.equals(DefaultSignServiceImpl.class.getSimpleName()) == false) {
+                newParamsMap.put(CsbSDKConstants.SIGN_IMPL_KEY, Arrays.asList(signImpl));
+                headerParamsMap.put(CsbSDKConstants.SIGN_IMPL_KEY, signImpl);
             }
 
             List<ParamNode> paramNodeList = convertMultiValueParams(newParamsMap);

@@ -1,17 +1,12 @@
 package com.alibaba.csb.ws.sdk;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.xml.soap.MimeHeaders;
-import javax.xml.ws.BindingProvider;
-
 import com.alibaba.csb.sdk.CsbSDKConstants;
-import com.alibaba.csb.sdk.security.DefaultSignServiceImpl;
 import com.alibaba.csb.sdk.security.SignUtil;
 import com.alibaba.csb.ws.sdk.internal.BindingDynamicProxyHandler;
-import com.alibaba.csb.ws.sdk.internal.SOAPHeaderHandler;
+
+import javax.xml.ws.BindingProvider;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Bind accessKey, secretKey into the WS client caller (i.e. Dispath, Proxy)
@@ -207,7 +202,7 @@ public class WSClientSDK {
 	public static Map<String, String> generateSignHeaders(WSParams params) {
 		Map<String, String> extSignHeaderMap = genExtHeader(params.getFingerPrinter());
 		Map<String, String> requestHeaders = SignUtil.newParamsMap(null, params.getApi(), params.getVersion(),
-				params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap, null, params.getSignImpl());
+				params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap, null, params.getSignImpl(),params.getVerifySignImpl());
 
 		if (params.isMockRequest())
 			requestHeaders.put(CsbSDKConstants.HEADER_MOCK, "true");
