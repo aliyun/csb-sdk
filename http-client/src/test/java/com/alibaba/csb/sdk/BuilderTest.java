@@ -17,58 +17,58 @@ import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
 
 public class BuilderTest {
-	@Before
-	public void before() {
-		System.setProperty("http.caller.DEBUG", "true");
-		SimpleDateFormat tf=new SimpleDateFormat("HH-mm:ss:ms"); 
-		System.out.println("warmup begin ... ctime=" + tf.format(new Date()));
-		HttpCaller.warmup();
-		System.out.println("warmup done dtime=" + tf.format(new Date()));
-		HttpCaller.warmup();
-		System.out.println("2nd warmup done dtime=" + tf.format(new Date()));
-	}
+    @Before
+    public void before() {
+        System.setProperty("http.caller.DEBUG", "true");
+        SimpleDateFormat tf = new SimpleDateFormat("HH-mm:ss:ms");
+        System.out.println("warmup begin ... ctime=" + tf.format(new Date()));
+        HttpCaller.warmup();
+        System.out.println("warmup done dtime=" + tf.format(new Date()));
+        HttpCaller.warmup();
+        System.out.println("2nd warmup done dtime=" + tf.format(new Date()));
+    }
 
-	@Test
-	public void testBuilder() {
-		HttpParameters.Builder builder = new HttpParameters.Builder();
+    @Test
+    public void testBuilder() {
+        HttpParameters.Builder builder = new HttpParameters.Builder();
 
-		builder.requestURL("http://localhost:8086?arg0=123") // 设置请求的URL
-		.api("PING") // 设置服务名
-		.version("vcsb") // 设置版本号
-		.method("get") // 设置调用方式, get/post
-		.accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+        builder.requestURL("http://localhost:8086?arg0=123") // 设置请求的URL
+                .api("PING") // 设置服务名
+                .version("vcsb") // 设置版本号
+                .method("get") // 设置调用方式, get/post
+                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
-		// 设置请求参数
-		builder.putParamsMap("key1", "value1")
-		.putParamsMap("name", "{\"a\":value1}"); // json format value
-		builder.contentBody(new
-				ContentBody("{\"a\":\"csb云服务总线\"}"));
-		builder.method("post");
-		try {
-			String ret = HttpCaller.invoke(builder.build());
-			System.out.println("------- ret="+ret);
-		} catch (HttpCallerException e) {
-			// error process
-			e.printStackTrace(System.out);
-		}
+        // 设置请求参数
+        builder.putParamsMap("key1", "value1")
+                .putParamsMap("name", "{\"a\":value1}"); // json format value
+        builder.contentBody(new
+                ContentBody("{\"a\":\"csb云服务总线\"}"));
+        builder.method("post");
+        try {
+            String ret = HttpCaller.invoke(builder.build());
+            System.out.println("------- ret=" + ret);
+        } catch (HttpCallerException e) {
+            // error process
+            e.printStackTrace(System.out);
+        }
 
-		try {
-			// 重启设置请求参数
-			builder.clearParamsMap();
-			builder.putParamsMap("key1", "value1---new")
-			.putParamsMap("key2", "{\"a\":\"value1-new\"}");
+        try {
+            // 重启设置请求参数
+            builder.clearParamsMap();
+            builder.putParamsMap("key1", "value1---new")
+                    .putParamsMap("key2", "{\"a\":\"value1-new\"}");
 
-			// 使用post方式调用
-			builder.method("post");
-			HttpCaller.invoke(builder.build());
-		} catch (HttpCallerException e) {
-			// error process
-		}
-	}
-	
-	@Test
-	public void testhttpJson()  {
-		//URI uri = new URI("http://11.239.187.178:8086/test?arg1=1&arg0=<ApproveDataInfo><TableName>sp_shenqin</TableName><UseSJBBH>false</UseSJBBH><ZZJGDM>006939801</ZZJGDM><SXBM>10281300100693980112440000</SXBM></ApproveDataInfo>");
+            // 使用post方式调用
+            builder.method("post");
+            HttpCaller.invoke(builder.build());
+        } catch (HttpCallerException e) {
+            // error process
+        }
+    }
+
+    @Test
+    public void testhttpJson() {
+        //URI uri = new URI("http://11.239.187.178:8086/test?arg1=1&arg0=<ApproveDataInfo><TableName>sp_shenqin</TableName><UseSJBBH>false</UseSJBBH><ZZJGDM>006939801</ZZJGDM><SXBM>10281300100693980112440000</SXBM></ApproveDataInfo>");
 
 		Map<Long,Long> map = new HashMap<Long, Long>();
 		map.put(1l, 1l);

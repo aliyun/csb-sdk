@@ -379,11 +379,7 @@ public class HttpCaller {
      */
     public static String doGet(String requestURL, String apiName, String version, Map<String, String> paramsMap,
                                String accessKey, String secretKey) throws HttpCallerException {
-        HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
-                .accessKey(accessKey).secretKey(secretKey)
-                .build();
-
-        return doGet(hp, null).response;
+        return doGet(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null);
     }
 
     /**
@@ -617,7 +613,26 @@ public class HttpCaller {
      */
     public static String doPost(String requestURL, String apiName, Map<String, String> paramsMap, String accessKey,
                                 String secretKey) throws HttpCallerException {
-        return doPost(requestURL, apiName, null, paramsMap, accessKey, secretKey);
+        return doPost(requestURL, apiName, paramsMap, accessKey, secretKey, null, null);
+    }
+
+    /**
+     * 使用POST方式调用HTTP服务
+     *
+     * @param requestURL     请求的服务URL, 如：http://abc.com:8086/CSB/abc， 如果URL里的请求参数有特殊字符(如 '&')，需要先将次值进行URL Encode处理
+     * @param apiName        API名字(服务名)
+     * @param paramsMap      请求参数key-value参数列表，注：可以将JSON对象转换为String作为参数值
+     * @param accessKey      访问key
+     * @param secretKey      安全key
+     * @param signImpl       签名算法实现类名
+     * @param verifySignImpl 验签算法实现类名
+     * @return 调用的返回值，按约定进行解析 (如 JOSN串转换成对象)
+     * @throws HttpCallerException 调用过程中发生的任何异常
+     * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
+     */
+    public static String doPost(String requestURL, String apiName, Map<String, String> paramsMap, String accessKey,
+                                String secretKey, String signImpl, String verifySignImpl) throws HttpCallerException {
+        return doPost(requestURL, apiName, null, paramsMap, accessKey, secretKey, signImpl, verifySignImpl);
     }
 
     /**
@@ -635,10 +650,7 @@ public class HttpCaller {
      */
     public static String doPost(String requestURL, String apiName, String version, ContentBody cb, String accessKey,
                                 String secretKey) throws HttpCallerException {
-        HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version)
-                .contentBody(cb).accessKey(accessKey).secretKey(secretKey)
-                .build();
-        return doPost(hp, null).response;
+        return doPost(requestURL, apiName, version, cb, accessKey, secretKey, null, null);
     }
 
     /**
@@ -856,8 +868,28 @@ public class HttpCaller {
      */
     public static String doPost(String requestURL, String apiName, String version, Map<String, String> paramsMap,
                                 String accessKey, String secretKey) throws HttpCallerException {
+        return doPost(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null);
+    }
+
+    /**
+     * 使用POST方式调用HTTP服务
+     *
+     * @param requestURL     请求的服务URL, 如：http://abc.com:8086/CSB
+     * @param apiName        API名字(服务名)
+     * @param version        API版本号
+     * @param paramsMap      请求参数key-value参数列表，注：可以将JSON对象转换为String作为参数值
+     * @param accessKey      访问key
+     * @param secretKey      安全key
+     * @param signImpl       签名算法实现类名
+     * @param verifySignImpl 验签算法实现类名
+     * @return 调用的返回值，按约定进行解析 (如 JOSN串转换成对象)
+     * @throws HttpCallerException 调用过程中发生的任何异常
+     * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
+     */
+    public static String doPost(String requestURL, String apiName, String version, Map<String, String> paramsMap,
+                                String accessKey, String secretKey, String signImpl, String verifySignImpl) throws HttpCallerException {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
-                .accessKey(accessKey).secretKey(secretKey)
+                .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
         return doPost(hp, null).response;
     }
