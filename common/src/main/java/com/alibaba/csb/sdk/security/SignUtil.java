@@ -103,7 +103,7 @@ public class SignUtil {
                 headerParamsMap.put(CsbSDKConstants.SIGN_IMPL_KEY, signImpl);
             }
 
-            List<ParamNode> paramNodeList = convertMultiValueParams(newParamsMap);
+            SortedParamList paramNodeList = convertMultiValueParams(newParamsMap);
             String signKey = signService.generateSignature(paramNodeList, accessKey, securityKey);
             if (SdkLogger.isLoggable() || signDiagnosticInfo != null) {
                 StringBuffer msg = new StringBuffer();
@@ -140,8 +140,8 @@ public class SignUtil {
      * @param map
      * @return
      */
-    public static List<ParamNode> convertMultiValueParams(Map<String, List<String>> map) {
-        List<ParamNode> pnList = new ArrayList<ParamNode>();
+    public static SortedParamList convertMultiValueParams(Map<String, List<String>> map) {
+        SortedParamList pnList = new SortedParamList();
         if (map == null) {
             return pnList;
         }
@@ -165,6 +165,6 @@ public class SignUtil {
     }
 
     public static void warmup() {
-        SignServiceRuntime.pickSignService(null).generateSignature(new ArrayList<ParamNode>(), "ak", "sk");
+        SignServiceRuntime.pickSignService(null).generateSignature(new SortedParamList(), "ak", "sk");
     }
 }

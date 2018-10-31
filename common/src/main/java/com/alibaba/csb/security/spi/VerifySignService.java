@@ -1,8 +1,6 @@
 package com.alibaba.csb.security.spi;
 
-import com.alibaba.csb.sdk.security.ParamNode;
-
-import java.util.List;
+import com.alibaba.csb.sdk.security.SortedParamList;
 
 /**
  * SPI interface, provide different verify signature implementations.
@@ -15,6 +13,6 @@ public interface VerifySignService {
      * @param accessKey     进行签名的凭证识别码
      * @param signature     签名串
      */
-    boolean verifySignature(final List<ParamNode> paramNodeList, final String accessKey, final String signature);
+    boolean verifySignature(final SortedParamList paramNodeList, final String accessKey, final String signature);
 
 }
