@@ -106,6 +106,26 @@ public class BuilderTest {
         }
     }
 
+    /**
+     * 自定义签名算法示例
+     */
+    @Test
+    public void testJsonWithSign() {
+        String requestURL = "http://localhost:8086/CSB?name=wewe&times=2";
+        String apiName = "http2http1";
+        String version = "1.0.0";
+        Map<String, String> paramMap = new HashMap<String, String>();
+        paramMap.put("sleepSeconds", "1");
+        try {
+            String result = HttpCaller.doPost(requestURL, apiName, version, paramMap, "ak", "sk",
+                    SampleSignImpl.class.getCanonicalName(), "com.alibaba.aosp.extension.security.SampleVerifySignImpl"); //与普通调用一样，除了增加 signImpl和verifySignImpl 两个参数。
+            System.out.println(result);
+        } catch (HttpCallerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     @Test
     public void testPostJsonStr() {
         String requestURL = "http://10.125.60.151:8086/test?arg0=a&arg1=12&title=test";
