@@ -1,20 +1,17 @@
 package com.alibaba.csb.sdk;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.parser.Feature;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.FileOutputStream;
-import java.net.URI;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.alibaba.fastjson.parser.Feature;
 
 public class BuilderTest {
     @Before
@@ -70,110 +67,112 @@ public class BuilderTest {
     public void testhttpJson() {
         //URI uri = new URI("http://11.239.187.178:8086/test?arg1=1&arg0=<ApproveDataInfo><TableName>sp_shenqin</TableName><UseSJBBH>false</UseSJBBH><ZZJGDM>006939801</ZZJGDM><SXBM>10281300100693980112440000</SXBM></ApproveDataInfo>");
 
-		Map<Long,Long> map = new HashMap<Long, Long>();
-		map.put(1l, 1l);
-		map.put(2l, 2l);
-		map.put(3l, 3l);
-		map.put(4l, 4l);
-		String mapStr = JSON.toJSONString(map);
-		String requestURL = "http://11.239.187.178:8086/test";
-		String apiName = "ci-http2http";
-		String version = "1.0.0";
-		Map<String, String> paramsMap = new HashMap<String, String>();
-		paramsMap.put("arg0", "<ApproveDataInfo><TableName>sp_shenqin</TableName><UseSJBBH>false</UseSJBBH><ZZJGDM>006939801</ZZJGDM><SXBM>10281300100693980112440000</SXBM></ApproveDataInfo>");
-		paramsMap.put("access", "1");
-		try {
-			
-			String result = HttpCaller.doPost(requestURL, apiName, version, paramsMap);
-			System.out.println(result.length() + result);
-		} catch (HttpCallerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	
-	@Test
-	public void testJson()  {
-		String requestURL = "http://10.125.50.237:8086/test?name=a&age=12&title=test";
-		String apiName = "dubbotest";
-		String version = "1.0.0";
-		Map<String, String> paramMap = new HashMap<String, String>();
-		try {
-			String result = HttpCaller.doPost(requestURL, apiName, version, paramMap, "ak", "sk");
-			System.out.println(result);
-		} catch (HttpCallerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	@Test
-	public void testPostJsonStr()  {
-		String requestURL = "http://10.125.60.151:8086/test?arg0=a&arg1=12&title=test";
-		String apiName = "demo-http2http";
-		String version = "1.0.0";
-		try {
-			Map<String, String> paramsMap = new HashMap<String, String>();
-			paramsMap.put("a", "b");
-			String result = HttpCaller.doPost(requestURL, apiName, version, new ContentBody("{\"a\":\"csb云服务总线\"}"), "ak", "sk");
-			System.out.println(result);
-		} catch (HttpCallerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	@Test
-	public void testfile(){
-		try {
-			byte[] bytes = HttpCaller.readFileAsByteArray("C:/Users/Public/Pictures/Sample Pictures/test.txt");
-			File f = new File("C:/Users/Public/Pictures/Sample Pictures/test2.txt");
-			FileOutputStream out = new FileOutputStream(f);
-			
-			try {
-				out.write(bytes, 0, bytes.length);
-				out.flush();
-			} finally {
-				out.close();
-			}
-		}catch(Exception e){
-			
-		}
-	}
-	
-	@Test
-	public void testPostBytes()  {
-		
-		String requestURL = "http://10.125.60.151:8086/test?fileName=result.txt&filePath=/home/admin/";
-		String apiName = "httpfile";
-		String version = "1.0.0";
-		try {
-			String result = HttpCaller.doPost(requestURL, apiName, version, new ContentBody(HttpCaller.readFileAsByteArray("/tmp/abc.log")), "ak", "sk");
-			System.out.println(result);
-		} catch (HttpCallerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	//@Test
-	public void testPostFile() throws HttpCallerException {
-		String requestURL = "http://localhost:8088/api/uploadjar/Upload";
-		String apiName = "abc";
-		String version = "1.0.0";
-		//String file = "/ltwork/depot/camel/assembly/target/csb-broker-1.0.4.1-SNAPSHOT.tar.gz";
-		String file = "/ltwork/csb-install/httpsdk1.7.jar";
-		byte[] fc = HttpCaller.readFileAsByteArray(file); 
-		HttpCaller.doPost(requestURL, apiName, version, new ContentBody(fc), "ak", "sk");
-	}
-	
-	@Test
-	public void testJsonMap(){
-		String json = "{\"@type\":\"java.util.HashMap\",\"test\":{\"@type\":\"com.alibaba.csb.ws.def.ParamA\",\"accounts\":[\"aaaa\",\"bbbb\"],\"age\":1,\"name\":\"test\",\"sons\":[\"cccc\",\"ddd\"]}}";
-		Map result = JSON.parseObject(json, new TypeReference<Map>(){}, new Feature[]{});
-		
-		System.out.println(result);
-		
-	}
+        Map<Long, Long> map = new HashMap<Long, Long>();
+        map.put(1l, 1l);
+        map.put(2l, 2l);
+        map.put(3l, 3l);
+        map.put(4l, 4l);
+        String mapStr = JSON.toJSONString(map);
+        String requestURL = "http://11.239.187.178:8086/test";
+        String apiName = "ci-http2http";
+        String version = "1.0.0";
+        Map<String, String> paramsMap = new HashMap<String, String>();
+        paramsMap.put("arg0", "<ApproveDataInfo><TableName>sp_shenqin</TableName><UseSJBBH>false</UseSJBBH><ZZJGDM>006939801</ZZJGDM><SXBM>10281300100693980112440000</SXBM></ApproveDataInfo>");
+        paramsMap.put("access", "1");
+        try {
+
+            String result = HttpCaller.doPost(requestURL, apiName, version, paramsMap);
+            System.out.println(result.length() + result);
+        } catch (HttpCallerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void testJson() {
+        String requestURL = "http://localhost:8086/CSB?name=wewe&times=2";
+        String apiName = "http2http1";
+        String version = "1.0.0";
+        Map<String, String> paramMap = new HashMap<String, String>();
+        paramMap.put("sleepSeconds", "1");
+        try {
+            String result = HttpCaller.doPost(requestURL, apiName, version, paramMap, "ak", "sk");
+            System.out.println(result);
+        } catch (HttpCallerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testPostJsonStr() {
+        String requestURL = "http://10.125.60.151:8086/test?arg0=a&arg1=12&title=test";
+        String apiName = "demo-http2http";
+        String version = "1.0.0";
+        try {
+            Map<String, String> paramsMap = new HashMap<String, String>();
+            paramsMap.put("a", "b");
+            String result = HttpCaller.doPost(requestURL, apiName, version, new ContentBody("{\"a\":\"csb云服务总线\"}"), "ak", "sk");
+            System.out.println(result);
+        } catch (HttpCallerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testfile() {
+        try {
+            byte[] bytes = HttpCaller.readFileAsByteArray("C:/Users/Public/Pictures/Sample Pictures/test.txt");
+            File f = new File("C:/Users/Public/Pictures/Sample Pictures/test2.txt");
+            FileOutputStream out = new FileOutputStream(f);
+
+            try {
+                out.write(bytes, 0, bytes.length);
+                out.flush();
+            } finally {
+                out.close();
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void testPostBytes() {
+
+        String requestURL = "http://10.125.60.151:8086/test?fileName=result.txt&filePath=/home/admin/";
+        String apiName = "httpfile";
+        String version = "1.0.0";
+        try {
+            String result = HttpCaller.doPost(requestURL, apiName, version, new ContentBody(HttpCaller.readFileAsByteArray("/tmp/abc.log")), "ak", "sk");
+            System.out.println(result);
+        } catch (HttpCallerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    //@Test
+    public void testPostFile() throws HttpCallerException {
+        String requestURL = "http://localhost:8088/api/uploadjar/Upload";
+        String apiName = "abc";
+        String version = "1.0.0";
+        //String file = "/ltwork/depot/camel/assembly/target/csb-broker-1.0.4.1-SNAPSHOT.tar.gz";
+        String file = "/ltwork/csb-install/httpsdk1.7.jar";
+        byte[] fc = HttpCaller.readFileAsByteArray(file);
+        HttpCaller.doPost(requestURL, apiName, version, new ContentBody(fc), "ak", "sk");
+    }
+
+    @Test
+    public void testJsonMap() {
+        String json = "{\"@type\":\"java.util.HashMap\",\"test\":{\"@type\":\"com.alibaba.csb.ws.def.ParamA\",\"accounts\":[\"aaaa\",\"bbbb\"],\"age\":1,\"name\":\"test\",\"sons\":[\"cccc\",\"ddd\"]}}";
+        Map result = JSON.parseObject(json, new TypeReference<Map>() {
+        }, new Feature[]{});
+
+        System.out.println(result);
+
+    }
 }
