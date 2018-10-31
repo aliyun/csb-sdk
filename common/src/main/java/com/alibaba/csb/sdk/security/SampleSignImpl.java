@@ -8,7 +8,9 @@ import com.alibaba.csb.security.spi.SignService;
  */
 public class SampleSignImpl implements SignService {
     public String generateSignature(SortedParamList paramNodeList, final String accessKey, final String secretKey) {
-        return paramNodeList.toString().substring(0, 10);
+        String reqStr = paramNodeList.toString();
+        System.out.println("请求参数列表：" + reqStr);
+        return reqStr.substring(0, 10);
     }
 
 }
