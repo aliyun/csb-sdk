@@ -1,5 +1,6 @@
 package com.alibaba.csb.sdk;
 
+import com.alibaba.csb.sdk.security.SampleSignImpl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;

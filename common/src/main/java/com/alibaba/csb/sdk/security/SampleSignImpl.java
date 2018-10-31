@@ -1,8 +1,6 @@
-package com.alibaba.csb.sdk;
+package com.alibaba.csb.sdk.security;
 
-import com.alibaba.csb.sdk.security.SortedParamList;
 import com.alibaba.csb.security.spi.SignService;
-import com.alibaba.fastjson.JSON;
 
 /**
  * 客户端签名示例服务
@@ -10,9 +8,7 @@ import com.alibaba.fastjson.JSON;
  */
 public class SampleSignImpl implements SignService {
     public String generateSignature(SortedParamList paramNodeList, final String accessKey, final String secretKey) {
-        String reqStr = JSON.toJSONString(paramNodeList);
-        System.out.println("请求：\n" + reqStr);
-        return reqStr.substring(0, 10);
+        return paramNodeList.toString().substring(0, 10);
     }
 
 }
