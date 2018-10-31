@@ -30,8 +30,8 @@ public class CmdHttpCaller {
         opt.addOption("d", "debug", false, MessageHelper.getMessage("cli.debug"));
         opt.addOption("cc", "changeCharset", false, MessageHelper.getMessage("cli.change.charset"));
         opt.addOption("sdkv", "sdk-version", false, MessageHelper.getMessage("cli.sdk.version"));
-        opt.addOption("sign", "signImpl", false, MessageHelper.getMessage("cli.signImpl"));
-        opt.addOption("verify", "verifySignImpl", false, MessageHelper.getMessage("cli.verifySignImpl"));
+        opt.addOption("sign", "signImpl", true, MessageHelper.getMessage("cli.signImpl"));
+        opt.addOption("verify", "verifySignImpl", true, MessageHelper.getMessage("cli.verifySignImpl"));
     }
 
     //TODO: move to  common
