@@ -19,7 +19,7 @@ public class SampleSignImpl implements SignService {
     public String generateSignature(SortedParamList paramNodeList, final String accessKey, final String secretKey) {
         String reqStr = paramNodeList.toString();
         System.out.println("SampleSignImpl签名，请求参数列表串：" + reqStr);
-        return reqStr.substring(0, 10); //模拟签名算法
+        return accessKey.substring(0, 1); //模拟签名算法
     }
 
 }

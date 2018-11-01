@@ -99,7 +99,7 @@ public class BuilderTest {
         Map<String, String> paramMap = new HashMap<String, String>();
         paramMap.put("sleepSeconds", "1");
         try {
-            String result = HttpCaller.doPost(requestURL, apiName, version, paramMap, "ak", "sk");
+            String result = HttpCaller.doPost(requestURL, apiName, version, paramMap, "025dbf21f9a5406eb86a5991187e3868", "sk");
             System.out.println(result);
         } catch (HttpCallerException e) {
             // TODO Auto-generated catch block
