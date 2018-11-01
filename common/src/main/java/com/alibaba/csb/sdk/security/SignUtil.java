@@ -81,6 +81,7 @@ public class SignUtil {
             }
         }
 
+        vefifySignImpl = SignServiceRuntime.pickVerifySignImplName(vefifySignImpl);
         if (vefifySignImpl != null) {
             newParamsMap.put(CsbSDKConstants.VERIFY_SIGN_IMPL_KEY, Arrays.asList(vefifySignImpl));
             headerParamsMap.put(CsbSDKConstants.VERIFY_SIGN_IMPL_KEY, vefifySignImpl);
@@ -98,7 +99,7 @@ public class SignUtil {
             SignService signService = SignServiceRuntime.pickSignService(signImpl);
             //Add an extra http-header to tell what signimpl is being used on client side
             signImpl = signService.getClass().getCanonicalName();
-            if (signImpl.equals(DefaultSignServiceImpl.class.getSimpleName()) == false) {
+            if (signImpl.equals(DefaultSignServiceImpl.class.getSimpleName()) == false) { //设置非默认的签名类http头
                 newParamsMap.put(CsbSDKConstants.SIGN_IMPL_KEY, Arrays.asList(signImpl));
                 headerParamsMap.put(CsbSDKConstants.SIGN_IMPL_KEY, signImpl);
             }

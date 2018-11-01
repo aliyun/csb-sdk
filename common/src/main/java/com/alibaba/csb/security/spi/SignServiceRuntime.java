@@ -18,6 +18,9 @@ import java.util.ServiceLoader;
  * Created on 18/6/15.
  */
 public class SignServiceRuntime {
+    public static final String DefaultSignImpl = System.getProperty(SignService.class.getName());
+    public static final String DefaultVerifySignImpl = System.getProperty(VerifySignService.class.getName());
+
     private static ServiceLoader<SignService> serviceLoader = ServiceLoader.load(SignService.class);
     private static final Map<String, SignService> signServiceMap = new HashMap<String, SignService>();
 
@@ -27,22 +30,26 @@ public class SignServiceRuntime {
      * 2. 如果请求参数为空，则试图从系统环境变量-Dcom.alibaba.csb.security.spi.SignService指定的实现类，如果指定的实现类没找到则抛出Exception
      * 3. 如果没有指定系统环境变量，则从当前CLASSPATH中的/META-INF/services/com.alibaba.csb.security.spi.SignService文件中指定的实现类返回
      *
-     * @param pickImpl
+     * @param signImpl
      * @return
      */
-    public static SignService pickSignService(String pickImpl) {
-        if (pickImpl == null) {
+    public static SignService pickSignService(String signImpl) {
+        if (signImpl == null) {
+            signImpl = DefaultSignImpl; //如果没有明确参数指定，则使用系统-D参数的值
+        }
+
+        if (signImpl == null) {
             Iterator<SignService> it = serviceLoader.iterator();
             if (!it.hasNext()) {
-                return DefaultSignServiceImpl.getInstance();
+                return DefaultSignServiceImpl.getInstance(); //没有指定，也没有配置META-INF，则使用默认spas验签
             }
-            return it.next(); //return the first one
+            return it.next(); //没有指定，但配置了META-INF，则使用serviceLoader加载的类
         } else {
-            SignService signService = signServiceMap.get(pickImpl);//从缓存中查找
+            SignService signService = signServiceMap.get(signImpl);//从缓存中查找
             if (signService == null) {
                 synchronized (signServiceMap) {
-                    signService = getNewSignService(pickImpl);
-                    signServiceMap.put(pickImpl, signService);
+                    signService = getNewSignService(signImpl);
+                    signServiceMap.put(signImpl, signService);
                 }
             }
             return signService;
@@ -83,4 +90,17 @@ public class SignServiceRuntime {
         }
     }
 
+
+    /**
+     * 选取VerifySingService实现类，选取顺序：
+     * 1. 根据请求参数指定的实现类名来选取，如果没有找到则抛出Exception
+     * 2. 如果请求参数为空，则试图从系统环境变量-Dcom.alibaba.csb.security.spi.SignService指定的实现类，如果指定的实现类没找到则抛出Exception
+     */
+    public static String pickVerifySignImplName(String vefifySignImpl) {
+        if (vefifySignImpl == null) {
+            vefifySignImpl = DefaultVerifySignImpl;
+        }
+
+        return vefifySignImpl;
+    }
 }
