@@ -14,7 +14,7 @@ public class SampleSignImpl implements SignService {
      * @param paramNodeList 已排序的待签名请求参数key=values键值对列表
      * @param accessKey     进行签名的凭证识别码
      * @param secretKey     进行签名的安全码
-     * @return 签名串
+     * @return 客户端签名串
      */
     public String generateSignature(SortedParamList paramNodeList, final String accessKey, final String secretKey) {
         String reqStr = paramNodeList.toString();
