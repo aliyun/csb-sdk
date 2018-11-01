@@ -1,5 +1,8 @@
 package com.alibaba.csb.sdk;
 
+import com.alibaba.csb.security.spi.SignService;
+import com.alibaba.csb.security.spi.VerifySignService;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -115,6 +118,9 @@ public class HttpParameters {
      * 内部静态类，用来设置HttpCaller调用的相关参数
      */
     public static class Builder {
+        public static final String DefaultSignImpl = System.getProperty(SignService.class.getName());
+        public static final String DefaultVerifySignImpl = System.getProperty(VerifySignService.class.getName());
+
         private String api;
         private String version;
         private String ak;
@@ -123,8 +129,8 @@ public class HttpParameters {
         private String method = "GET";
         private ContentBody contentBody = null;
         private String requestUrl;
-        private String signImpl;
-        private String verifySignImpl;
+        private String signImpl = DefaultSignImpl; //默认使用系统参数
+        private String verifySignImpl = DefaultVerifySignImpl;//默认使用系统参数
         private boolean nonce;
         private boolean timestamp = true;
         private boolean signContentBody = false;
@@ -340,7 +346,9 @@ public class HttpParameters {
          * @return
          */
         public Builder signImpl(String signImpl) {
-            this.signImpl = signImpl;
+            if (signImpl != null) {
+                this.signImpl = signImpl;
+            }
             return this;
         }
 
@@ -351,7 +359,9 @@ public class HttpParameters {
          * @return
          */
         public Builder verifySignImpl(String verifySignImpl) {
-            this.verifySignImpl = verifySignImpl;
+            if (verifySignImpl != null) {
+                this.verifySignImpl = verifySignImpl;
+            }
             return this;
         }
 

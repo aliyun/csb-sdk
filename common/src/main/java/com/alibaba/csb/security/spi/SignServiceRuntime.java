@@ -24,18 +24,11 @@ public class SignServiceRuntime {
      * 2. 如果请求参数为空，则试图从系统环境变量-Dcom.alibaba.csb.security.spi.SignService指定的实现类，如果指定的实现类没找到则抛出Exception
      * 3. 如果没有指定系统环境变量，则从当前CLASSPATH中的/META-INF/services/com.alibaba.csb.security.spi.SignService文件中指定的实现类返回
      *
-     * @param currImplName
+     * @param pickImpl
      * @return
      */
-    public static SignService pickSignService(String currImplName) {
+    public static SignService pickSignService(String pickImpl) {
         Iterator<SignService> it = serviceLoader.iterator();
-
-        String pickImpl = null;
-        if (currImplName != null) {
-            pickImpl = currImplName;
-        } else {
-            pickImpl = System.getProperty(SignService.class.getName());
-        }
 
         if (pickImpl == null) {
             if (!it.hasNext()) {
