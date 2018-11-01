@@ -7,10 +7,19 @@ import com.alibaba.csb.security.spi.SignService;
  * Created by wiseking on 18/6/15.
  */
 public class SampleSignImpl implements SignService {
+
+    /**
+     * 客户端请求参数进行签名处理
+     *
+     * @param paramNodeList 已排序的待签名请求参数key=values键值对列表
+     * @param accessKey     进行签名的凭证识别码
+     * @param secretKey     进行签名的安全码
+     * @return 签名串
+     */
     public String generateSignature(SortedParamList paramNodeList, final String accessKey, final String secretKey) {
         String reqStr = paramNodeList.toString();
-        System.out.println("SampleSignImpl签名，请求参数列表：" + reqStr);
-        return reqStr.substring(0, 10);
+        System.out.println("SampleSignImpl签名，请求参数列表串：" + reqStr);
+        return reqStr.substring(0, 10); //模拟签名算法
     }
 
 }
