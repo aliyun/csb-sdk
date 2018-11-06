@@ -47,24 +47,33 @@
     </licenses>
 
     <developers>
-    <developer>
-        <name>Liaotian(walking98)</name>
-        <id>liaotian.wq</id>
-        <email>liaotian.wq (AT) alibaba-inc.com</email>
-        <roles>
-            <role>Developer</role>
-        </roles>
-        <timezone>+8</timezone>
-    </developer>
-    <developer>
-        <name>yaolan.lt</name>
-        <id>jeffeyliu</id>
-        <email>yaolan.lt (AT) alibaba-inc.com</email>
-        <roles>
-            <role>Developer</role>
-        </roles>
-        <timezone>+8</timezone>
-    </developer>
+        <developer>
+            <name>Liaotian(walking98)</name>
+            <id>liaotian.wq</id>
+            <email>liaotian.wq (AT) alibaba-inc.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+        <developer>
+            <name>yaolan.lt</name>
+            <id>jeffeyliu</id>
+            <email>yaolan.lt (AT) alibaba-inc.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+        <developer>
+            <name>chentingb</name>
+            <id>chentingb</id>
+            <email>tingbin.ctb (AT) alibaba-inc.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
     </developers>
 
     <profiles>
