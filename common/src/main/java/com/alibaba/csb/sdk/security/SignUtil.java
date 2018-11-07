@@ -165,6 +165,41 @@ public class SignUtil {
         return pnList;
     }
 
+    /**
+     * convert parameter to Signature requried ParamNode format
+     *
+     * @param map
+     * @return
+     */
+    private static SortedParamList convertSingleValueParms(Map<String, String> map) {
+        SortedParamList sortedParamList = new SortedParamList();
+        if (map != null) {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                String key = entry.getKey();
+                ParamNode node = new ParamNode(key, entry.getValue());
+                sortedParamList.add(node);
+            }
+        }
+
+        return sortedParamList;
+    }
+
+
+    /**
+     * Signature single value parameter list with security key
+     *
+     * @param paramsMap
+     * @param secretKey
+     * @return
+     */
+    public static String sign(Map<String, String> paramsMap, String secretKey) {
+        return sign(convertSingleValueParms(paramsMap), secretKey);
+    }
+
+    private static String sign(SortedParamList sortedParamList, String secretKey) {
+        return SpasSigner.sign(sortedParamList, secretKey);
+    }
+
     public static void warmup() {
         SignServiceRuntime.pickSignService(null).generateSignature(new SortedParamList(), "ak", "sk");
     }
