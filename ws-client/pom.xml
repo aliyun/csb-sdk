@@ -127,7 +127,7 @@
 				<executions>
 					<execution>
 						<id>make-assembly</id>
-						<phase>assembly</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>assembly</goal>
 						</goals>
