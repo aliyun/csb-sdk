@@ -175,7 +175,7 @@ import java.util.concurrent.TimeUnit;
  *
  * 2. 关于连接参数的设置：
  *   a. 可以为http/https设置以下的全局性系统参数：
- *      -Dhttp.caller.connection.max          设置连接池的最大连接数，默认是20
+ *      -Dhttp.caller.connection.max          设置连接池的最大连接数，默认是200
  *      -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是-1， 永不超时
  *      -Dhttp.caller.connection.so.timeout   设置读取超时时间（毫秒），默认是-1， 永不超时
  *      -Dhttp.caller.connection.cr.timeout   设置从连接池获取连接实例的超时（毫秒），默认是-1， 永不超时
