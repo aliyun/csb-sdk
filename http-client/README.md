@@ -12,8 +12,8 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里
 
-[最新的包 http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)
-
+[最新的包 http-sdk-1.1.5.1.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.5.1.jar)
+[次新的包 http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)
 [旧的http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)
 
 * 如果用编程的方式,可以不下载这个standalone的Jar包,而是在用户的pom.xml里引用如下的dependency:
@@ -22,7 +22,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 <dependency>
   <groupId>com.alibaba.csb.sdk</groupId>
   <artifactId>http-client</artifactId>
-  <version>1.1.4.0</version>
+  <version>1.1.5.1</version>
 </dependency>
 ```
 
@@ -32,7 +32,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 
 ```
-java [sys-props] -jar http-sdk-1.1.4.0.jar [options...]
+java [sys-props] -jar http-sdk-1.1.5.1.jar [options...]
 ```
 
 参数取值说明:
