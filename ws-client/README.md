@@ -5,8 +5,8 @@
 
  * 如果使用命令行方式调用SDK,根据需要将standaloned的运行包放在调用端的CLASSPATH环境里
 
-[最新版本 ws-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.4.0.jar)
-
+[最新版本 ws-sdk-1.1.5.1.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.5.1.jar)
+[次新版本 ws-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.4.0.jar)
 [旧版本 ws-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.0.4.2plus.jar)
 
  * 如果用编程的方式使用SDK,则需要将需要的dependency放到你的pom.xml (该依赖已经在maven central repository存在)

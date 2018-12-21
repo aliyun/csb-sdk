@@ -23,7 +23,7 @@ cd csb-sdk
 
 # 2. show and switch to desired branch, e.g.
 git branch
-git checkout 1.1.4.0
+git checkout 1.1.5.1
 
 # 3. Build common module
 cd common

@@ -21,5 +21,6 @@
 | 1.1.4   | snapshot |20180402     | support -cbJSON parameter for http-sdk  |  enable passing json body String in CLI  |
 | 1.1.4.0 |        | 20180622      | support SignUtil SPI  <br> Support Diagnostic <br>| [go](release/r20180622.md) |
 | 1.1.4.1 |        | 20180701      | support JDK1.6  <br> Fixed a dependency error in 1.1.4.0<br>|  |
+| 1.1.5.1 | snapshot | 20181031   | support self defined signImpl \/ verifySignImpl | [go](release/r20181031.md) |
 |         |        |                |                                      |         |
 

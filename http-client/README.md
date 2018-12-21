@@ -12,8 +12,8 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里
 
-[最新的包 http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)
-
+[最新的包 http-sdk-1.1.5.1.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.5.1.jar)
+[次新的包 http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)
 [旧的http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)
 
 * 如果用编程的方式,可以不下载这个standalone的Jar包,而是在用户的pom.xml里引用如下的dependency:
@@ -33,8 +33,8 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 
 ```
-java [sys-props] -jar http-sdk-1.1.4.0.jar [options...]
-
+java [sys-props] -jar http-sdk-1.1.5.1.jar [options...]
+```
 
 参数取值说明:
  -ak <arg>        accessKey, 可选
@@ -49,15 +49,17 @@ java [sys-props] -jar http-sdk-1.1.4.0.jar [options...]
  -sk <arg>        secretKey, 可选
  -url <arg>       请求地址，e.g: http://broker-ip:8086/CSB?p1=v1
  -version <arg>   服务版本
+ -signImpl        客户端签名类
+ -verifySignImpl  CSB服务端验签类
  -cbJSON          以JSON串方式post发送的请求body, 例如: -cbJSON '{"name":"wiseking"}'
  -cc,--changeCharset   返回值是否需要转换charset
-```
+
 
 * **sys-props**      为可选的**JVM系统参数**, 可以设置如下的一项或者多项（空格分隔），具体包括：
   * -Dtest.stress.times=n   压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
   * -Dhttp.caller.DEBUG=true    命令行打开调试模式
 
-* 注意：上述命令行方式在1.1.4.0版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
+* 注意：上述命令行方式在1.1.5.1版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
 
 ### 方式二: 使用编程方式调用
 
@@ -242,7 +244,7 @@ CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来�
 SDK在将参数签名完成后，在发送给服务端之前，会把请求参数进行URLEncoder编码，编码方式为当前Java系统中的file.encoding系统参数所指定的值。如请求参数中包含有中文，并且客户单的系统Charset编码参数与服务端的不一致的时候，当使用GET方式调用就可能出现验签失败的问题；当这种情况发生时要检查两端的Charset编码是否一致， 可以在SDK客户端设置编码方式(如: -Dfile.encoding=UTF-8)使编码与服务器一致。如果你的中文参数是写死在Java程序代码中，需要保证源码的编码方式与服务端要求的一致，否则也会出现签名失败的问题.
 
 ### 4.2. 高级功能
-1. 设置代理地址 （注意：从1.1.4开始支持）
+#### 设置代理地址 （注意：从1.1.4开始支持）
 
 ```
   String proxyHost = "...";
@@ -253,11 +255,11 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 
 ```
 
-2. 关于连接参数的设置：
-a. 可以为http/https设置以下的全局性系统参数：
+#### 关于连接参数的设置：
+* 可以为http/https设置以下的全局性系统参数：
 
 ```
-      -Dhttp.caller.connection.max          设置连接池的最大连接数，默认是20
+      -Dhttp.caller.connection.max          设置连接池的最大连接数，默认是200
       -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是-1， 永不超时
       -Dhttp.caller.connection.so.timeout   设置读取超时时间（毫秒），默认是-1， 永不超时
       -Dhttp.caller.connection.cr.timeout   设置从连接池获取连接实例的超时（毫秒），默认是-1， 永不超时      
@@ -265,7 +267,7 @@ a. 可以为http/https设置以下的全局性系统参数：
       -Dhttp.caller.connection.async        设置内部使用nio,默认fasle:同步io,true:nio（不支持连接池，不推荐使用）
 ```
 
-b. 也可以使用下面的方法设置以上的某一个或者多个参数：
+* 也可以使用下面的方法设置以上的某一个或者多个参数：
 
 ```
       Map sysParams = new HashMap();
@@ -274,6 +276,16 @@ b. 也可以使用下面的方法设置以上的某一个或者多个参数：
       ...
       HttpCaller.doPost() or doGet();
 ```
+
+#### 自定义签名和验签类 （注意：从1.1.5.1开始支持）
+详细使用请参考 [1.1.5.1发布说明](release/r20181031.md) 。客户端示意代码：
+```
+   builder.requestURL("http://localhost:8086/CSB").api("PING").version("vcsb").method("get") .accessKey("ak").secretKey("sk")
+            .signImpl("your-sign-impl-class").verifySignImpl("your-verify-sign-impl-class"); //指定客户端签名类 和 CSB服务端验签类
+  ...
+  HttpCaller.doPost(builder.build()), doGet(builder.build()) or invoke(builder.build());
+```
+
 ### 4.3. 使用http-sdk调用CSB控制台的Open API
 
 使用HTTP-SDK可以对控制台提供的OpenAPI进行调用,具体的例子[参见](InvokeOpenAPI.md)
