@@ -1,10 +1,10 @@
 ## Latest version/最新的版本
 * RELEASE
- 1.  ${http.sdk.version} = 1.1.4.1
- 2.  ${ws.sdk.version} = 1.1.4.1
+ 1.  ${http.sdk.version} = 1.1.5.1
+ 2.  ${ws.sdk.version} = 1.1.5.1
 * SNAPSHOT
- 1.  ${http.sdk.snapshot.version} = 1.1.4-SNAPSHOT
- 2.  ${ws.sdk.snapshot.version} = 1.1.4-SNAPSHOT
+ 1.  ${http.sdk.snapshot.version} = 1.1.5.1-SNAPSHOT
+ 2.  ${ws.sdk.snapshot.version} = 1.1.5.1-SNAPSHOT
 
 ## Maven项目依赖
  1. [http.sdk](https://mvnrepository.com/artifact/com.alibaba.csb.sdk/http-client)
