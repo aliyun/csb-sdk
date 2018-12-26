@@ -7,14 +7,14 @@
 	<parent>
 		<groupId>com.alibaba.csb.sdk</groupId>
 		<artifactId>csb.sdk.parent</artifactId>
-		<version>1.1.5.1</version>
+		<version>1.1.5.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
 
 	<name>CSB :: SDK :: common</name>
 	<artifactId>common</artifactId>
-	<version>1.1.5.1</version>
+	<version>1.1.5.1-SNAPSHOT</version>
 
 	<dependencies>
 		<dependency>
