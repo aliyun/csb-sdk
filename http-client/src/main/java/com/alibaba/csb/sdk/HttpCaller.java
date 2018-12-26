@@ -406,6 +406,27 @@ public class HttpCaller {
         return doGet(hp, null).response;
     }
 
+    /**
+     * 获取签名串
+     *
+     * @param requestURL     请求的服务URL, 如：http://abc.com:8086/CSB， 如果URL里的请求参数有特殊字符(如 '&')，需要先将次值进行URL Encode处理
+     * @param apiName        API名字(服务名)
+     * @param version        API版本号
+     * @param paramsMap      请求参数key-value参数列表，注：可以将JSON对象转换为String作为参数值，如果URL里的请求参数有特殊字符(如 '&')，需要先将次值进行URL Encode处理
+     * @param accessKey      访问key
+     * @param secretKey      安全key
+     * @param signImpl       签名算法实现类名
+     * @param verifySignImpl 验签算法实现类名
+     * @return 发送CSB请求需要增加的httpHeader，包含签名串等
+     */
+    public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap,
+                                                    String accessKey, String secretKey, String signImpl, String verifySignImpl) throws HttpCallerException {
+        Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
+        HttpClientHelper.mergeParams(urlParamsMap, paramsMap, true);
+        return HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey, secretKey,
+                true, false, null, null, signImpl, verifySignImpl);
+    }
+
     private static HttpReturn doGet(HttpParameters hp, Map<String, String> extSignHeadersMap) throws HttpCallerException {
         final String requestURL = hp.getRequestUrl();
         String apiName = hp.getApi();
