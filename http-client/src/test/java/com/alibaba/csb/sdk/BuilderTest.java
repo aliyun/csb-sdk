@@ -107,6 +107,23 @@ public class BuilderTest {
         }
     }
 
+    @Test
+    public void testURLWithSign() {
+        String requestURL = "http://localhost:8086/CSB?name=wewe&times=2";
+        String apiName = "http2http1";
+        String version = "1.0.0";
+        Map<String, String> paramMap = new HashMap<String, String>();
+        paramMap.put("sleepSeconds", "1");
+        try {
+            Map<String, String> csbHeaders = HttpCaller.getCsbHeaders(requestURL, apiName, version, paramMap, "025dbf21f9a5406eb86a5991187e3868", "sk",
+                    SampleSignImpl.class.getCanonicalName(), "com.alibaba.aosp.extension.security.SampleVerifySignImpl");
+            System.out.println(csbHeaders);
+        } catch (HttpCallerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 自定义签名算法示例
      */
