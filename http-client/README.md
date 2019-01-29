@@ -12,7 +12,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里
 
-[最新的包 http-sdk-1.1.5.1.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.1.jar)
+[最新的包 http-sdk-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.2.jar)
 
 [次新的包 http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)
 
@@ -35,7 +35,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 
 ```
-java [sys-props] -jar http-sdk-1.1.5.1.jar [options...]
+java [sys-props] -jar http-sdk-1.1.5.2.jar [options...]
 ```
 
 参数取值说明:
@@ -61,7 +61,7 @@ java [sys-props] -jar http-sdk-1.1.5.1.jar [options...]
   * -Dtest.stress.times=n   压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
   * -Dhttp.caller.DEBUG=true    命令行打开调试模式
 
-* 注意：上述命令行方式在1.1.5.1版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
+* 注意：上述命令行方式在1.1.5.2版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
 
 ### 方式二: 使用编程方式调用
 
@@ -279,8 +279,8 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
       HttpCaller.doPost() or doGet();
 ```
 
-#### 自定义签名和验签类 （注意：从1.1.5.1开始支持）
-详细使用请参考 [1.1.5.1发布说明](release/r20181031.md) 。客户端示意代码：
+#### 自定义签名和验签类 （注意：从1.1.5.2开始支持）
+详细使用请参考 [1.1.5.2发布说明](release/r20181031.md) 。客户端示意代码：
 ```
    builder.requestURL("http://localhost:8086/CSB").api("PING").version("vcsb").method("get") .accessKey("ak").secretKey("sk")
             .signImpl("your-sign-impl-class").verifySignImpl("your-verify-sign-impl-class"); //指定客户端签名类 和 CSB服务端验签类

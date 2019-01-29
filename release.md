@@ -1,10 +1,10 @@
 ## Latest version/最新的版本
 * RELEASE
- 1.  ${http.sdk.version} = 1.1.5.1
- 2.  ${ws.sdk.version} = 1.1.5.1
+ 1.  ${http.sdk.version} = 1.1.5.2
+ 2.  ${ws.sdk.version} = 1.1.5.2
 * SNAPSHOT
- 1.  ${http.sdk.snapshot.version} = 1.1.5.1-SNAPSHOT
- 2.  ${ws.sdk.snapshot.version} = 1.1.5.1-SNAPSHOT
+ 1.  ${http.sdk.snapshot.version} = 1.1.5.2-SNAPSHOT
+ 2.  ${ws.sdk.snapshot.version} = 1.1.5.2-SNAPSHOT
 
 ## Maven项目依赖
  1. [http.sdk](https://mvnrepository.com/artifact/com.alibaba.csb.sdk/http-client)
@@ -22,5 +22,6 @@
 | 1.1.4.0 |        | 20180622      | support SignUtil SPI  <br> Support Diagnostic <br>| [go](release/r20180622.md) |
 | 1.1.4.1 |        | 20180701      | support JDK1.6  <br> Fixed a dependency error in 1.1.4.0<br>|  |
 | 1.1.5.1 | snapshot | 20181031   | support self defined signImpl \/ verifySignImpl | [go](release/r20181031.md) |
+| 1.1.5.2 | snapshot | 20190130   | fix ServiceLoader.iterator multithread bug | [go](release/r20181031.md) |
 |         |        |                |                                      |         |
 
