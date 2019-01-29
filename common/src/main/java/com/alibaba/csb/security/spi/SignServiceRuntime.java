@@ -23,6 +23,7 @@ public class SignServiceRuntime {
 
     private static ServiceLoader<SignService> serviceLoader = ServiceLoader.load(SignService.class);
     private static final Map<String, SignService> signServiceMap = new HashMap<String, SignService>();
+    private static SignService defaultServiceLoadedSignService = null; // 缓存默认的服务对象。
 
     /**
      * 选取SingService实现类，选取顺序：
@@ -39,11 +40,18 @@ public class SignServiceRuntime {
         }
 
         if (signImpl == null) {
-            Iterator<SignService> it = serviceLoader.iterator();
-            if (!it.hasNext()) {
-                return DefaultSignServiceImpl.getInstance(); //没有指定，也没有配置META-INF，则使用默认spas验签
+            if (defaultServiceLoadedSignService == null) {
+                synchronized (SignServiceRuntime.class) { //ServiceLoader的iterator是非线程安全
+                    Iterator<SignService> it = serviceLoader.iterator();
+                    if (it.hasNext()) {
+                        defaultServiceLoadedSignService = it.next(); //没有指定，但配置了META-INF，则使用serviceLoader加载的类
+                    } else {
+                        defaultServiceLoadedSignService = DefaultSignServiceImpl.getInstance(); //没有指定，也没有配置META-INF，则使用默认spas验签
+                    }
+                }
             }
-            return it.next(); //没有指定，但配置了META-INF，则使用serviceLoader加载的类
+
+            return defaultServiceLoadedSignService;
         } else {
             SignService signService = signServiceMap.get(signImpl);//从缓存中查找
             if (signService == null) {
