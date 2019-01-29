@@ -5,14 +5,14 @@
 
     <groupId>com.alibaba.csb</groupId>
     <artifactId>sdk-sample</artifactId>
-    <version>1.1.5.1</version>
+    <version>1.1.5.2</version>
     <name>sdk demo for http and ws</name>
     <packaging>jar</packaging>
 
     <properties>
         <spring.version>3.2.7.RELEASE</spring.version>
         <cxf-version>3.0.5</cxf-version>
-        <sdk.version>1.1.5.1</sdk.version>
+        <sdk.version>1.1.5.2</sdk.version>
     </properties>
 
     <dependencies>
