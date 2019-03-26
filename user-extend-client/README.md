@@ -36,7 +36,7 @@ public interface SelfDefFlowControl {
 <dependency>
     <groupId>com.alibaba.csb.sdk</groupId>
     <artifactId>user-extend-client</artifactId>
-    <version>${sdk.version}</version>
+    <version>1.1.2.0</version>
 </dependency>
 ```
 * 实现`com.alibaba.csb.sentinel.SelfDefFlowControl`的 `process` 方法。

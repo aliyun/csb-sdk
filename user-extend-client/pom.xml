@@ -2,16 +2,45 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>csb.sdk.parent</artifactId>
-        <groupId>com.alibaba.csb.sdk</groupId>
-        <version>1.1.5.2</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    <groupId>com.alibaba.csb.sdk</groupId>
     <artifactId>user-extend-client</artifactId>
     <name>CSB :: user extend client</name>
-    <version>1.1.5.2-SNAPSHOT</version>
+    <version>1.1.2.0-SNAPSHOT</version>
 
+    <organization>
+        <name>Alibaba Aliware CSB</name>
+        <url>http://code.alibabatech.com/</url>
+    </organization>
+    <url>https://github.com/alibaba/csb-sdk</url>
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/alibaba/csb-sdk/issues</url>
+    </issueManagement>
+    <scm>
+        <url>https://github.com/aliyun/csb-sdk.git</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly license for Alibaba CSB SDK</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>chentingb</name>
+            <id>chentingb</id>
+            <email>tingbin.ctb (AT) alibaba-inc.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
 
     <repositories>
         <repository>
@@ -25,4 +54,95 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <distributionManagement>
+                <repository>
+                    <id>releases</id>
+                    <url>http://mvnrepo.alibaba-inc.com/mvn/releases</url>
+                </repository>
+                <snapshotRepository>
+                    <id>snapshots</id>
+                    <url>http://mvnrepo.alibaba-inc.com/mvn/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+        <profile>
+            <id>open</id>
+            <distributionManagement>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+                </repository>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+                </snapshotRepository>
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadoc</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <show>public</show>
+                            <charset>UTF-8</charset>
+                            <encoding>UTF-8</encoding>
+                            <docencoding>UTF-8</docencoding>
+                            <excludePackageNames>com.alibaba.csb.sdk.internel.*</excludePackageNames>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
