@@ -2,7 +2,7 @@ package com.alibaba.csb.sentinel;
 
 import java.util.Arrays;
 
-public class EmptySelfDefFlowControlImpl implements SelfDefFlowControl {
+public class DemoSelfDefFlowControlImpl implements SelfDefFlowControl {
 
     @Override
     public void process(String traceId, String csbInstanceName, String csbBrokerIp, String serviceName, String serviceVersioin, String serviceGroupName,

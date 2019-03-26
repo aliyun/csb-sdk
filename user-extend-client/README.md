@@ -43,7 +43,7 @@ public interface SelfDefFlowControl {
 * 在用户jar包的classpath路径下定义`META-INF/service/com.alibaba.csb.sentinel.SelfDefFlowControl`文件，文件内容如下：
 ```text
 #用户自定义流控扩展逻辑Java实现类全名，示例如下
-com.alibaba.csb.sentinel.EmptySelfDefFlowControl
+com.alibaba.csb.sentinel.DemoSelfDefFlowControl
 ```
 * 用户将扩展逻辑打成jar包，上传到CSB Broker的Docker内`/home/admin/cloud-gateway/patchlib`目录内。
 * 重启docker实例。
