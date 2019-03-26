@@ -32,7 +32,7 @@ public interface SelfDefFlowControl {
 本扩展功能基于Java SPI规范实现：
 * 引用接口包
 ```xml
- <dependency>
+<dependency>
     <groupId>com.alibaba.csb.sdk</groupId>
     <artifactId>user-extend-client</artifactId>
     <version>${sdk.version}</version>
