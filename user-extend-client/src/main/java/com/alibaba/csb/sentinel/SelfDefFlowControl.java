@@ -20,7 +20,7 @@ public interface SelfDefFlowControl {
     static final String USER_ID = "userId"; //服务访问者用户Id
     static final String CREDENTIAL_NAME = "credentail_name"; //服务访问者凭证名
     static final String ACCESS_KEY = "_api_access_key";  //服务访问者的ak
-    static final String REMOTE_REAL_IP = "_remote_real_ip";  //服务访问者IP
+    static final String REMOTE_PEER_IP = "_remote_peer_ip";  //服务访问者IP
 
     /**
      * 服务请求上下文信息map，各信息的key见上述常量定义
