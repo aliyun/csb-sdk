@@ -28,7 +28,7 @@ public interface SelfDefFlowControl {
 ```
 用户的自定义扩展java代码实现此接口即可。
 
-如果用户希望终止当前请求，则抛出 `LimitExceedException`异常即可。
+如果用户希望终止当前请求，则抛出 `LimitExceedException`异常即可。此时CSB客户端将收到的响应结果为“`LimitExceedException的异常信息描述`”。
 ### 使用说明
 本扩展功能基于Java SPI规范实现：
 * 引用接口包
