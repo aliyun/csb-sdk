@@ -42,7 +42,7 @@ public interface SelfDefFlowControl {
 </dependency>
 ```
 * 实现`com.alibaba.csb.sentinel.SelfDefFlowControl`的 `process` 方法。
-* 在用户jar包的classpath路径下定义`META-INF/service/com.alibaba.csb.sentinel.SelfDefFlowControl`文件，文件内容如下：
+* 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.sentinel.SelfDefFlowControl`文件，文件内容如下：
 ```text
 #用户自定义流控扩展逻辑Java实现类全名，示例如下
 com.alibaba.csb.sentinel.DemoSelfDefFlowControlImpl

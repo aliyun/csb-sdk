@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * 用户自定义流控接口
  * 通过SPI方式加载，用户将符合 SelfDefFlowControl 接口定义的类打jar包放到broker的 patchLib 目录下。
- * 要求jar 内有 META-INF/service/com/alibaba/csb/sentinel/SelfDefFlowControl 文件，且文件内容为“用户自定义流控实现类完整名”
+ * 要求jar 内有 META-INF/services/com/alibaba/csb/sentinel/SelfDefFlowControl 文件，且文件内容为“用户自定义流控实现类完整名”
  * <p>
  * Created by tingbin.ctb
  * 2019/3/25-18:03.
