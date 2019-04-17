@@ -5,7 +5,7 @@
 
  * 如果使用命令行方式调用SDK,根据需要将standaloned的运行包放在调用端的CLASSPATH环境里
 
-[最新版本 ws-sdk-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.2.jar)
+[最新版本 ws-client-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.2.jar)
 
 [次新版本 ws-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.4.0.jar)
 
