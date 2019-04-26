@@ -128,8 +128,6 @@ bash gen-standaloneJar.sh
 
 3. node.js 版本的HTTP-SDK [details](others/node.js/README.md)
 
-4. .net 版本的 HTTP-SDK [details](https://github.com/neozhu/csb-sdk.net)
-
 ## 未来计划
 
 - 支持更多的Aliyun基础服务
