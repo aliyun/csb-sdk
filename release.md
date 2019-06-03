@@ -23,5 +23,5 @@
 | 1.1.4.1 |        | 20180702      | | |
 | 1.1.5.1 | snapshot | 20181031   | support self defined signImpl \/ verifySignImpl | [go](release/r20181031.md) |
 | 1.1.5.2 | snapshot | 20190130   | fix ServiceLoader.iterator multithread bug | [go](release/r20181031.md) |
-| 1.1.5.3 | snapsh   | 20190603   | add trace function                         | [go](release/r20190603.md) |
+| 1.1.5.3 | snapshot | 20190603   | add trace function                         | [go](release/r20190603.md) |
 
