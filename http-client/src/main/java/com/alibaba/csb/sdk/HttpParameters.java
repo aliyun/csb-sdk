@@ -3,6 +3,12 @@ package com.alibaba.csb.sdk;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.servlet.http.HttpServletRequest;
+
+import com.alibaba.csb.trace.TraceData;
+import com.alibaba.csb.trace.TraceFactory;
+import com.alibaba.csb.utils.LogUtils;
+import com.alibaba.csb.utils.TraceIdUtils;
 
 import static com.alibaba.csb.sdk.internel.HttpClientHelper.trimWhiteSpaces;
 
@@ -131,6 +137,8 @@ public class HttpParameters {
         private Map<String, String> paramsMap = new HashMap<String, String>();
         private Map<String, String> headerParamsMap = new HashMap<String, String>();
         private boolean diagnostic = false;
+        private HttpServletRequest request;
+        private boolean overrideBizId = false;
 
         /**
          * 设置服务的api名
@@ -174,6 +182,113 @@ public class HttpParameters {
         public Builder secretKey(String sk) {
             this.sk = sk;
             return this;
+        }
+
+        /**
+         * bizId不存在时设置, 适用于中间环节
+         *
+         * @param bizId
+         * @return
+         */
+        public Builder bizId(String bizId) {
+            if (bizId == null) {
+                return this;
+            }
+            if (!this.headerParamsMap.containsKey(HttpCaller.bizIdKey())) {
+                this.putHeaderParamsMap(HttpCaller.bizIdKey(), bizId);
+            }
+            return this;
+        }
+
+        /**
+         * 设置bizId, 若已存在则覆盖
+         *
+         * @param bizId
+         * @return
+         */
+        public Builder setBizId(String bizId) {
+            this.putHeaderParamsMap(HttpCaller.bizIdKey(), bizId);
+            overrideBizId = true;
+            return this;
+        }
+
+        public Builder requestId(String requestId) {
+            this.putHeaderParamsMap(CsbSDKConstants.REQUESTID_KEY, requestId);
+            return this;
+        }
+
+        /**
+         * 设置Http Request，用于trace()前
+         *
+         * @param request
+         * @return
+         */
+        public Builder setRequest(HttpServletRequest request) {
+            this.request = request;
+            return this;
+        }
+
+        /**
+         * 启用trace，未引入TraceFilter时调用
+         *
+         * @param request
+         * @return
+         */
+        public Builder trace(HttpServletRequest request) {
+            return this.setRequest(request).trace();
+        }
+
+        /**
+         * 启用trace，需先设置request，未引入TraceFilter时调用
+         *
+         * @return
+         */
+        public Builder trace() {
+            if (TraceFactory.getTraceData() != null) {
+                LogUtils.warn("you have turned on filter mode without call the trace method");
+                return this;
+            }
+            if (this.request == null) {
+                LogUtils.error("to enable tracing, you need to call the setRequest method or turn on the filter mode.");
+                throw new RuntimeException("to enable trace, you need to call setRequest method or turned on filter mode.");
+            }
+
+            String traceId = request.getHeader(TraceData.TRACEID_KEY);
+            String rpcId = request.getHeader(TraceData.RPCID_KEY);
+            String bizId = request.getHeader(HttpCaller.bizIdKey());
+
+            this.putHeaderParamsMap(TraceData.TRACEID_KEY, traceId != null ? traceId : TraceIdUtils.generate());
+            this.putHeaderParamsMap(TraceData.RPCID_KEY, rpcId != null ? rpcId : TraceData.RPCID_DEFAULT);
+            if (!overrideBizId && bizId != null && !bizId.trim().equals("")) {
+                this.putHeaderParamsMap(HttpCaller.bizIdKey(), bizId);
+            }
+            return this;
+        }
+
+        /**
+         * 添加trace header
+         *
+         * @return
+         */
+        public Builder addTraceHeader() {
+            requestId(TraceIdUtils.generate());
+            TraceData traceData = TraceFactory.getTraceData();
+            if (traceData == null) {
+                return this;
+            }
+            addTraceHeader(traceData);
+            return this;
+        }
+
+        /**
+         * 添加trace header
+         *
+         * @param traceData
+         */
+        private void addTraceHeader(TraceData traceData) {
+            this.putHeaderParamsMap(TraceData.TRACEID_KEY, traceData.getTraceId() != null ? traceData.getTraceId() : TraceIdUtils.generate());
+            this.putHeaderParamsMap(TraceData.RPCID_KEY, traceData.getRpcId() != null ? traceData.getRpcId() : TraceData.RPCID_DEFAULT);
+            bizId(traceData.getBizId());
         }
 
         /**
@@ -374,6 +489,42 @@ public class HttpParameters {
         public HttpParameters build() {
             return new HttpParameters(this);
         }
+
+        /**
+         * 获取TraceId
+         *
+         * @return
+         */
+        public String getTraceId() {
+            return this.headerParamsMap.get(TraceData.TRACEID_KEY);
+        }
+
+        /**
+         * 获取RpcId
+         *
+         * @return
+         */
+        public String getRpcId() {
+            return this.headerParamsMap.get(TraceData.RPCID_KEY);
+        }
+
+        /**
+         * 获取bizId
+         *
+         * @return
+         */
+        public String getBizId() {
+            return this.headerParamsMap.get(HttpCaller.bizIdKey());
+        }
+
+        /**
+         * 获取requestId
+         *
+         * @return
+         */
+        public String getRequestId() {
+            return this.headerParamsMap.get(TraceData.REQUESTID_KEY);
+        }
     }
 
     /**
@@ -391,7 +542,7 @@ public class HttpParameters {
      * @return
      */
     public static Builder newBuilder() {
-        return new Builder();
+        return new Builder().addTraceHeader();
     }
 
     public void validate() {

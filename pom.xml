@@ -6,7 +6,7 @@
 
     <groupId>com.alibaba.csb.sdk</groupId>
     <artifactId>csb.sdk.parent</artifactId>
-    <version>1.1.5.2</version>
+    <version>1.1.5.3</version>
     <name>CSB :: SDK :: parent</name>
     <packaging>pom</packaging>
     <description>CSB SDK build POM</description>
@@ -14,13 +14,14 @@
     <properties>
         <junit.version>4.11</junit.version>
         <gpg.executable>gpg2</gpg.executable>
-        <csb.sdk.version>1.1.5.2</csb.sdk.version>
+        <csb.sdk.version>1.1.5.3</csb.sdk.version>
     </properties>
 
     <modules>
         <module>common</module>
         <module>http-client</module>
         <module>ws-client</module>
+        <module>trace-eagleeye</module>
     </modules>
 
     <organization>
@@ -69,6 +70,15 @@
             <name>chentingb</name>
             <id>chentingb</id>
             <email>tingbin.ctb (AT) alibaba-inc.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+        <developer>
+            <name>wenhong.fz</name>
+            <id>wenhong-fz</id>
+            <email>fuzhao.fz (AT) alibaba-inc.com</email>
             <roles>
                 <role>Developer</role>
             </roles>

@@ -2,11 +2,15 @@ package com.alibaba.csb.ws.sdk;
 
 import com.alibaba.csb.sdk.CsbSDKConstants;
 import com.alibaba.csb.sdk.security.SignUtil;
+import com.alibaba.csb.ws.sdk.internal.AxisStubDynamicProxyHandler;
 import com.alibaba.csb.ws.sdk.internal.BindingDynamicProxyHandler;
 
 import javax.xml.ws.BindingProvider;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.axis.client.Stub;
 
 /**
  * Bind accessKey, secretKey into the WS client caller (i.e. Dispath, Proxy)
@@ -58,7 +62,8 @@ public class WSClientSDK {
 	private static boolean warmupFlag = false;
 	private static final String BOUND_HANDLER_KEY = "__DynamicProxyHandler";
 	public static final boolean PRINT_SIGNINFO = Boolean.getBoolean("WSClientSDK.print.signinfo");
-	
+    private static AtomicReference<String> BIZ_ID_KEY = new AtomicReference<String>();
+
 	/**
 	 * 加载HttpSDK所需要的类 (如，签名相关的)
 	 * 
@@ -71,7 +76,26 @@ public class WSClientSDK {
 		SignUtil.warmup();
 		warmupFlag = true;
 	}
-	
+
+    /**
+     * init bizIdKey
+     *
+     * @param bizIdKey
+     */
+    public static void bizIdKey(String bizIdKey) {
+        BIZ_ID_KEY.compareAndSet(null, bizIdKey);
+    }
+
+    /**
+     * get bizIdkey
+     *
+     * @return
+     */
+    public static String bizIdKey() {
+        String bizIdKey = BIZ_ID_KEY.get();
+        return bizIdKey == null ? CsbSDKConstants.BIZID_KEY : bizIdKey;
+    }
+
 	/**
 	 * 给proxy/dispath 绑定ak/sk安全对
 	 * 
@@ -100,6 +124,12 @@ public class WSClientSDK {
 		validateProxy(proxy);
 
 		BindingDynamicProxyHandler handler = getHandler((BindingProvider)proxy);
+		handler.setParams(params);
+		return handler.bind(proxy);
+	}
+
+	public static <T extends Stub> Object bind(T proxy, WSParams params) throws WSClientException {
+		AxisStubDynamicProxyHandler handler = new AxisStubDynamicProxyHandler();
 		handler.setParams(params);
 		return handler.bind(proxy);
 	}
@@ -204,8 +234,9 @@ public class WSClientSDK {
 		Map<String, String> requestHeaders = SignUtil.newParamsMap(null, params.getApi(), params.getVersion(),
 				params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap, null, params.getSignImpl(),params.getVerifySignImpl());
 
-		if (params.isMockRequest())
+		if (params.isMockRequest()) {
 			requestHeaders.put(CsbSDKConstants.HEADER_MOCK, "true");
+		}
 
 		return requestHeaders;
 	}

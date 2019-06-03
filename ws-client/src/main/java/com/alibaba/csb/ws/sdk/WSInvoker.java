@@ -1,5 +1,12 @@
 package com.alibaba.csb.ws.sdk;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPConstants;
@@ -9,12 +16,9 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.soap.SOAPBinding;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import com.alibaba.csb.utils.IPUtils;
+import com.alibaba.csb.utils.LogUtils;
 
 /**
  * Created by wiseking on 17/12/27.
@@ -56,11 +60,7 @@ public class WSInvoker {
     BindingProvider bp = (BindingProvider) dispatch;
     bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, ea);
 
-    // 使用SDK给dispatch设置 ak和sk !!!
-    if (params != null && params.getAk() !=null) {
-      dispatch = WSClientSDK.bind(dispatch, params);
-    }
-
+    dispatch = WSClientSDK.bind(dispatch, params);
     return  dispatch;
   }
 
@@ -93,21 +93,18 @@ public class WSInvoker {
    * @param requestHeaders array element as "key:value"
    */
   public static void setHttpHeaders(Dispatch<SOAPMessage> dispatch, Map<String, String> requestHeaders) {
-    if(requestHeaders==null || requestHeaders.size()==0)
-      return;
-
-    //Add HTTP request Headers
-    Map<String, List<String>> httpHeaders = new HashMap<>();
-    List<String> v;
-    for(Map.Entry<String,String> kv :requestHeaders.entrySet()) {
-      v = new ArrayList<String>();
-      v.add(kv.getValue());
-      httpHeaders.put(kv.getKey(), v);
-    }
-
-    if (httpHeaders.size()>0) {
-      dispatch.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, httpHeaders);
-    }
+      if (requestHeaders == null || requestHeaders.size() == 0) {
+          return;
+      }
+      Map<String, List<String>> httpHeaders = (Map<String, List<String>>) dispatch.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
+      if (httpHeaders == null) {
+          httpHeaders = new HashMap<String, List<String>>();
+          dispatch.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, httpHeaders);
+      }
+      //Add HTTP request Headers
+      for (Map.Entry<String, String> kv : requestHeaders.entrySet()) {
+          httpHeaders.put(kv.getKey(), Arrays.asList(kv.getValue()));
+      }
   }
 
   /**
@@ -126,11 +123,53 @@ public class WSInvoker {
    */
   public static String invokeSoapString(WSParams params, String ns, String sname,
                                         String pname, boolean isSoap12, String wa, String ea, String reqSoap, Map<String, String> httpHeaders) throws Exception {
-    Dispatch<SOAPMessage> dispatch = WSInvoker.createDispatch(params, ns, sname, pname, isSoap12, wa, ea);
-    SOAPMessage request = WSInvoker.createSOAPMessage(isSoap12, reqSoap);
-    setHttpHeaders(dispatch, httpHeaders);
-    SOAPMessage reply = dispatch.invoke(request);
+      Dispatch<SOAPMessage> dispatch = WSInvoker.createDispatch(params, ns, sname, pname, isSoap12, wa, ea);
+      SOAPMessage request = WSInvoker.createSOAPMessage(isSoap12, reqSoap);
+      setHttpHeaders(dispatch, httpHeaders);
 
-    return DumpSoapUtil.dumpSoapMessage(reply);
+      int code = 200;
+      String msg = null;
+      SOAPMessage reply = null;
+      long startTime = System.currentTimeMillis();
+      try {
+          reply = dispatch.invoke(request);
+      } catch (Exception e) {
+          code = 500;
+          msg = e.getMessage();
+          throw e;
+      } finally {
+          log(params, startTime, ea, sname, code, msg);
+      }
+      return DumpSoapUtil.dumpSoapMessage(reply);
   }
+
+    public static void log(WSParams params, long startTime, String endpoint, String operation, int code, String msg) {
+        long endTime = System.currentTimeMillis();
+        try {
+            int qidx = endpoint.indexOf("?");
+            String url = qidx > -1 ? endpoint.substring(0, qidx) : endpoint;
+
+            int cidx = url.indexOf(":");
+            int pidx = url.indexOf(":", cidx + 2);
+            if (pidx < 0) {
+                pidx = url.indexOf("/", cidx);
+            }
+            String dest = url.substring(cidx + 3, pidx);
+
+            String method = operation.substring(operation.indexOf("}") + 1);
+            LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
+                    , "WS", IPUtils.getLocalHostIP(), dest
+                    , params.getBizId(), params.getRequestId()
+                    , params.getTraceId(), params.getRpcId()
+                    , params.getApi(), params.getVersion()
+                    , defaultValue(params.getAk()), defaultValue(params.getSk()), method
+                    , url, code, "", defaultValue(msg)});
+        } catch (Throwable e) {
+            LogUtils.exception(MessageFormat.format("csb invoke error, api:{0}, version:{1}", params.getApi(), defaultValue(params.getSk())), e);
+        }
+    }
+
+    private static String defaultValue(String val) {
+        return val == null ? "" : val.trim();
+    }
 }

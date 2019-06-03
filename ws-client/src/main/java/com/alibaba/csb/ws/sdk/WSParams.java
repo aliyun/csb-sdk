@@ -1,5 +1,12 @@
 package com.alibaba.csb.ws.sdk;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.alibaba.csb.trace.TraceData;
+import com.alibaba.csb.trace.TraceFactory;
+import com.alibaba.csb.utils.LogUtils;
+import com.alibaba.csb.utils.TraceIdUtils;
+
 import lombok.Getter;
 
 /**
@@ -20,8 +27,16 @@ public class WSParams {
     private String signImpl;          //设置spi签名实现类
     private String verifySignImpl;          //设置spi验签实现类
 
+    private String traceId;
+    private String rpcId;
+    private String requestId;
+    private String bizId;
+    private HttpServletRequest request;
+    private boolean overrideBizId = false;
+
+
     public static WSParams create() {
-        return new WSParams();
+        return new WSParams().addTrace();
     }
 
     @Override
@@ -32,6 +47,10 @@ public class WSParams {
         sb.append("version=").append(version);
         sb.append("ak=").append(ak);
         sb.append("sk=").append(sk);
+        sb.append("traceId=").append(traceId);
+        sb.append("rpcId=").append(rpcId);
+        sb.append("requestId=").append(requestId);
+        sb.append(WSClientSDK.bizIdKey() + "=").append(bizId);
         sb.append("mockRequest=").append(mockRequest);
         sb.append("timestamp=").append(timestamp);
         sb.append("nonce=").append(nonce);
@@ -85,6 +104,64 @@ public class WSParams {
     }
 
     /**
+     * 设置bizId，不覆盖
+     *
+     * @param bizId
+     * @return
+     */
+    public WSParams bizId(String bizId) {
+        if (this.bizId == null) {
+            this.bizId = bizId;
+        }
+        return this;
+    }
+
+    /**
+     * 设置requestId
+     *
+     * @param traceId
+     * @return
+     */
+    public WSParams traceId(String traceId) {
+        this.traceId = traceId;
+        return this;
+    }
+
+    /**
+     * 设置requestId
+     *
+     * @param rpcId
+     * @return
+     */
+    public WSParams rpcId(String rpcId) {
+        this.rpcId = rpcId;
+        return this;
+    }
+
+    /**
+     * 设置requestId
+     *
+     * @param requestId
+     * @return
+     */
+    public WSParams requestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+
+    /**
+     * 设置bizId，覆盖
+     *
+     * @param bizId
+     * @return
+     */
+    public WSParams setBizId(String bizId) {
+        this.bizId = bizId;
+        overrideBizId = true;
+        return this;
+    }
+
+    /**
      * 是否设置时间戳，默认是true
      *
      * @param timestamp
@@ -92,7 +169,6 @@ public class WSParams {
      */
     public WSParams timestamp(boolean timestamp) {
         this.timestamp = timestamp;
-
         return this;
     }
 
@@ -104,7 +180,6 @@ public class WSParams {
      */
     public WSParams nonce(boolean nonce) {
         this.nonce = nonce;
-
         return this;
     }
 
@@ -116,7 +191,6 @@ public class WSParams {
      */
     public WSParams fingerPrinter(String fingerPrinter) {
         this.fingerPrinter = fingerPrinter;
-
         return this;
     }
 
@@ -161,6 +235,70 @@ public class WSParams {
      */
     public WSParams verifySignImpl(String verifySignImpl) {
         this.verifySignImpl = verifySignImpl;
+        return this;
+    }
+
+    /**
+     * 添加trace header
+     *
+     * @return
+     */
+    private WSParams addTrace() {
+        requestId(TraceIdUtils.generate());
+        TraceData traceData = TraceFactory.getTraceData();
+        if (traceData != null) {
+            this.traceId = traceData.getTraceId();
+            this.rpcId = traceData.getRpcId();
+            bizId(traceData.getBizId());
+        }
+        return this;
+    }
+
+    /**
+     * 设置Http Request，用于trace()前
+     *
+     * @param request
+     * @return
+     */
+    public WSParams setRequest(HttpServletRequest request) {
+        this.request = request;
+        return this;
+    }
+
+    /**
+     * 手动启用trace，未引入TraceFilter时调用
+     *
+     * @param request
+     * @return
+     */
+    public WSParams trace(HttpServletRequest request) {
+        return this.setRequest(request).trace();
+    }
+
+    /**
+     * 手动启用trace，需先设置request，未引入TraceFilter时调用
+     *
+     * @return
+     */
+    public WSParams trace() {
+        if (TraceFactory.getTraceData() != null) {
+            LogUtils.info("you have turned on filter mode without call the trace method");
+            return this;
+        }
+        if (this.request == null) {
+            LogUtils.error("to enable tracing, you need to call the setRequest method or turn on the filter mode.");
+            throw new RuntimeException("to enable trace, you need to call setRequest method or turned on filter mode.");
+        }
+
+        String traceId = request.getHeader(TraceData.TRACEID_KEY);
+        String rpcId = request.getHeader(TraceData.RPCID_KEY);
+        String bizId = request.getHeader(WSClientSDK.bizIdKey());
+
+        this.traceId = traceId;//发送请求前如果为空会生成
+        this.rpcId = rpcId;//发送请求前如果为空会生成
+        if (!overrideBizId && bizId != null && !bizId.trim().equals("")) {//不覆盖header数据
+            this.bizId = bizId;
+        }
         return this;
     }
 }

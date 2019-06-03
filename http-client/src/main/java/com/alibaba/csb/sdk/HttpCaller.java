@@ -1,10 +1,17 @@
 package com.alibaba.csb.sdk;
 
-import com.alibaba.csb.sdk.internel.DiagnosticHelper;
-import com.alibaba.csb.sdk.internel.HttpClientConnManager;
-import com.alibaba.csb.sdk.internel.HttpClientHelper;
+import java.io.*;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
-import com.alibaba.csb.sdk.security.SignUtil;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -12,27 +19,21 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
-
-import java.io.*;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import com.alibaba.csb.sdk.internel.DiagnosticHelper;
+import com.alibaba.csb.sdk.internel.HttpClientConnManager;
+import com.alibaba.csb.sdk.internel.HttpClientHelper;
+import com.alibaba.csb.sdk.security.SignUtil;
+import com.alibaba.csb.trace.TraceData;
+import com.alibaba.csb.utils.IPUtils;
+import com.alibaba.csb.utils.LogUtils;
+import com.alibaba.csb.utils.TraceIdUtils;
 
 /**
  * SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方式.
@@ -217,7 +218,27 @@ public class HttpCaller {
     private static final RequestConfig.Builder requestConfigBuilder = HttpClientConnManager.createConnBuilder();
     private static final ThreadLocal<RequestConfig.Builder> requestConfigBuilderLocal = new ThreadLocal<RequestConfig.Builder>();
 
+    private static AtomicReference<String> BIZ_ID_KEY = new AtomicReference<String>();
+
     private HttpCaller() {
+    }
+
+    /**
+     * init bizIdKey
+     *
+     * @param bizIdKey
+     */
+    public static void bizIdKey(String bizIdKey) {
+        BIZ_ID_KEY.compareAndSet(null, bizIdKey);
+    }
+
+    /**
+     * get bizIdkey
+     * @return
+     */
+    public static String bizIdKey() {
+        String bizIdKey = BIZ_ID_KEY.get();
+        return bizIdKey == null ? CsbSDKConstants.BIZID_KEY : bizIdKey;
     }
 
     /**
@@ -443,6 +464,10 @@ public class HttpCaller {
     }
 
     private static HttpReturn doGet(HttpParameters hp, Map<String, String> extSignHeadersMap) throws HttpCallerException {
+        if (!hp.getHeaderParamsMap().containsKey(CsbSDKConstants.TRACEID_KEY)) {
+            hp.getHeaderParamsMap().put(TraceData.TRACEID_KEY, TraceIdUtils.generate());
+            hp.getHeaderParamsMap().put(TraceData.RPCID_KEY, TraceData.RPCID_DEFAULT);
+        }
         final String requestURL = hp.getRequestUrl();
         String apiName = hp.getApi();
         String version = hp.getVersion();
@@ -498,13 +523,17 @@ public class HttpCaller {
         HttpClientHelper.setHeaders(httpGet, headerParamsMap);
         DiagnosticHelper.setRequestHeaders(ret, httpGet.getAllHeaders());
 
+        String msg = null;
         try {
             ret = doHttpReq(requestURL, httpGet, ret);
             DiagnosticHelper.setEndTime(ret, System.currentTimeMillis());
             DiagnosticHelper.setInvokeTime(ret, System.currentTimeMillis() - initT);
-
             return ret;
+        } catch (HttpCallerException e) {
+            msg = e.getMessage();
+            throw e;
         } finally {
+            log(hp, startT, requestURL, ret, msg);
             if (SdkLogger.isLoggable()) {
                 SdkLogger.print("-- total = " + (System.currentTimeMillis() - initT) + " ms ");
             }
@@ -720,6 +749,10 @@ public class HttpCaller {
      * @throws HttpCallerException
      */
     private static HttpReturn doPost(HttpParameters hp, Map<String, String> extSignHeadersMap) throws HttpCallerException {
+        if (!hp.getHeaderParamsMap().containsKey(CsbSDKConstants.TRACEID_KEY)) {
+            hp.getHeaderParamsMap().put(TraceData.TRACEID_KEY, TraceIdUtils.generate());
+            hp.getHeaderParamsMap().put(TraceData.RPCID_KEY, TraceData.RPCID_DEFAULT);
+        }
         final String requestURL = hp.getRequestUrl();
         String apiName = hp.getApi();
         String version = hp.getVersion();
@@ -769,17 +802,21 @@ public class HttpCaller {
             SdkLogger.print("-- prepare time = " + (System.currentTimeMillis() - startT) + " ms ");
         }
 
+        String msg = null;
         try {
             ret = doHttpReq(newRequestURL, httpPost, ret);
             DiagnosticHelper.setEndTime(ret, System.currentTimeMillis());
             DiagnosticHelper.setInvokeTime(ret, System.currentTimeMillis() - startT);
             return ret;
+        } catch (HttpCallerException e) {
+            msg = e.getMessage();
+            throw e;
         } finally {
+            log(hp, startT, requestURL, ret, msg);
             if (SdkLogger.isLoggable()) {
                 SdkLogger.print("-- total = " + (System.currentTimeMillis() - startT) + " ms ");
             }
         }
-
     }
 
     private static HttpReturn doHttpReq(String requestURL, HttpRequestBase httpRequestBase, final HttpReturn ret) throws HttpCallerException {
@@ -816,6 +853,7 @@ public class HttpCaller {
         try {
             try {
                 response = httpClient.execute(httpRequestBase);
+                rret.httpCode = response.getStatusLine().getStatusCode();
                 rret.responseHttpStatus = response.getStatusLine().toString();
                 rret.responseHeaders = HttpClientHelper.fetchResHeaders(response);
                 rret.response = EntityUtils.toString(response.getEntity());
@@ -874,6 +912,7 @@ public class HttpCaller {
                 }
 
                 rret.response = EntityUtils.toString(response.getEntity());
+                rret.httpCode = response.getStatusLine().getStatusCode();
                 rret.responseHttpStatus = response.getStatusLine().toString();
                 rret.responseHeaders = HttpClientHelper.fetchResHeaders(response);
 
@@ -1098,5 +1137,35 @@ public class HttpCaller {
         }
 
         return (long) (waitTime * 1.1);
+    }
+
+    private static void log(HttpParameters hp, long startTime, String requestUrl, HttpReturn httpReturn, String msg) {
+        long endTime = System.currentTimeMillis();
+
+        Map<String, String> headers = hp.getHeaderParamsMap();
+        try {
+            int qidx = requestUrl.indexOf("?");
+            String url = qidx > -1 ? requestUrl.substring(0, qidx) : requestUrl;
+
+            int cidx = url.indexOf(":");
+            int pidx = url.indexOf(":", cidx + 2);
+            if (pidx < 0) {
+                pidx = url.indexOf("/", cidx);
+            }
+            String dest = url.substring(cidx + 3, pidx);
+            LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
+                    , "HTTP", IPUtils.getLocalHostIP(), dest
+                    , headers.get(HttpCaller.bizIdKey()), headers.get(CsbSDKConstants.REQUESTID_KEY)
+                    , headers.get(CsbSDKConstants.TRACEID_KEY), headers.get(CsbSDKConstants.RPCID_KEY)
+                    , hp.getApi(), hp.getVersion()
+                    , defaultValue(hp.getAccessKey()), defaultValue(hp.getSecretkey()), hp.getMethod()
+                    , url, httpReturn.httpCode, httpReturn.responseHttpStatus, defaultValue(msg)});
+        } catch (Throwable e) {
+            LogUtils.exception(MessageFormat.format("csb invoke error, api:{0}, version:{1}", hp.getApi(), hp.getVersion()), e);
+        }
+    }
+
+    private static String defaultValue(String val) {
+        return val == null ? "" : val.trim();
     }
 }

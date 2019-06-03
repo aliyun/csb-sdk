@@ -10,7 +10,7 @@ import java.io.IOException;
  * Created by wiseking on 18/1/8.
  */
 public class CmdHttpCaller {
-    private static final String SDK_VERSION = "1.1.5.0";
+    private static final String SDK_VERSION = "1.1.5.3";
 
     public static Options opt = new Options();
 
@@ -32,6 +32,8 @@ public class CmdHttpCaller {
         opt.addOption("sdkv", "sdk-version", false, MessageHelper.getMessage("cli.sdk.version"));
         opt.addOption("sign", "signImpl", true, MessageHelper.getMessage("cli.signImpl"));
         opt.addOption("verify", "verifySignImpl", true, MessageHelper.getMessage("cli.verifySignImpl"));
+        opt.addOption("bizId", true, MessageHelper.getMessage("cli.bizId"));
+        opt.addOption("bizIdKey", true, MessageHelper.getMessage("cli.bizIdKey"));
     }
 
     //TODO: move to  common
@@ -39,6 +41,16 @@ public class CmdHttpCaller {
         return str == null || str.isEmpty();
     }
 
+//  "-api" "item.add"
+//  "-version" "1.0.0"
+//  "-bizIdKey" "bizid"
+//  "-bizId" "e48ffd7c1e7f4d07b7fc141f43503cb2"
+//  "-method" "post"
+//  "-H" "_inner_ecsb_trace_id:1e195a1915580754080541004d4957"
+//  "-H" "_inner_ecsb_rpc_id:1.1"
+//  "-H" "bizid:e48ffd7c1e7f4d07b7fc141f43503cb3"
+//  "-D" "item={\"itemName\":\"benz\",\"quantity\":10}"
+//  "-url" "http://11.167.131.193:8086/CSB"
     public static void main(String[] args) {
         CommandLineParser parser = new DefaultParser();
 
@@ -67,6 +79,8 @@ public class CmdHttpCaller {
             String proxy = commandline.getOptionValue("proxy");
             String cbJSON = commandline.getOptionValue("cbJSON");
             boolean nonce = commandline.hasOption("nonce");
+            String bizIdKey = commandline.getOptionValue("bizIdKey");
+            String bizId = commandline.getOptionValue("bizId");
             isDebug = commandline.hasOption("d");
             Boolean changeCharset = commandline.hasOption("cc");
 
@@ -82,6 +96,8 @@ public class CmdHttpCaller {
                 System.out.println("url=" + url);
                 System.out.println("api=" + api);
                 System.out.println("version=" + version);
+                System.out.println("bizIdKey=" + bizIdKey);
+                System.out.println("bizId=" + bizId);
                 System.out.println("ak=" + ak);
                 System.out.println("sk=" + sk);
                 System.out.println("proxy=" + proxy);
@@ -111,7 +127,10 @@ public class CmdHttpCaller {
                 method = "get";
             }
             HttpParameters.Builder builder = HttpParameters.newBuilder();
-            builder.api(api).version(version).method(method).requestURL(url).accessKey(ak).secretKey(sk).signImpl(signImpl).verifySignImpl(verifySignImpl);
+            if (bizIdKey != null && !bizIdKey.trim().equals("")) {
+                HttpCaller.bizIdKey(bizIdKey);
+            }
+            builder.api(api).version(version).method(method).bizId(bizId).requestURL(url).accessKey(ak).secretKey(sk).signImpl(signImpl).verifySignImpl(verifySignImpl);
 
             if (headers != null) {
                 for (String header : headers) {

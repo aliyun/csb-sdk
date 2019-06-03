@@ -1,18 +1,18 @@
 package com.alibaba.csb.ws.sdk.internal;
 
-import com.alibaba.csb.sdk.security.SignUtil;
-import com.alibaba.csb.ws.sdk.WSClientException;
-import com.alibaba.csb.ws.sdk.WSClientSDK;
-import com.alibaba.csb.ws.sdk.WSParams;
-
+import java.util.*;
+import java.util.Map.Entry;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.util.*;
-import java.util.Map.Entry;
+
+import com.alibaba.csb.sdk.security.SignUtil;
+import com.alibaba.csb.ws.sdk.WSClientException;
+import com.alibaba.csb.ws.sdk.WSClientSDK;
+import com.alibaba.csb.ws.sdk.WSParams;
 
 import static com.alibaba.csb.sdk.CsbSDKConstants.HEADER_MOCK;
 import static com.alibaba.csb.sdk.CsbSDKConstants.HEADER_NS;
@@ -88,7 +88,6 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext> {
 
     public static Map<String, List<String>> genSecrectHeaders(WSParams params) {
         Map<String, String> requestHeaders = WSClientSDK.generateSignHeaders(params);
-
         Map<String, List<String>> rtn = new HashMap<String, List<String>>();
         for (Entry<String, String> kv : requestHeaders.entrySet()) {
             rtn.put(kv.getKey(), Arrays.asList(kv.getValue()));

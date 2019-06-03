@@ -32,6 +32,7 @@ import java.util.Map;
  *
  */
 public class HttpReturn {
+  public int httpCode;
   public String responseHttpStatus;
   public String response;
   public String responseHeaders;
