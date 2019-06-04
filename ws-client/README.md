@@ -3,12 +3,12 @@
 ## 1. WS-SDK下载地址
 
 
- * 如果使用命令行方式调用SDK,根据需要将standaloned的运行包放在调用端的CLASSPATH环境里
-[最新版本 ws-sdk-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.5.3.jar)
-[ws-sdk-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.5.2.jar)
-[ws-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.4.0.jar)
-[旧版本 ws-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.0.4.2plus.jar)
-[trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)
+ * 如果使用命令行方式调用SDK,根据需要将standaloned的运行包放在调用端的CLASSPATH环境里  
+[最新版本 ws-sdk-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.5.3.jar)  
+[ws-sdk-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.5.2.jar)  
+[ws-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.4.0.jar)  
+[旧版本 ws-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.0.4.2plus.jar)  
+[trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)  
  * 如果用编程的方式使用SDK,则需要将需要的dependency放到你的pom.xml (该依赖已经在maven central repository存在)
 
  ```
@@ -239,32 +239,28 @@ startTime|endTime|cost|HTTP/WS|localhost|dest|bizId|requestId|traceId|rpcId|api|
 1558949495655|1558949497782|62|WS|30.25.90.39|csb.target.server|1e195a2715589494944221001d5b76|1e195a2715589494954281002d5b76|1e195a2715589494969271003d5b76|0|item.dubbo.add|1.0.0|||add|http://csb.target.server:9081/item.dubbo.add/1.0.0/add|200||
 ```
 ### 获取Trace
-* TraceFilter
-  TraceFactory.getTraceData()
-    
-* EDAS
-  EagleEye.getTraceId()
-  EagleEye.getRpcId()
-  EagleEye.getUserData($bizIdKey)
-  EagleEye.getRequestId()
-    
-* HTTP/WS
-  request.getHeader(TraceData.TRACEID_KEY)    //_inner_ecsb_trace_id
-  request.getHeader(TraceData.RPCID_KEY)        //_inner_ecsb_rpc_id
-  request.getHeader(HttpCaller.bizIdKey())          //设置的bizIdKey
-  request.getHeader(REQUESTID_KEY)                //_inner_ecsb_request_id
-    
-* HSF
-  EagleEye.getTraceId()
-  EagleEye.getRpcId()
-  EagleEye.getUserData($bizIdKey)
-  EagleEye.getRequestId()
-    
-* Dubbo
-  RpcContext.getContext().getAttachment("_inner_ecsb_trace_id")
-  RpcContext.getContext().getAttachment("_inner_ecsb_rpc_id")
-  RpcContext.getContext().getAttachment($bizIdKey)
-  RpcContext.getContext().getAttachment("_inner_ecsb_request_id")
+* TraceFilter  
+  TraceFactory.getTraceData()  
+* EDAS  
+  EagleEye.getTraceId()  
+  EagleEye.getRpcId()  
+  EagleEye.getUserData($bizIdKey)  
+  EagleEye.getRequestId()  
+* HTTP/WS  
+  request.getHeader(TraceData.TRACEID_KEY)      //_inner_ecsb_trace_id  
+  request.getHeader(TraceData.RPCID_KEY)        //_inner_ecsb_rpc_id  
+  request.getHeader(HttpCaller.bizIdKey())      //设置的bizIdKey  
+  request.getHeader(REQUESTID_KEY)              //_inner_ecsb_request_id  
+* HSF  
+  EagleEye.getTraceId()  
+  EagleEye.getRpcId()  
+  EagleEye.getUserData($bizIdKey)  
+  EagleEye.getRequestId()  
+* Dubbo  
+  RpcContext.getContext().getAttachment("_inner_ecsb_trace_id")  
+  RpcContext.getContext().getAttachment("_inner_ecsb_rpc_id")  
+  RpcContext.getContext().getAttachment($bizIdKey)  
+  RpcContext.getContext().getAttachment("_inner_ecsb_request_id")  
 
 ## 7. 其他
 ### 7.1 使用Aixs的Call客户端时的安全信息设定

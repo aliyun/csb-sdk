@@ -10,12 +10,12 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 
 ## 1. 工具包的下载地址
 
-* 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里
-[最新的包 http-sdk-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.5.3.jar)
-[http-sdk-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.5.2.jar)
-[http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)
-[旧的http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)
-[trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)
+* 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里  
+[最新的包 http-sdk-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.5.3.jar)  
+[http-sdk-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.5.2.jar)  
+[http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)  
+[旧的http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)  
+[trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)  
 * 如果用编程的方式,可以不下载这个standalone的Jar包,而是在用户的pom.xml里引用如下的dependency:
 
 ```
@@ -356,14 +356,15 @@ java -jar http-client-1.1.5.3.jar \
 static {
     HttpCaller.bizIdKey("bizid"); //默认为_biz_id
 }
-HttpParameters.Builder builder = HttpParameters.newBuilder()
-      .bizId(BIZ_ID);
 ```
 ### 设置bizId
 bizId(x)建议使用，该方法适用于一个完整请求的各个环节（一个请求可能调用多次csb）
 * 作为请求发起方调用该方法会设置bizId
 * 在中间环节调用该方法不会覆盖最初设置的bizId
-
+```
+HttpParameters.Builder builder = HttpParameters.newBuilder()
+      .bizId(BIZ_ID);
+```
 setBizId(x)，不建议使用，该方法会覆盖原有bizId，不适合中间环节调用（除非确实要更改bizId，这样没法串联完整请求流程
   
 ### web应用
@@ -422,29 +423,25 @@ startTime|endTime|cost|HTTP/WS|localhost|dest|bizId|requestId|traceId|rpcId|api|
 1558949495655|1558949497782|62|WS|30.25.90.39|csb.target.server|1e195a2715589494944221001d5b76|1e195a2715589494954281002d5b76|1e195a2715589494969271003d5b76|0|item.dubbo.add|1.0.0|||add|http://csb.target.server:9081/item.dubbo.add/1.0.0/add|200||
 ```
 ### 获取Trace
-* TraceFilter
-  TraceFactory.getTraceData()
-    
-* EDAS
-  EagleEye.getTraceId()
-  EagleEye.getRpcId()
-  EagleEye.getUserData($bizIdKey)
-  EagleEye.getRequestId()
-    
-* HTTP/WS
-  request.getHeader(TraceData.TRACEID_KEY)    //_inner_ecsb_trace_id
-  request.getHeader(TraceData.RPCID_KEY)        //_inner_ecsb_rpc_id
-  request.getHeader(HttpCaller.bizIdKey())          //设置的bizIdKey
-  request.getHeader(REQUESTID_KEY)                //_inner_ecsb_request_id
-    
-* HSF
-  EagleEye.getTraceId()
-  EagleEye.getRpcId()
-  EagleEye.getUserData($bizIdKey)
-  EagleEye.getRequestId()
-    
-* Dubbo
-  RpcContext.getContext().getAttachment("_inner_ecsb_trace_id")
-  RpcContext.getContext().getAttachment("_inner_ecsb_rpc_id")
-  RpcContext.getContext().getAttachment($bizIdKey)
-  RpcContext.getContext().getAttachment("_inner_ecsb_request_id")
+* TraceFilter  
+  TraceFactory.getTraceData()  
+* EDAS  
+  EagleEye.getTraceId()  
+  EagleEye.getRpcId()  
+  EagleEye.getUserData($bizIdKey)  
+  EagleEye.getRequestId()  
+* HTTP/WS  
+  request.getHeader(TraceData.TRACEID_KEY)    //_inner_ecsb_trace_id  
+  request.getHeader(TraceData.RPCID_KEY)      //_inner_ecsb_rpc_id  
+  request.getHeader(HttpCaller.bizIdKey())    //设置的bizIdKey  
+  request.getHeader(REQUESTID_KEY)            //_inner_ecsb_request_id  
+* HSF  
+  EagleEye.getTraceId()  
+  EagleEye.getRpcId()  
+  EagleEye.getUserData($bizIdKey)  
+  EagleEye.getRequestId()  
+* Dubbo  
+   RpcContext.getContext().getAttachment("_inner_ecsb_trace_id")  
+   RpcContext.getContext().getAttachment("_inner_ecsb_rpc_id")  
+   RpcContext.getContext().getAttachment($bizIdKey)  
+   RpcContext.getContext().getAttachment("_inner_ecsb_request_id")  
