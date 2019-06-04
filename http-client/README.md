@@ -393,8 +393,8 @@ builder.setRequest(httpServletRequest).trace()
 </dependency>
 ```
 
-## 日志输出
-### 引入log4j
+### 日志输出
+#### 引入log4j
 name限制为CSBSDK，e.g. log4j2.xml
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -415,7 +415,7 @@ name限制为CSBSDK，e.g. log4j2.xml
   </loggers>
 </configuration>
 ```
-### 日志格式
+#### 日志格式
 ```
 startTime|endTime|cost|HTTP/WS|localhost|dest|bizId|requestId|traceId|rpcId|api|version|ak|sk|method|ur|httpcode|httpreturn|msg
 1559179173797|1559179173850|53|HTTP|30.25.90.40|csb.target.server|1e195a2815591791594031001d6512|1e195a2815591791737961004d6512|1e195a2815591791737961005d6512|0|item.hsf.remove|1.0.0|||GET|http://csb.target.server:8086/CSB|200|HTTP/1.1 200 OK|
