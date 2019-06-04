@@ -152,7 +152,7 @@ public class WSInvoker {
             int cidx = url.indexOf(":");
             int pidx = url.indexOf(":", cidx + 2);
             if (pidx < 0) {
-                pidx = url.indexOf("/", cidx);
+                pidx = url.indexOf("/", cidx + 2);
             }
             String dest = url.substring(cidx + 3, pidx);
 
