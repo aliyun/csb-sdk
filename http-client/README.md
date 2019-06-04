@@ -384,7 +384,7 @@ builder.trace(httpServletRequest)
 builder.setRequest(httpServletRequest).trace()
 ```
 ### EDAS
-引入trace-eagleeye包 (不引入时参考:普通web调用trace api)
+引入trace-eagleeye包
 ```
 <dependency>
     <groupId>com.alibaba.csb.trace</groupId>
@@ -421,3 +421,30 @@ startTime|endTime|cost|HTTP/WS|localhost|dest|bizId|requestId|traceId|rpcId|api|
 1559179173797|1559179173850|53|HTTP|30.25.90.40|csb.target.server|1e195a2815591791594031001d6512|1e195a2815591791737961004d6512|1e195a2815591791737961005d6512|0|item.hsf.remove|1.0.0|||GET|http://csb.target.server:8086/CSB|200|HTTP/1.1 200 OK|
 1558949495655|1558949497782|62|WS|30.25.90.39|csb.target.server|1e195a2715589494944221001d5b76|1e195a2715589494954281002d5b76|1e195a2715589494969271003d5b76|0|item.dubbo.add|1.0.0|||add|http://csb.target.server:9081/item.dubbo.add/1.0.0/add|200||
 ```
+### 获取Trace
+* TraceFilter
+  TraceFactory.getTraceData()
+    
+* EDAS
+  EagleEye.getTraceId()
+  EagleEye.getRpcId()
+  EagleEye.getUserData($bizIdKey)
+  EagleEye.getRequestId()
+    
+* HTTP/WS
+  request.getHeader(TraceData.TRACEID_KEY)    //_inner_ecsb_trace_id
+  request.getHeader(TraceData.RPCID_KEY)        //_inner_ecsb_rpc_id
+  request.getHeader(HttpCaller.bizIdKey())          //设置的bizIdKey
+  request.getHeader(REQUESTID_KEY)                //_inner_ecsb_request_id
+    
+* HSF
+  EagleEye.getTraceId()
+  EagleEye.getRpcId()
+  EagleEye.getUserData($bizIdKey)
+  EagleEye.getRequestId()
+    
+* Dubbo
+  RpcContext.getContext().getAttachment("_inner_ecsb_trace_id")
+  RpcContext.getContext().getAttachment("_inner_ecsb_rpc_id")
+  RpcContext.getContext().getAttachment($bizIdKey)
+  RpcContext.getContext().getAttachment("_inner_ecsb_request_id")
