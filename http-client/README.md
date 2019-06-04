@@ -48,6 +48,8 @@ java [sys-props] -jar http-sdk-1.1.5.2.jar [options...]
  -sk <arg>        secretKey, 可选
  -url <arg>       请求地址，e.g: http://broker-ip:8086/CSB?p1=v1
  -version <arg>   服务版本
+ -bizIdKey <arg>  设置bizIdKey(默认:_biz_id)
+ -bizId <arg>     设置bizId值(透传到endpoint)
  -signImpl        客户端签名类
  -verifySignImpl  CSB服务端验签类
  -cbJSON          以JSON串方式post发送的请求body, 例如: -cbJSON '{"name":"wiseking"}'
@@ -332,5 +334,90 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 	}
  ]
 ```
+## 5. Trace
+## CmdHttpCaller
+### 设置bizIdKey
+-bizIdKey $bizid，默认为_biz_id
+### 设置bizId
+* -bizId e48ffd7c1e7f4d07b7fc141f43503cb1
+* -H '$bizid:e48ffd7c1e7f4d07b7fc141f43503cb1'
+* -H优先于-bizId
+```
+java -jar http-client-1.1.5.3.jar \
+-api item.hsf.add -version 1.0.0 -method post \
+-bizIdKey bizid -bizId e48ffd7c1e7f4d07b7fc141f43503cb2 \
+-D "item={\"itemName\":\"benz\",\"quantity\":10}" \
+-url http://csb.broker.server:8086/CSB
+```
 
+## HttpCaller
+### 设置bizIdKey
+```
+static {
+    HttpCaller.bizIdKey("bizid"); //默认为_biz_id
+}
+HttpParameters.Builder builder = HttpParameters.newBuilder()
+      .bizId(BIZ_ID);
+```
+### 设置bizId
+bizId(x)建议使用，该方法适用于一个完整请求的各个环节（一个请求可能调用多次csb）
+* 作为请求发起方调用该方法会设置bizId
+* 在中间环节调用该方法不会覆盖最初设置的bizId
 
+setBizId(x)，不建议使用，该方法会覆盖原有bizId，不适合中间环节调用（除非确实要更改bizId，这样没法串联完整请求流程
+  
+### web应用
+* web.xml 引入trace filter
+```
+<filter>
+    <filter-name>TraceFilter</filter-name>
+    <filter-class>com.alibaba.csb.trace.TraceFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>TraceFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+* 调用trace api
+```
+builder.trace(httpServletRequest)
+builder.setRequest(httpServletRequest).trace()
+```
+### EDAS
+引入trace-eagleeye包 (不引入时参考:普通web调用trace api)
+```
+<dependency>
+    <groupId>com.alibaba.csb.trace</groupId>
+    <artifactId>trace-eagleeye</artifactId>
+    <version>${http.sdk.version}</version>
+</dependency>
+```
+
+## 日志输出
+### 引入log4j
+name限制为CSBSDK，e.g. log4j2.xml
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="WARN" monitorInterval="30">
+  <appenders>
+    <File name="csbsdk" fileName="logs/csbsdk.log">
+      <PatternLayout pattern="%m%n"/>
+    </File>
+    <Async name="async">
+      <AppenderRef ref="csbsdk"/>
+    </Async>
+  </appenders>
+
+  <loggers>
+    <logger name="CSBSDK" level="INFO" additivity="false">
+      <appender-ref ref="async" />
+    </logger>
+  </loggers>
+</configuration>
+```
+### 日志格式
+```
+startTime|endTime|cost|HTTP/WS|localhost|dest|bizId|requestId|traceId|rpcId|api|version|ak|sk|method|ur|httpcode|httpreturn|msg
+1559179173797|1559179173850|53|HTTP|30.25.90.40|csb.target.server|1e195a2815591791594031001d6512|1e195a2815591791737961004d6512|1e195a2815591791737961005d6512|0|item.hsf.remove|1.0.0|||GET|http://csb.target.server:8086/CSB|200|HTTP/1.1 200 OK|
+1558949495655|1558949497782|62|WS|30.25.90.39|csb.target.server|1e195a2715589494944221001d5b76|1e195a2715589494954281002d5b76|1e195a2715589494969271003d5b76|0|item.dubbo.add|1.0.0|||add|http://csb.target.server:9081/item.dubbo.add/1.0.0/add|200||
+```
