@@ -164,13 +164,29 @@ mock_response是一个特殊的header, 通常在接口测试时候使用，当�
 -----------
 
 ## 6. Trace
-### 设置bizIdKey
+### CmdHttpCaller
+#### 设置bizIdKey
+-bizIdKey $bizid，默认为_biz_id
+#### 设置bizId
+* -bizId e48ffd7c1e7f4d07b7fc141f43503cb1
+* -H '$bizid:e48ffd7c1e7f4d07b7fc141f43503cb1'
+* -H优先于-bizId
+```
+java -jar http-client-1.1.5.3.jar \
+-api item.hsf.add -version 1.0.0 -method post \
+-bizIdKey bizid -bizId e48ffd7c1e7f4d07b7fc141f43503cb2 \
+-D "item={\"itemName\":\"benz\",\"quantity\":10}" \
+-url http://csb.broker.server:8086/CSB
+```
+
+### HttpCaller
+#### 设置bizIdKey
 ```
 static {
     WSClientSDK.bizIdKey(BIZID_KEY); //不使用默认设置_biz_id时调用
 }
 ```
-### 设置bizId
+#### 设置bizId
 bizId(x)方法，建议使用
      该方法适用于一个完整请求的各个环节（一个请求可能调用多次csb）
 
@@ -183,7 +199,7 @@ WSParams wsparam = WSParams.create()
 setBizId(x)方法，不建议使用
     该方法会覆盖原有bizId，不适合中间环节调用（除非确实要更改bizId，这样没法串联完整请求流程）
 
-### web
+#### web
 * web.xml引入trace filter
 ```
 <filter>
@@ -200,7 +216,7 @@ setBizId(x)方法，不建议使用
 wsparam.trace(request)
 wsparam.setRequest(request).trace()
 ```
-### EDAS
+#### EDAS
 引入trace-eagleeye包
 ```
 <dependency>

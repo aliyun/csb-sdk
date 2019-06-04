@@ -335,10 +335,10 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
  ]
 ```
 ## 5. Trace
-## CmdHttpCaller
-### 设置bizIdKey
+### CmdHttpCaller
+#### 设置bizIdKey
 -bizIdKey $bizid，默认为_biz_id
-### 设置bizId
+#### 设置bizId
 * -bizId e48ffd7c1e7f4d07b7fc141f43503cb1
 * -H '$bizid:e48ffd7c1e7f4d07b7fc141f43503cb1'
 * -H优先于-bizId
@@ -350,14 +350,14 @@ java -jar http-client-1.1.5.3.jar \
 -url http://csb.broker.server:8086/CSB
 ```
 
-## HttpCaller
-### 设置bizIdKey
+### HttpCaller
+#### 设置bizIdKey
 ```
 static {
     HttpCaller.bizIdKey("bizid"); //默认为_biz_id
 }
 ```
-### 设置bizId
+#### 设置bizId
 bizId(x)建议使用，该方法适用于一个完整请求的各个环节（一个请求可能调用多次csb）
 * 作为请求发起方调用该方法会设置bizId
 * 在中间环节调用该方法不会覆盖最初设置的bizId
@@ -367,7 +367,7 @@ HttpParameters.Builder builder = HttpParameters.newBuilder()
 ```
 setBizId(x)，不建议使用，该方法会覆盖原有bizId，不适合中间环节调用（除非确实要更改bizId，这样没法串联完整请求流程
   
-### web应用
+#### web应用
 * web.xml 引入trace filter
 ```
 <filter>
