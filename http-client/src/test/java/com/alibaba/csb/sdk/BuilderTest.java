@@ -2,6 +2,7 @@ package com.alibaba.csb.sdk;
 
 import com.alibaba.csb.sdk.security.SampleSignImpl;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
 import org.junit.Before;
@@ -35,6 +36,8 @@ public class BuilderTest {
                 .version("vcsb") // 设置版本号
                 .method("get") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+
+        builder.putHeaderParamsMap("name", "value");
 
         // 设置请求参数
         builder.putParamsMap("key1", "value1")
@@ -146,13 +149,17 @@ public class BuilderTest {
 
     @Test
     public void testPostJsonStr() {
-        String requestURL = "http://10.125.60.151:8086/test?arg0=a&arg1=12&title=test";
-        String apiName = "demo-http2http";
+        String requestURL = "http://localhost:8086/CSB";
+        String apiName = "http2hsfDto1";
         String version = "1.0.0";
         try {
-            Map<String, String> paramsMap = new HashMap<String, String>();
-            paramsMap.put("a", "b");
-            String result = HttpCaller.doPost(requestURL, apiName, version, new ContentBody("{\"a\":\"csb云服务总线\"}"), "ak", "sk");
+            JSONObject request = new JSONObject();
+            HashMap dto = new HashMap();
+            dto.put("name", "name1");
+            dto.put("age", 2);
+            request.put("demoDTO", dto);
+            request.put("count", 12);
+            String result = HttpCaller.doPost(requestURL, apiName, version, new ContentBody(request.toJSONString()), "ak", "sk");
             System.out.println(result);
         } catch (HttpCallerException e) {
             // TODO Auto-generated catch block
