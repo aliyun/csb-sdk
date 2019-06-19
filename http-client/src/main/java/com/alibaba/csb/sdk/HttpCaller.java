@@ -226,7 +226,7 @@ public class HttpCaller {
 
     static {
         //默认20M
-        MAX_FILE_SIZE = Integer.valueOf(System.getProperty("csb_max_file_size", String.valueOf(20 * 1024L * 1024L)));
+        MAX_FILE_SIZE = Integer.getInteger("csb_max_file_size", 20 * 1024 * 1024);
     }
 
     protected HttpCaller() {
@@ -774,7 +774,7 @@ public class HttpCaller {
         String restfulProtocolVersion = hp.getRestfulProtocolVersion();
         boolean nonceFlag = hp.isNonce();
 
-        if (cb != null && cb.isNeedZip()) {
+        if (cb != null && cb.getNeedGZip()) {
             directHheaderParamsMap.put(HTTP.CONTENT_ENCODING, GZIP);
         }
 
@@ -1072,10 +1072,10 @@ public class HttpCaller {
         return readFile(new File(file));
     }
 
-    public static byte[] readFile(File file) throws HttpCallerException {
+    public static byte[] readFile(File file) {
         if (file.exists() && file.isFile() && file.canRead()) {
             if (file.length() > MAX_FILE_SIZE)
-                throw new HttpCallerException("file is too large exceed the MAX-SIZE");
+                throw new IllegalArgumentException("file is too large exceed the MAX-SIZE");
 
             InputStream ios = null;
             ByteArrayOutputStream bos = null;
@@ -1090,7 +1090,7 @@ public class HttpCaller {
                 }
                 buffer = bos.toByteArray();
             } catch (IOException e) {
-                throw new HttpCallerException(e);
+                throw new RuntimeException(e);
             } finally {
                 try {
                     if (ios != null)
@@ -1103,7 +1103,7 @@ public class HttpCaller {
             }
             return buffer;
         } else {
-            throw new HttpCallerException("bad file to read:" + file);
+            throw new IllegalArgumentException("bad file to read:" + file);
         }
     }
 

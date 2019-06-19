@@ -19,13 +19,13 @@ public class ContentBody {
 
     static {
         //默认10K 单位（string：unicode， byte：字节）
-        AUTO_GZIP_BODY_SIZE = Integer.valueOf(System.getProperty("csb_auto_gzip_body_size", String.valueOf(10 * 1024)));
+        AUTO_GZIP_BODY_SIZE = Integer.getInteger("csb_auto_gzip_body_size", 10 * 1024);
     }
 
     private String jsonBody;
     private byte[] bytesBody;
     private ContentType type;
-    private Boolean needZip; //是否需要压缩。默认不设置，自动根据body大小来配置
+    private Boolean needGZip; //是否需要压缩。默认不设置，自动根据body大小来配置
 
     /**
      * 使用Json串构造ContentBody
@@ -35,7 +35,7 @@ public class ContentBody {
     public ContentBody(String jsonStr) {
         this.jsonBody = jsonStr;
         type = ContentType.APPLICATION_JSON;
-        needZip = false;
+        needGZip = false;
     }
 
     /**
@@ -50,13 +50,13 @@ public class ContentBody {
     /**
      * 使用byte数组构造ContentBody
      *
-     * @param needZip 是否需要压缩传输
+     * @param needGZip 是否需要压缩传输
      * @param bytes
      */
-    public ContentBody(byte[] bytes, Boolean needZip) {
+    public ContentBody(byte[] bytes, Boolean needGZip) {
         this.bytesBody = bytes;
         type = ContentType.APPLICATION_OCTET_STREAM;
-        this.needZip = needZip;
+        this.needGZip = needGZip;
     }
 
     /**
@@ -69,12 +69,12 @@ public class ContentBody {
     /**
      * 传输文件
      *
-     * @param needZip 文件是否需要压缩传输
+     * @param needGZip 文件是否需要压缩传输
      */
-    public ContentBody(File file, Boolean needZip) throws HttpCallerException {
+    public ContentBody(File file, Boolean needGZip) throws HttpCallerException {
         this.bytesBody = HttpCaller.readFile(file);
         type = ContentType.APPLICATION_OCTET_STREAM;
-        this.needZip = needZip;
+        this.needGZip = needGZip;
     }
 
     /**
@@ -82,9 +82,9 @@ public class ContentBody {
      * 1. 如果用户明确不需要，则不压缩
      * 2. 如果用户未指定，则自动判断（大于nK单位，则压缩）
      */
-    public boolean isNeedZip() {
-        if (needZip != null) {
-            return needZip;
+    public boolean getNeedGZip() {
+        if (needGZip != null) {
+            return needGZip;
         }
 
         if (type == ContentType.APPLICATION_OCTET_STREAM) {
@@ -111,7 +111,7 @@ public class ContentBody {
             try {
                 return new String(bytesBody, HttpCaller.DEFAULT_CHARSET);
             } catch (IOException e) {
-                throw new RuntimeException(e.getMessage(), e);
+                throw new RuntimeException(e);
             }
         else
             return jsonBody;

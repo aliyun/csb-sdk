@@ -11,7 +11,7 @@ public class FileTest {
      * 使用body直接发送文件，响应body文件
      */
     @Test
-    public void testPostBodyFile() throws HttpCallerException {
+    public void testPostBodyFile() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL("http://localhost:8086/jsontest.jsp") // 设置请求的URL
                 .api("http2http1") // 设置服务名
@@ -19,10 +19,11 @@ public class FileTest {
                 .method("post") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
-        // 设置请求参数
-        builder.putParamsMap("name","name1").putParamsMap("times","3");
-        builder.contentBody(new ContentBody(new File("D:\\tmp\\user-extend.jar")));
         try {
+            // 设置请求参数
+            builder.putParamsMap("name", "name1").putParamsMap("times", "3");
+            builder.contentBody(new ContentBody(new File("D:\\tmp\\user-extend.jar")));
+
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
         } catch (HttpCallerException e) {
@@ -35,7 +36,7 @@ public class FileTest {
      * 使用body直接form请求，附件发送文件。响应json，附件是文件
      */
     @Test
-    public void testPostFormFile() throws HttpCallerException {
+    public void testPostFormFile() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL("http://localhost:8086/jsontest.jsp") // 设置请求的URL
                 .api("http2http1") // 设置服务名
@@ -44,7 +45,7 @@ public class FileTest {
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
         // 设置form请求参数
-        builder.putParamsMap("times", "2").putParamsMap("name", "wewe");
+        builder.putParamsMap("times", "2").putParamsMap("name", "we中文we");
         builder.addAttachFile("file1", new File("D:\\tmp\\user-extend.jar"));
         builder.addAttachFile("file2", new File("D:\\tmp\\AuthenticationMapper.xml"));
         try {

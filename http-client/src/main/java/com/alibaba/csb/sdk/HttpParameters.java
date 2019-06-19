@@ -4,6 +4,8 @@ import com.alibaba.csb.trace.TraceData;
 import com.alibaba.csb.trace.TraceFactory;
 import com.alibaba.csb.utils.LogUtils;
 import com.alibaba.csb.utils.TraceIdUtils;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -11,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static com.alibaba.csb.sdk.ContentBody.AUTO_GZIP_BODY_SIZE;
 import static com.alibaba.csb.sdk.internel.HttpClientHelper.trimWhiteSpaces;
 
 /**
@@ -51,7 +54,7 @@ public class HttpParameters {
         return builder.contentBody;
     }
 
-    Map<String, File> getAttachFileMap() {
+    Map<String, AttachFile> getAttachFileMap() {
         return builder.attatchFileMap;
     }
 
@@ -122,8 +125,40 @@ public class HttpParameters {
         return sb.toString();
     }
 
+    @AllArgsConstructor
+    public static class AttachFile {
+        @Getter
+        private String fileName;
+        @Getter
+        private byte[] fileBytes;
+        private Boolean needGZip;
+
+        /**
+         * 请求是否需要压缩：
+         * 1. 如果用户明确不需要，则不压缩
+         * 2. 如果用户未指定，则自动判断（大于nK单位，则压缩）
+         */
+        public boolean isNeedGZip() {
+            if (needGZip != null) {
+                return needGZip;
+            }
+
+            if (fileBytes.length > AUTO_GZIP_BODY_SIZE) { //byte数据，大于n个字节
+                return true;
+            }
+            return false;
+        }
+    }
+
     /**
      * 内部静态类，用来设置HttpCaller调用的相关参数
+     * 只能有以下组合：
+     * 1. paramsMap: paramsMap以form表单方式提交
+     * 2. contentbody: 以json或二进制的 body 方式提交
+     * 3. paramsMap + contentBody:  paramsMap以query方式提交，contentBody通过httpBody提交
+     * 4. paramsMap + attatchFileMap: multi part的 form 方式提交
+     * 5. contentbody + attatchFileMap: 暂不支持，因为http协议需要给contentBody命名
+     * 6. paramsMap+ contentbody + attatchFileMap: 暂不支持，因为http协议需要给contentBody命名
      */
     public static class Builder {
         private String api;
@@ -133,13 +168,13 @@ public class HttpParameters {
         private String restfulProtocolVersion;
         private String method = "GET";
         private ContentBody contentBody = null;
-        private Map<String, File> attatchFileMap;
+        private Map<String, AttachFile> attatchFileMap;
         private String requestUrl;
         private String signImpl;
         private String verifySignImpl;
         private boolean nonce;
         private boolean timestamp = true;
-        private boolean signContentBody = true;
+        private boolean signContentBody;
         private Map<String, String> paramsMap = new HashMap<String, String>();
         private Map<String, String> headerParamsMap = new HashMap<String, String>();
         private boolean diagnostic = false;
@@ -147,22 +182,34 @@ public class HttpParameters {
         private boolean overrideBizId = false;
 
         public Builder() {
+            signContentBody = Boolean.parseBoolean(System.getProperty("csb_sign_content_body", "true")); //默认body参考签名，为了兼容历史版本，允许设置系统变量，以便不参与签名
             headerParamsMap.put("Accept-Encoding", HttpCaller.GZIP);//默认设置接受gzip
         }
-
 
         /**
          * 增加附件
          */
         public Builder addAttachFile(String key, File file) {
+            return addAttachFile(key, file, null);
+        }
+
+        /**
+         * 增加附件
+         *
+         * @param needGZip 如果不设置，则系统自动判断是否压缩
+         */
+        public Builder addAttachFile(String key, File file, Boolean needGZip) {
             if (method.equalsIgnoreCase("POST") == false) {
                 throw new IllegalArgumentException("发送附件必须使用POST");
             }
+            if (contentBody != null) {
+                throw new IllegalArgumentException("无法同时发送 contentBody 和 文件");
+            }
 
             if (attatchFileMap == null) {
-                attatchFileMap = new HashMap<String, File>();
+                attatchFileMap = new HashMap<String, AttachFile>();
             }
-            attatchFileMap.put(key, file);
+            attatchFileMap.put(key, new AttachFile(file.getName(), HttpCaller.readFile(file), needGZip));
             return this;
         }
 
@@ -459,6 +506,10 @@ public class HttpParameters {
             if (method.equalsIgnoreCase("POST") == false) {
                 throw new IllegalArgumentException("发送contentBody必须使用POST");
             }
+            if (attatchFileMap != null || attatchFileMap.isEmpty() == false) {
+                throw new IllegalArgumentException("无法同时发送 contentBody 和 文件");
+            }
+
             this.contentBody = cb;
             return this;
         }
