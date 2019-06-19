@@ -1,18 +1,19 @@
 package com.alibaba.csb.sdk.internel;
 
 import com.alibaba.csb.sdk.ContentBody;
-import com.alibaba.csb.sdk.ContentBody.Type;
 import com.alibaba.csb.sdk.HttpCallerException;
 import com.alibaba.csb.sdk.SdkLogger;
 import com.alibaba.csb.sdk.security.SignUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
@@ -251,15 +252,20 @@ public class HttpClientHelper {
                 e.printStackTrace();
             }
         } else {
-            if (cb.getContentType() == Type.JSON) {
+            if (cb.getContentType() == ContentType.APPLICATION_JSON) {
                 StringEntity entity = new StringEntity((String) cb.getContentBody(), HTTP.UTF_8);// 解决中文乱码问题
-                entity.setContentType(Type.JSON.getContentType());
+                entity.setContentType(cb.getContentType().getMimeType());
                 httpost.setEntity(entity);
             } else {
                 //binary
-                httpost.setHeader(HTTP.CONTENT_TYPE, Type.BINARY.getContentType());
-                ByteArrayEntity be = new ByteArrayEntity((byte[]) cb.getContentBody());
-                httpost.setEntity(be);
+                httpost.setHeader(HTTP.CONTENT_TYPE, cb.getContentType().getMimeType());
+                if (cb.isNeedZip()) {
+                    GzipCompressingEntity zipEntity = new GzipCompressingEntity(new ByteArrayEntity((byte[]) cb.getContentBody()));
+                    httpost.setEntity(zipEntity);
+                } else {
+                    ByteArrayEntity be = new ByteArrayEntity((byte[]) cb.getContentBody());
+                    httpost.setEntity(be);
+                }
             }
         }
 
@@ -308,6 +314,17 @@ public class HttpClientHelper {
         return path;
     }
 
+    public static Map<String, String> fetchResHeaderMap(final HttpResponse response) {
+        Map<String, String> headerMap = new HashMap<String, String>();
+        if (response != null) {
+            headerMap.put("HTTP-STATUS", String.valueOf(response.getStatusLine().getStatusCode()));
+            for (Header header : response.getAllHeaders()) {
+                headerMap.put(header.getName(), header.getValue());
+            }
+        }
+
+        return headerMap;
+    }
 
     public static String fetchResHeaders(final HttpResponse response) {
         if (response != null) {

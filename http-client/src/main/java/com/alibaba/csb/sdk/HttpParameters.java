@@ -1,14 +1,14 @@
 package com.alibaba.csb.sdk;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import javax.servlet.http.HttpServletRequest;
-
 import com.alibaba.csb.trace.TraceData;
 import com.alibaba.csb.trace.TraceFactory;
 import com.alibaba.csb.utils.LogUtils;
 import com.alibaba.csb.utils.TraceIdUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import static com.alibaba.csb.sdk.internel.HttpClientHelper.trimWhiteSpaces;
 
@@ -133,12 +133,16 @@ public class HttpParameters {
         private String verifySignImpl;
         private boolean nonce;
         private boolean timestamp = true;
-        private boolean signContentBody = false;
+        private boolean signContentBody = true;
         private Map<String, String> paramsMap = new HashMap<String, String>();
         private Map<String, String> headerParamsMap = new HashMap<String, String>();
         private boolean diagnostic = false;
         private HttpServletRequest request;
         private boolean overrideBizId = false;
+
+        public Builder() {
+            headerParamsMap.put("Accept-Encoding", "gzip");//默认设置接受gzip
+        }
 
         /**
          * 设置服务的api名
@@ -367,6 +371,9 @@ public class HttpParameters {
          * @return
          */
         public Builder putParamsMap(String key, String value) {
+            if (contentBody != null) {
+                throw new IllegalArgumentException("已设置contentBody请求，不能设置paramsMap");
+            }
             this.paramsMap.put(key, value);
             return this;
         }
@@ -379,6 +386,9 @@ public class HttpParameters {
          */
         public Builder putParamsMapAll(Map<String, String> map) {
             if (map != null) {
+                if (contentBody != null) {
+                    throw new IllegalArgumentException("已设置contentBody请求，不能设置paramsMap");
+                }
                 this.paramsMap.putAll(map);
             } else {
                 throw new IllegalArgumentException("empty map!!");
@@ -430,6 +440,12 @@ public class HttpParameters {
          * @return
          */
         public Builder contentBody(ContentBody cb) {
+            if (paramsMap.isEmpty() == false) {
+                throw new IllegalArgumentException("已设置paramMap请求，不能设置contentBody");
+            }
+            if (method.equalsIgnoreCase("post")==false) {
+                throw new IllegalArgumentException("发送contentBody必须使用post");
+            }
             this.contentBody = cb;
             return this;
         }

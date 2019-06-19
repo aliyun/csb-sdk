@@ -1,10 +1,7 @@
 package com.alibaba.csb.sdk;
 
 import com.alibaba.csb.sdk.i18n.MessageHelper;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.cli.*;
-
-import java.io.IOException;
 
 /**
  * Created by wiseking on 18/1/8.
@@ -41,7 +38,7 @@ public class CmdHttpCaller {
         return str == null || str.isEmpty();
     }
 
-//  "-api" "item.add"
+    //  "-api" "item.add"
 //  "-version" "1.0.0"
 //  "-bizIdKey" "bizid"
 //  "-bizId" "e48ffd7c1e7f4d07b7fc141f43503cb2"
@@ -198,23 +195,23 @@ public class CmdHttpCaller {
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
 
             if (curlOnly) {
-                System.out.println("---- curlString = " + ret.response);
+                System.out.println("---- curlString = " + ret.getResponse());
             } else {
                 if (isDebug) {
                     System.out.println("Diagnostic Info:" + ret.diagnosticInfo);
                 }
                 System.out.println("---- response http headers = " + ret.responseHeaders);
                 if (changeCharset) {
-                    System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret.response));
+                    System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret.getResponse()));
                 } else {
-                    System.out.println("---- retStr = " + ret.response);
+                    System.out.println("---- retStr = " + ret.getResponse());
                 }
 
                 //call multi-times for stress or flow-ctrl testing
                 int times = Integer.getInteger("test.stress.times", 0);
                 for (int i = 2; i <= times; i++) {
                     ret = HttpCaller.invokeReturn(builder.build());
-                    System.out.println("---- retStr [#" + i + "] = " + ret.response);
+                    System.out.println("---- retStr [#" + i + "] = " + ret.getResponse());
                 }
             }
         } catch (Exception e) {

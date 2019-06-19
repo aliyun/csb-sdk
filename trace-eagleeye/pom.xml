@@ -7,14 +7,14 @@
     <parent>
         <groupId>com.alibaba.csb.sdk</groupId>
         <artifactId>csb.sdk.parent</artifactId>
-        <version>1.1.5.3</version>
+        <version>1.1.5.4-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
     <name>CSB :: TRACE :: trace-eagleeye</name>
     <groupId>com.alibaba.csb.trace</groupId>
     <artifactId>trace-eagleeye</artifactId>
-    <version>1.1.5.3</version>
+    <version>${csb.sdk.version}</version>
 
     <dependencies>
         <dependency>

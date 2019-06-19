@@ -3,6 +3,7 @@ package com.alibaba.csb.sdk.internel;
 import com.alibaba.csb.sdk.ContentBody;
 import com.alibaba.csb.sdk.HttpReturn;
 import org.apache.http.Header;
+import org.apache.http.entity.ContentType;
 
 import java.util.Map;
 
@@ -25,8 +26,8 @@ public class DiagnosticHelper {
     }
 
     long size = 0;
-    if(ret.response != null) {
-      ret.diagnosticInfo.put(DIAGNOSTIC_RESPONSE_SIZE, String.valueOf(ret.response.length()));
+    if(ret.getResponse() != null) {
+      ret.diagnosticInfo.put(DIAGNOSTIC_RESPONSE_SIZE, String.valueOf(ret.getResponse().length()));
     }
   }
 
@@ -49,7 +50,7 @@ public class DiagnosticHelper {
 
     if (cb != null) {
       if (cb.getContentBody() != null) {
-        if (cb.getContentType() == ContentBody.Type.BINARY) {
+        if (cb.getContentType() == ContentType.APPLICATION_OCTET_STREAM) {
           size += ((byte[]) cb.getContentBody()).length;
         } else {
           size += ((String) cb.getContentBody()).length();

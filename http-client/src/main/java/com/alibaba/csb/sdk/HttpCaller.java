@@ -1,17 +1,13 @@
 package com.alibaba.csb.sdk;
 
-import java.io.*;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.alibaba.csb.sdk.internel.DiagnosticHelper;
+import com.alibaba.csb.sdk.internel.HttpClientConnManager;
+import com.alibaba.csb.sdk.internel.HttpClientHelper;
+import com.alibaba.csb.sdk.security.SignUtil;
+import com.alibaba.csb.trace.TraceData;
+import com.alibaba.csb.utils.IPUtils;
+import com.alibaba.csb.utils.LogUtils;
+import com.alibaba.csb.utils.TraceIdUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -24,16 +20,20 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.util.EntityUtils;
-import com.alibaba.csb.sdk.internel.DiagnosticHelper;
-import com.alibaba.csb.sdk.internel.HttpClientConnManager;
-import com.alibaba.csb.sdk.internel.HttpClientHelper;
-import com.alibaba.csb.sdk.security.SignUtil;
-import com.alibaba.csb.trace.TraceData;
-import com.alibaba.csb.utils.IPUtils;
-import com.alibaba.csb.utils.LogUtils;
-import com.alibaba.csb.utils.TraceIdUtils;
+
+import java.io.*;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方式.
@@ -197,30 +197,36 @@ import com.alibaba.csb.utils.TraceIdUtils;
  * @since 2016
  */
 public class HttpCaller {
-    private static boolean warmupFlag = false;
+    protected static boolean warmupFlag = false;
 
-    private static final String RESTFUL_PATH_SIGNATURE_KEY = "csb_restful_path_signature_key";
-    private static final String DEFAULT_RESTFUL_PROTOCOL_VERSION = "1.0";
-    private static final String RESTFUL_PROTOCOL_VERION_KEY = "restful_protocol_version";
+    protected static final String RESTFUL_PATH_SIGNATURE_KEY = "csb_restful_path_signature_key";
+    protected static final String DEFAULT_RESTFUL_PROTOCOL_VERSION = "1.0";
+    protected static final String RESTFUL_PROTOCOL_VERION_KEY = "restful_protocol_version";
 
 
     // TODO: must set truststore for ssl
     public static final String trustCA = System.getProperty("http.caller.ssl.trustca");
 
-    private static final String DEFAULT_CHARSET = "UTF-8";
+    protected static final String DEFAULT_CHARSET = "UTF-8";
 
-    private static String defaultAK = null;
-    private static String defaultSK = null;
+    protected static String defaultAK = null;
+    protected static String defaultSK = null;
 
-    private static ThreadLocal<Boolean> toCurlCmd = new ThreadLocal<Boolean>();
-    private static ThreadLocal<HttpHost> proxyConfigThreadLocal = new ThreadLocal<HttpHost>();
+    protected static ThreadLocal<Boolean> toCurlCmd = new ThreadLocal<Boolean>();
+    protected static ThreadLocal<HttpHost> proxyConfigThreadLocal = new ThreadLocal<HttpHost>();
 
-    private static final RequestConfig.Builder requestConfigBuilder = HttpClientConnManager.createConnBuilder();
-    private static final ThreadLocal<RequestConfig.Builder> requestConfigBuilderLocal = new ThreadLocal<RequestConfig.Builder>();
+    protected static final RequestConfig.Builder requestConfigBuilder = HttpClientConnManager.createConnBuilder();
+    protected static final ThreadLocal<RequestConfig.Builder> requestConfigBuilderLocal = new ThreadLocal<RequestConfig.Builder>();
 
-    private static AtomicReference<String> BIZ_ID_KEY = new AtomicReference<String>();
+    protected static AtomicReference<String> BIZ_ID_KEY = new AtomicReference<String>();
+    public static final long MAX_FILE_SIZE;
 
-    private HttpCaller() {
+    static {
+        //默认20M
+        MAX_FILE_SIZE = Integer.valueOf(System.getProperty("csb_max_file_size", String.valueOf(20 * 1024L * 1024L)));
+    }
+
+    protected HttpCaller() {
     }
 
     /**
@@ -234,6 +240,7 @@ public class HttpCaller {
 
     /**
      * get bizIdkey
+     *
      * @return
      */
     public static String bizIdKey() {
@@ -424,7 +431,7 @@ public class HttpCaller {
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
 
-        return doGet(hp, null).response;
+        return doGet(hp, null).getResponse();
     }
 
     /**
@@ -472,7 +479,6 @@ public class HttpCaller {
         String apiName = hp.getApi();
         String version = hp.getVersion();
         Map<String, String> paramsMap = hp.getParamsMap();
-        ContentBody cb = hp.getContentBody();
         String accessKey = hp.getAccessKey();
         String secretKey = hp.getSecretkey();
         Map<String, String> directParamsMap = hp.getHeaderParamsMap();
@@ -508,7 +514,8 @@ public class HttpCaller {
             curl.append(HttpClientHelper.genCurlHeaders(headerParamsMap));
             curl.append(" -k ");
             curl.append("\"").append(newRequestURL).append("\"");
-            ret.response = curl.toString();
+            ret.setResponse(curl.toString());
+            ;
             return ret;
         }
 
@@ -629,7 +636,7 @@ public class HttpCaller {
         httpGet.setConfig(getRequestConfig());
         HttpClientHelper.printDebugInfo("requestURL=" + requestURL);
 
-        return doHttpReq(requestURL, httpGet, null).response;
+        return doHttpReq(requestURL, httpGet, null).getResponse();
     }
 
     /**
@@ -738,7 +745,7 @@ public class HttpCaller {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version)
                 .contentBody(cb).accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
-        return doPost(hp, null).response;
+        return doPost(hp, null).getResponse();
     }
 
     /**
@@ -764,6 +771,10 @@ public class HttpCaller {
         String restfulProtocolVersion = hp.getRestfulProtocolVersion();
         boolean nonceFlag = hp.isNonce();
 
+        if (cb != null && cb.isNeedZip()) {
+            directHheaderParamsMap.put(HTTP.CONTENT_ENCODING, "gzip");
+        }
+
         HttpReturn ret = new HttpReturn();
         ret.diagnosticFlag = hp.isDiagnostic();
         long startT = System.currentTimeMillis();
@@ -776,8 +787,8 @@ public class HttpCaller {
 
         startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);
 
-        if (cb != null && cb.getContentType() == ContentBody.Type.JSON && hp.isSignContentBody()) {
-            urlParamsMap.put(ContentBody.CONTENT_BODY_SIGN_KEY, Arrays.asList((String) cb.getContentBody()));
+        if (cb != null && hp.isSignContentBody()) { //判断body是否参与签名
+            urlParamsMap.put(ContentBody.CONTENT_BODY_SIGN_KEY, Arrays.asList(cb.getContentBodyAsStr()));
         }
 
         StringBuffer signDiagnosticInfo = DiagnosticHelper.getSignDiagnosticInfo(ret);
@@ -856,7 +867,9 @@ public class HttpCaller {
                 rret.httpCode = response.getStatusLine().getStatusCode();
                 rret.responseHttpStatus = response.getStatusLine().toString();
                 rret.responseHeaders = HttpClientHelper.fetchResHeaders(response);
-                rret.response = EntityUtils.toString(response.getEntity());
+                rret.setRespHttpHeaderMap(HttpClientHelper.fetchResHeaderMap(response));
+                rret.setResponseEntity(response.getEntity());
+                ;
 
                 return rret;
             } finally {
@@ -911,10 +924,11 @@ public class HttpCaller {
                     response = asyncFuture.get();
                 }
 
-                rret.response = EntityUtils.toString(response.getEntity());
+                rret.setResponseEntity(response.getEntity());
                 rret.httpCode = response.getStatusLine().getStatusCode();
                 rret.responseHttpStatus = response.getStatusLine().toString();
                 rret.responseHeaders = HttpClientHelper.fetchResHeaders(response);
+                rret.setRespHttpHeaderMap(HttpClientHelper.fetchResHeaderMap(response));
 
                 return rret;
             } finally {
@@ -966,7 +980,19 @@ public class HttpCaller {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
-        return doPost(hp, null).response;
+        return doPost(hp, null).getResponse();
+    }
+
+    /**
+     * @param respHttpHeaderMap 当不为空时，会把所有http响应头放入此map
+     */
+    public static String invoke(HttpParameters hp, Map<String, String> respHttpHeaderMap) throws HttpCallerException {
+        HttpReturn res = invokeReturn(hp);
+        if (respHttpHeaderMap != null) {
+            respHttpHeaderMap.putAll(res.getRespHttpHeaderMap());
+        }
+
+        return res.getResponse();
     }
 
     /**
@@ -984,7 +1010,7 @@ public class HttpCaller {
             resHttpHeaders.append(res.responseHeaders);
         }
 
-        return res.response;
+        return res.getResponse();
     }
 
     /**
@@ -1017,10 +1043,8 @@ public class HttpCaller {
      * @throws HttpCallerException
      */
     public static String invoke(HttpParameters hp) throws HttpCallerException {
-        return invoke(hp, null);
+        return invoke(hp, (StringBuffer) null);
     }
-
-    private static final long MAX_FILE_SIZE = 10 * 1024l * 1024l; // 10M
 
     /**
      * 一个便利方法，读取一个文件并把其内容转换为 byte[]
@@ -1031,10 +1055,13 @@ public class HttpCaller {
      */
     //TODO: remove this unrelated method out of the class
     public static byte[] readFileAsByteArray(String file) throws HttpCallerException {
-        File f = new File(file);
-        if (f.exists() && f.isFile() && f.canRead()) {
-            if (f.length() > MAX_FILE_SIZE)
-                throw new HttpCallerException("file is too large exceed the MAX-SIZE: 10M");
+        return readFile(new File(file));
+    }
+
+    public static byte[] readFile(File file) throws HttpCallerException {
+        if (file.exists() && file.isFile() && file.canRead()) {
+            if (file.length() > MAX_FILE_SIZE)
+                throw new HttpCallerException("file is too large exceed the MAX-SIZE");
 
             InputStream ios = null;
             ByteArrayOutputStream bos = null;
@@ -1048,7 +1075,6 @@ public class HttpCaller {
                     bos.write(b, 0, n);
                 }
                 buffer = bos.toByteArray();
-
             } catch (IOException e) {
                 throw new HttpCallerException(e);
             } finally {
@@ -1058,6 +1084,7 @@ public class HttpCaller {
                     if (bos != null)
                         bos.close();
                 } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
             return buffer;
