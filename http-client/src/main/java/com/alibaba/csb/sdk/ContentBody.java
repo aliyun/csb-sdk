@@ -63,7 +63,7 @@ public class ContentBody {
      * 传输文件，文件未经过压缩
      */
     public ContentBody(File file) throws HttpCallerException {
-        this(file, false);
+        this(file, null);
     }
 
     /**
@@ -88,7 +88,7 @@ public class ContentBody {
         }
 
         if (type == ContentType.APPLICATION_OCTET_STREAM) {
-            if (bytesBody.length > AUTO_GZIP_BODY_SIZE * 8) { //byte数据，大于n个字节
+            if (bytesBody.length > AUTO_GZIP_BODY_SIZE) { //byte数据，大于n个字节
                 return true;
             }
         }
@@ -109,7 +109,7 @@ public class ContentBody {
     public String getContentBodyAsStr() {
         if (type == ContentType.APPLICATION_OCTET_STREAM)
             try {
-                return new String(bytesBody, "utf-8");
+                return new String(bytesBody, HttpCaller.DEFAULT_CHARSET);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }

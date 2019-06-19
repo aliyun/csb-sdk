@@ -1,11 +1,5 @@
 package com.alibaba.csb.sdk;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.http.HttpEntity;
-import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,23 +32,14 @@ import java.util.Map;
 public class HttpReturn {
     public int httpCode;
     public String responseHttpStatus;
-    /**
-     * 请使用 responseEntity
-     */
-    @Deprecated
-    @Setter
-    private String response;
-    @Getter
-    @Setter
-    private HttpEntity responseEntity;
+    public String response;
+    public byte[] responseBytes;
     /**
      * 请使用 respHttpHeaderMap
      */
     @Deprecated
     public String responseHeaders;
-    @Getter
-    @Setter
-    private Map<String, String> respHttpHeaderMap;
+    public Map<String, String> respHttpHeaderMap;
     public Map<String, String> diagnosticInfo = new HashMap<String, String>(); //定义成Map类型，方便增减新的诊断项
     public boolean diagnosticFlag;
 
@@ -65,29 +50,4 @@ public class HttpReturn {
         this.response = response;
     }
 
-    public String getResponseString() throws HttpCallerException {
-        try {
-            return EntityUtils.toString(responseEntity);
-        } catch (IOException e) {
-            throw new HttpCallerException(e.getMessage(), e);
-        }
-    }
-
-    public byte[] getResponseBytes() throws HttpCallerException {
-        try {
-            return EntityUtils.toByteArray(responseEntity);
-        } catch (IOException e) {
-            throw new HttpCallerException(e.getMessage(), e);
-        }
-    }
-
-    public String getResponse() throws HttpCallerException {
-        if (response != null) {
-            return response;
-        } else if (responseEntity != null) {
-            return getResponseString();
-        }
-
-        return null;
-    }
 }

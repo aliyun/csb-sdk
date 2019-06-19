@@ -5,6 +5,7 @@ import com.alibaba.csb.sdk.HttpCallerException;
 import com.alibaba.csb.sdk.SdkLogger;
 import com.alibaba.csb.sdk.security.SignUtil;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.GzipCompressingEntity;
@@ -15,9 +16,11 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -228,47 +231,47 @@ public class HttpClientHelper {
                 charset != null ? charset : HTTP.DEF_CONTENT_CHARSET.name());
     }
 
-    public static HttpPost createPost(final String url, Map<String, String> urlParams, Map<String, String> headerParams, ContentBody cb) {
+    public static HttpPost createPost(final String url, Map<String, String> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, File> fileMap) {
         //set both cb and urlParams
         String newUrl = url;
-        if (cb != null && urlParams != null)
-            if (urlParams != null) {
-                List<NameValuePair> nvps = toNVP(urlParams);
-                String newParamStr = urlEncodedString(nvps, HTTP.UTF_8);
-                if (!url.contains("?")) {
-                    newUrl = String.format("%s?%s", url, newParamStr);
-                } else {
-                    newUrl = String.format("%s&%s", url, newParamStr);
-                }
+        if (cb != null && urlParams != null) {
+            List<NameValuePair> nvps = toNVP(urlParams);
+            String newParamStr = urlEncodedString(nvps, HTTP.UTF_8);
+            if (!url.contains("?")) {
+                newUrl = String.format("%s?%s", url, newParamStr);
+            } else {
+                newUrl = String.format("%s&%s", url, newParamStr);
             }
-        printDebugInfo("new requestURL=" + newUrl);
+        }
         HttpPost httpost = new HttpPost(newUrl);
         setHeaders(httpost, headerParams);
-        if (cb == null) {
+
+        HttpEntity entity;
+        if (fileMap != null && fileMap.isEmpty() == false) { //有附件，则使用 form+附件 提交
+            MultipartEntityBuilder fileBuilder = MultipartEntityBuilder.create();
+            for (Entry<String, File> fileEntry : fileMap.entrySet()) {
+                fileBuilder.addBinaryBody(fileEntry.getKey(), fileEntry.getValue());
+            }
+            entity = fileBuilder.build();
+        } else if (cb == null) { //无附件，无body内容，则使用form提交
             List<NameValuePair> nvps = toNVP(urlParams);
             try {
-                httpost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
+                entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e.getMessage(), e);
             }
-        } else {
-            if (cb.getContentType() == ContentType.APPLICATION_JSON) {
-                StringEntity entity = new StringEntity((String) cb.getContentBody(), HTTP.UTF_8);// 解决中文乱码问题
-                entity.setContentType(cb.getContentType().getMimeType());
-                httpost.setEntity(entity);
-            } else {
-                //binary
-                httpost.setHeader(HTTP.CONTENT_TYPE, cb.getContentType().getMimeType());
-                if (cb.isNeedZip()) {
-                    GzipCompressingEntity zipEntity = new GzipCompressingEntity(new ByteArrayEntity((byte[]) cb.getContentBody()));
-                    httpost.setEntity(zipEntity);
-                } else {
-                    ByteArrayEntity be = new ByteArrayEntity((byte[]) cb.getContentBody());
-                    httpost.setEntity(be);
-                }
+        } else if (cb.getContentType() == ContentType.APPLICATION_JSON) {  //无附件，有json body内容，则 application/json 方式提交
+            StringEntity strEntity = new StringEntity((String) cb.getContentBody(), HTTP.UTF_8);// 解决中文乱码问题
+            strEntity.setContentType(ContentType.APPLICATION_JSON.getMimeType());
+            entity = strEntity;
+        } else {  //无附件，有二进制body内容，则 APPLICATION_OCTET_STREAM 方式提交
+            entity = new ByteArrayEntity((byte[]) cb.getContentBody(), cb.getContentType());
+            if (cb.isNeedZip()) {
+                entity = new GzipCompressingEntity(entity);
             }
         }
 
+        httpost.setEntity(entity);
         return httpost;
     }
 

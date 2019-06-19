@@ -6,6 +6,7 @@ import com.alibaba.csb.utils.LogUtils;
 import com.alibaba.csb.utils.TraceIdUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,6 +49,10 @@ public class HttpParameters {
 
     ContentBody getContentBody() {
         return builder.contentBody;
+    }
+
+    Map<String, File> getAttachFileMap() {
+        return builder.attatchFileMap;
     }
 
     String getRestfulProtocolVersion() {
@@ -128,6 +133,7 @@ public class HttpParameters {
         private String restfulProtocolVersion;
         private String method = "GET";
         private ContentBody contentBody = null;
+        private Map<String, File> attatchFileMap;
         private String requestUrl;
         private String signImpl;
         private String verifySignImpl;
@@ -141,7 +147,23 @@ public class HttpParameters {
         private boolean overrideBizId = false;
 
         public Builder() {
-            headerParamsMap.put("Accept-Encoding", "gzip");//默认设置接受gzip
+            headerParamsMap.put("Accept-Encoding", HttpCaller.GZIP);//默认设置接受gzip
+        }
+
+
+        /**
+         * 增加附件
+         */
+        public Builder addAttachFile(String key, File file) {
+            if (method.equalsIgnoreCase("POST") == false) {
+                throw new IllegalArgumentException("发送附件必须使用POST");
+            }
+
+            if (attatchFileMap == null) {
+                attatchFileMap = new HashMap<String, File>();
+            }
+            attatchFileMap.put(key, file);
+            return this;
         }
 
         /**
@@ -371,9 +393,6 @@ public class HttpParameters {
          * @return
          */
         public Builder putParamsMap(String key, String value) {
-            if (contentBody != null) {
-                throw new IllegalArgumentException("已设置contentBody请求，不能设置paramsMap");
-            }
             this.paramsMap.put(key, value);
             return this;
         }
@@ -386,9 +405,6 @@ public class HttpParameters {
          */
         public Builder putParamsMapAll(Map<String, String> map) {
             if (map != null) {
-                if (contentBody != null) {
-                    throw new IllegalArgumentException("已设置contentBody请求，不能设置paramsMap");
-                }
                 this.paramsMap.putAll(map);
             } else {
                 throw new IllegalArgumentException("empty map!!");
@@ -440,11 +456,8 @@ public class HttpParameters {
          * @return
          */
         public Builder contentBody(ContentBody cb) {
-            if (paramsMap.isEmpty() == false) {
-                throw new IllegalArgumentException("已设置paramMap请求，不能设置contentBody");
-            }
-            if (method.equalsIgnoreCase("post")==false) {
-                throw new IllegalArgumentException("发送contentBody必须使用post");
+            if (method.equalsIgnoreCase("POST") == false) {
+                throw new IllegalArgumentException("发送contentBody必须使用POST");
             }
             this.contentBody = cb;
             return this;

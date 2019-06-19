@@ -8,6 +8,7 @@ import com.alibaba.csb.trace.TraceData;
 import com.alibaba.csb.utils.IPUtils;
 import com.alibaba.csb.utils.LogUtils;
 import com.alibaba.csb.utils.TraceIdUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -22,6 +23,7 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.util.EntityUtils;
 
 import java.io.*;
 import java.security.KeyManagementException;
@@ -207,7 +209,8 @@ public class HttpCaller {
     // TODO: must set truststore for ssl
     public static final String trustCA = System.getProperty("http.caller.ssl.trustca");
 
-    protected static final String DEFAULT_CHARSET = "UTF-8";
+    public static final String DEFAULT_CHARSET = "UTF-8";
+    public static final String GZIP = "gzip";
 
     protected static String defaultAK = null;
     protected static String defaultSK = null;
@@ -431,7 +434,7 @@ public class HttpCaller {
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
 
-        return doGet(hp, null).getResponse();
+        return doGet(hp, null).response;
     }
 
     /**
@@ -514,7 +517,7 @@ public class HttpCaller {
             curl.append(HttpClientHelper.genCurlHeaders(headerParamsMap));
             curl.append(" -k ");
             curl.append("\"").append(newRequestURL).append("\"");
-            ret.setResponse(curl.toString());
+            ret.response = curl.toString();
             ;
             return ret;
         }
@@ -636,7 +639,7 @@ public class HttpCaller {
         httpGet.setConfig(getRequestConfig());
         HttpClientHelper.printDebugInfo("requestURL=" + requestURL);
 
-        return doHttpReq(requestURL, httpGet, null).getResponse();
+        return doHttpReq(requestURL, httpGet, null).response;
     }
 
     /**
@@ -745,7 +748,7 @@ public class HttpCaller {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version)
                 .contentBody(cb).accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
-        return doPost(hp, null).getResponse();
+        return doPost(hp, null).response;
     }
 
     /**
@@ -772,7 +775,7 @@ public class HttpCaller {
         boolean nonceFlag = hp.isNonce();
 
         if (cb != null && cb.isNeedZip()) {
-            directHheaderParamsMap.put(HTTP.CONTENT_ENCODING, "gzip");
+            directHheaderParamsMap.put(HTTP.CONTENT_ENCODING, GZIP);
         }
 
         HttpReturn ret = new HttpReturn();
@@ -802,7 +805,7 @@ public class HttpCaller {
             return new HttpReturn(HttpClientHelper.createPostCurlString(newRequestURL, paramsMap, headerParamsMap, cb, directHheaderParamsMap));
         }
         DiagnosticHelper.calcRequestSize(ret, newRequestURL, paramsMap, cb);
-        HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb);
+        HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb, hp.getAttachFileMap());
         DiagnosticHelper.setRequestHeaders(ret, httpPost.getAllHeaders());
 
         HttpClientHelper.setDirectHeaders(httpPost, directHheaderParamsMap);
@@ -867,10 +870,8 @@ public class HttpCaller {
                 rret.httpCode = response.getStatusLine().getStatusCode();
                 rret.responseHttpStatus = response.getStatusLine().toString();
                 rret.responseHeaders = HttpClientHelper.fetchResHeaders(response);
-                rret.setRespHttpHeaderMap(HttpClientHelper.fetchResHeaderMap(response));
-                rret.setResponseEntity(response.getEntity());
-                ;
-
+                rret.respHttpHeaderMap = HttpClientHelper.fetchResHeaderMap(response);
+                fetchResponseBody(response, rret);
                 return rret;
             } finally {
                 if (response != null) {
@@ -924,12 +925,11 @@ public class HttpCaller {
                     response = asyncFuture.get();
                 }
 
-                rret.setResponseEntity(response.getEntity());
                 rret.httpCode = response.getStatusLine().getStatusCode();
                 rret.responseHttpStatus = response.getStatusLine().toString();
                 rret.responseHeaders = HttpClientHelper.fetchResHeaders(response);
-                rret.setRespHttpHeaderMap(HttpClientHelper.fetchResHeaderMap(response));
-
+                rret.respHttpHeaderMap = HttpClientHelper.fetchResHeaderMap(response);
+                fetchResponseBody(response, rret);
                 return rret;
             } finally {
                 httpClient.close();
@@ -939,6 +939,20 @@ public class HttpCaller {
             }
         } catch (Exception e) {
             throw new HttpCallerException(e);
+        }
+    }
+
+    static private void fetchResponseBody(HttpResponse response, HttpReturn rret) throws IOException {
+        HttpEntity responseEntity = response.getEntity();
+        String contentType = responseEntity.getContentType().getValue();
+        if (contentType == null) {
+            throw new RuntimeException("HTTP响应错误，无 Content-Type header");
+        }
+        contentType = contentType.toLowerCase();
+        if (contentType.startsWith("text") || contentType.contains("json") || contentType.contains("xml")) {
+            rret.response = EntityUtils.toString(responseEntity);
+        } else {
+            rret.responseBytes = EntityUtils.toByteArray(responseEntity);
         }
     }
 
@@ -980,7 +994,7 @@ public class HttpCaller {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
-        return doPost(hp, null).getResponse();
+        return doPost(hp, null).response;
     }
 
     /**
@@ -989,10 +1003,10 @@ public class HttpCaller {
     public static String invoke(HttpParameters hp, Map<String, String> respHttpHeaderMap) throws HttpCallerException {
         HttpReturn res = invokeReturn(hp);
         if (respHttpHeaderMap != null) {
-            respHttpHeaderMap.putAll(res.getRespHttpHeaderMap());
+            respHttpHeaderMap.putAll(res.respHttpHeaderMap);
         }
 
-        return res.getResponse();
+        return res.response;
     }
 
     /**
@@ -1010,7 +1024,7 @@ public class HttpCaller {
             resHttpHeaders.append(res.responseHeaders);
         }
 
-        return res.getResponse();
+        return res.response;
     }
 
     /**

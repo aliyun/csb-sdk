@@ -26,8 +26,8 @@ public class DiagnosticHelper {
     }
 
     long size = 0;
-    if(ret.getResponse() != null) {
-      ret.diagnosticInfo.put(DIAGNOSTIC_RESPONSE_SIZE, String.valueOf(ret.getResponse().length()));
+    if(ret.response != null) {
+      ret.diagnosticInfo.put(DIAGNOSTIC_RESPONSE_SIZE, String.valueOf(ret.response.length()));
     }
   }
 
