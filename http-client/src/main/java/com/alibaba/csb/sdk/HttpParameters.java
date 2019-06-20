@@ -9,10 +9,10 @@ import lombok.Getter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import static com.alibaba.csb.sdk.ContentBody.AUTO_GZIP_SIZE;
 import static com.alibaba.csb.sdk.internel.HttpClientHelper.trimWhiteSpaces;
 
 /**
@@ -63,6 +63,10 @@ public class HttpParameters {
 
     Map<String, String> getParamsMap() {
         return builder.paramsMap;
+    }
+
+    boolean isNeedGZipRequest() {
+        return builder.needGZipRequest;
     }
 
     Map<String, String> getHeaderParamsMap() {
@@ -130,12 +134,7 @@ public class HttpParameters {
         private String fileName;
         @Getter
         private byte[] fileBytes;
-        private Boolean needGZip;
-        static private Set<String> notNeedGZipFileSet = new HashSet<String>();//常见已压缩的文件后缀，以便对这些文件不再自动压缩
-
-        static {
-            notNeedGZipFileSet.addAll(Arrays.asList("gzip", "zip", "xz", "jar", "war", "jpg", "jpeg", "png", "7z", "rar", "arj", "tgz", "mp3", "mpg", "mpeg", "avi", "mov", "rm"));
-        }
+        private boolean needGZip;
 
         /**
          * 请求是否需要压缩：
@@ -143,21 +142,7 @@ public class HttpParameters {
          * 2. 如果用户未指定，则自动判断（大于nK单位，则压缩）
          */
         public boolean isNeedGZip() {
-            if (needGZip != null) {
-                return needGZip;
-            }
-            int index = fileName.lastIndexOf(".");
-            if (index >= 0 && index < fileName.length()) {
-                String fileExt = fileName.substring(index + 1).toLowerCase();
-                if (notNeedGZipFileSet.contains(fileExt)) {
-                    return false; //对于已经压缩的文件，不再压缩
-                }
-            }
-
-            if (fileBytes.length > AUTO_GZIP_SIZE) { //byte数据，大于n个字节
-                return true;
-            }
-            return false;
+            return needGZip;
         }
     }
 
@@ -187,6 +172,7 @@ public class HttpParameters {
         private boolean timestamp = true;
         private boolean signContentBody;
         private Map<String, String> paramsMap = new HashMap<String, String>();
+        private boolean needGZipRequest = false;//是否对paramsMap和contentBody进行压缩
         private Map<String, String> headerParamsMap = new HashMap<String, String>();
         private boolean diagnostic = false;
         private HttpServletRequest request;
@@ -198,10 +184,18 @@ public class HttpParameters {
         }
 
         /**
+         * 设置是否对 paramsMap和contentBody 进行压缩
+         */
+        public Builder needGZipRequest(boolean needGZipRequest) {
+            this.needGZipRequest = needGZipRequest;
+            return this;
+        }
+
+        /**
          * 增加附件
          */
         public Builder addAttachFile(String key, File file) {
-            return addAttachFile(key, file, null);
+            return addAttachFile(key, file, false);
         }
 
         /**
@@ -209,7 +203,7 @@ public class HttpParameters {
          *
          * @param needGZip 如果不设置，则系统自动判断是否压缩
          */
-        public Builder addAttachFile(String key, File file, Boolean needGZip) {
+        public Builder addAttachFile(String key, File file, boolean needGZip) {
             if (method.equalsIgnoreCase("POST") == false) {
                 throw new IllegalArgumentException("发送附件必须使用POST");
             }

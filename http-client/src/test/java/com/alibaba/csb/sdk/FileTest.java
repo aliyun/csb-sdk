@@ -22,8 +22,10 @@ public class FileTest {
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
         try {
+            builder.needGZipRequest(true);
+
             // 设置请求参数
-            builder.putParamsMap("name", "name1").putParamsMap("times", "3");
+            builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3");
             Map<String, String> kvMap = new HashMap<String, String>();
             for (int i = 0; i < 100; ++i) {
                 kvMap.put(String.valueOf(i), "abc中文佛挡杀佛顶替枯lksd" + i);
@@ -76,9 +78,9 @@ public class FileTest {
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
         // 设置form请求参数
-        builder.putParamsMap("times", "2").putParamsMap("name", "we中文we");
+        builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
         builder.addAttachFile("file1", new File("D:\\tmp\\user-extend.jar"));
-        builder.addAttachFile("file2", new File("D:\\tmp\\AuthenticationMapper.xml"));
+        builder.addAttachFile("file2", new File("D:\\tmp\\AuthenticationMapper.xml"), true); //对文件进行压缩传输
         try {
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));

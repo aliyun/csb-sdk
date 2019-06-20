@@ -800,7 +800,7 @@ public class HttpCaller {
             return new HttpReturn(HttpClientHelper.createPostCurlString(newRequestURL, paramsMap, headerParamsMap, cb, directHheaderParamsMap));
         }
         DiagnosticHelper.calcRequestSize(ret, newRequestURL, paramsMap, cb);
-        HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb, hp.getAttachFileMap());
+        HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb, hp.getAttachFileMap(), hp.isNeedGZipRequest());
         DiagnosticHelper.setRequestHeaders(ret, httpPost.getAllHeaders());
 
         HttpClientHelper.setDirectHeaders(httpPost, directHheaderParamsMap);

@@ -20,14 +20,12 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
-import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.zip.GZIPOutputStream;
 
 import static com.alibaba.csb.sdk.HttpCaller.GZIP;
 //import com.alibaba.fastjson.JSONObject;
@@ -244,7 +242,7 @@ public class HttpClientHelper {
      *
      * @return
      */
-    public static HttpPost createPost(final String url, Map<String, String> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, HttpParameters.AttachFile> fileMap) {
+    public static HttpPost createPost(final String url, Map<String, String> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, HttpParameters.AttachFile> fileMap, boolean needGZipRequest) {
         //set both cb and urlParams
         String newUrl = url;
         List<NameValuePair> nvps = toNVP(urlParams);
@@ -264,40 +262,35 @@ public class HttpClientHelper {
             if (fileMap != null && fileMap.isEmpty() == false) { //有附件，则使用 form+附件 提交
                 MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create();
                 for (NameValuePair nvp : nvps) {
-                    multiBuilder.addTextBody(nvp.getName(), nvp.getValue(), ContentType.APPLICATION_FORM_URLENCODED);
+                    if (needGZipRequest) {
+                        org.apache.http.entity.mime.content.ContentBody body = new ByteArrayBody(GZipUtils.gzipBytes(nvp.getValue().getBytes(HttpCaller.DEFAULT_CHARSET)), ContentType.APPLICATION_FORM_URLENCODED, null);
+                        FormBodyPartBuilder partBuilder = FormBodyPartBuilder.create(nvp.getName(), body);
+                        partBuilder.setField(HTTP.CONTENT_ENCODING, GZIP);
+                        multiBuilder.addPart(partBuilder.build());
+                    } else {
+                        multiBuilder.addTextBody(nvp.getName(), nvp.getValue(), ContentType.APPLICATION_FORM_URLENCODED);
+                    }
                 }
 
                 for (Entry<String, HttpParameters.AttachFile> fileEntry : fileMap.entrySet()) {
                     HttpParameters.AttachFile file = fileEntry.getValue();
                     if (file.isNeedGZip()) { //对附件进行压缩
-                        GZIPOutputStream gzip = null;
-                        ByteArrayOutputStream out = null;
-                        try {
-                            out = new ByteArrayOutputStream();
-                            gzip = new GZIPOutputStream(out);
-                            gzip.write(file.getFileBytes());
-                            gzip.close();
-                            FormBodyPartBuilder partBuilder = FormBodyPartBuilder.create(fileEntry.getKey(), new ByteArrayBody(out.toByteArray(), file.getFileName()));
-                            partBuilder.setField(HTTP.CONTENT_ENCODING, GZIP);
-                            multiBuilder.addPart(partBuilder.build());
-                        } finally {
-                            if (gzip != null) {
-                                gzip.close();
-                            }
-                            if (out != null) {
-                                out.close();
-                            }
-                        }
+                        FormBodyPartBuilder partBuilder = FormBodyPartBuilder.create(fileEntry.getKey(), new ByteArrayBody(GZipUtils.gzipBytes(file.getFileBytes()), file.getFileName()));
+                        partBuilder.setField(HTTP.CONTENT_ENCODING, GZIP);
+                        multiBuilder.addPart(partBuilder.build());
                     } else {
-                        multiBuilder.addBinaryBody(fileEntry.getKey(), file.getFileBytes());
+                        multiBuilder.addBinaryBody(fileEntry.getKey(), file.getFileBytes(), ContentType.DEFAULT_BINARY, file.getFileName());
                     }
                 }
                 entity = multiBuilder.build();
             } else if (cb == null) { //无附件，无body内容，则使用form提交
                 entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
+                if (needGZipRequest) {
+                    entity = new GzipCompressingEntity(entity);
+                    httpost.setHeader(HTTP.CONTENT_ENCODING, GZIP);
+                }
             } else {
-                boolean needGZip = cb.getNeedGZip();
-                if (needGZip) {
+                if (needGZipRequest) {
                     httpost.setHeader(HTTP.CONTENT_ENCODING, GZIP); //不参与签名，因为服务端需要先解析这个头，然后才参获得实际内容。同时兼容历史版本
                 }
 
@@ -305,19 +298,20 @@ public class HttpClientHelper {
                     StringEntity strEntity = new StringEntity(cb.getStrContentBody(), HttpCaller.DEFAULT_CHARSET);// 解决中文乱码问题
                     strEntity.setContentType(ContentType.APPLICATION_JSON.getMimeType());
                     entity = strEntity;
-                    if (needGZip) {
+                    if (needGZipRequest) {
                         entity = new GzipCompressingEntity(entity);
                     }
                 } else {  //无附件，有二进制body内容，则 APPLICATION_OCTET_STREAM 方式提交
                     entity = new ByteArrayEntity(cb.getBytesContentBody(), cb.getContentType());
-                    if (needGZip) {
+                    if (needGZipRequest) {
                         entity = new GzipCompressingEntity(entity);
                     }
                 }
             }
 
             httpost.setEntity(entity);
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             throw new RuntimeException(e);
         }
         return httpost;
