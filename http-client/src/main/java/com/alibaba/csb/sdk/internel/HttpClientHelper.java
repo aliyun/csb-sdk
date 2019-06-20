@@ -295,14 +295,24 @@ public class HttpClientHelper {
                 entity = multiBuilder.build();
             } else if (cb == null) { //无附件，无body内容，则使用form提交
                 entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
-            } else if (cb.getContentType() == ContentType.APPLICATION_JSON) {  //无附件，有json body内容，则 application/json 方式提交
-                StringEntity strEntity = new StringEntity((String) cb.getContentBody(), HttpCaller.DEFAULT_CHARSET);// 解决中文乱码问题
-                strEntity.setContentType(ContentType.APPLICATION_JSON.getMimeType());
-                entity = strEntity;
-            } else {  //无附件，有二进制body内容，则 APPLICATION_OCTET_STREAM 方式提交
-                entity = new ByteArrayEntity((byte[]) cb.getContentBody(), cb.getContentType());
-                if (cb.getNeedGZip()) {
-                    entity = new GzipCompressingEntity(entity);
+            } else {
+                boolean needGZip = cb.getNeedGZip();
+                if (needGZip) {
+                    httpost.setHeader(HTTP.CONTENT_ENCODING, GZIP); //不参与签名，因为服务端需要先解析这个头，然后才参获得实际内容。同时兼容历史版本
+                }
+
+                if (cb.getContentType() == ContentType.APPLICATION_JSON) {  //无附件，有json body内容，则 application/json 方式提交
+                    StringEntity strEntity = new StringEntity(cb.getStrContentBody(), HttpCaller.DEFAULT_CHARSET);// 解决中文乱码问题
+                    strEntity.setContentType(ContentType.APPLICATION_JSON.getMimeType());
+                    entity = strEntity;
+                    if (needGZip) {
+                        entity = new GzipCompressingEntity(entity);
+                    }
+                } else {  //无附件，有二进制body内容，则 APPLICATION_OCTET_STREAM 方式提交
+                    entity = new ByteArrayEntity(cb.getBytesContentBody(), cb.getContentType());
+                    if (needGZip) {
+                        entity = new GzipCompressingEntity(entity);
+                    }
                 }
             }
 

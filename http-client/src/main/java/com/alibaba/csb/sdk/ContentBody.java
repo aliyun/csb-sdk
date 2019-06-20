@@ -15,17 +15,17 @@ import java.io.IOException;
 public class ContentBody {
     // body内容串 使用的key，会把body内容串作为 key=value 方式作为签名的一部分
     /*packaged*/ static final String CONTENT_BODY_SIGN_KEY = System.getProperty("csb.sdk.body.sign.key", "_api_body_sign_key_");
-    public static final int AUTO_GZIP_BODY_SIZE; //默认当body大于此值时，就自动设置请求gzip
+    public static final int AUTO_GZIP_SIZE; //默认当body大于此值时，就自动设置请求gzip
 
     static {
         //默认10K 单位（string：unicode， byte：字节）
-        AUTO_GZIP_BODY_SIZE = Integer.getInteger("csb_auto_gzip_body_size", 10 * 1024);
+        AUTO_GZIP_SIZE = Integer.getInteger("csb_auto_gzip_size", 10 * 1024);
     }
 
     private String jsonBody;
     private byte[] bytesBody;
     private ContentType type;
-    private Boolean needGZip; //是否需要压缩。默认不设置，自动根据body大小来配置
+    private Boolean needGZip = null; //是否需要压缩。默认不设置，自动根据body大小来配置
 
     /**
      * 使用Json串构造ContentBody
@@ -33,9 +33,18 @@ public class ContentBody {
      * @param jsonStr
      */
     public ContentBody(String jsonStr) {
+        this(jsonStr, null);
+    }
+
+    /**
+     * 使用Json串构造ContentBody
+     *
+     * @param jsonStr
+     */
+    public ContentBody(String jsonStr, Boolean needGZip) {
         this.jsonBody = jsonStr;
         type = ContentType.APPLICATION_JSON;
-        needGZip = false;
+        needGZip = needGZip;
     }
 
     /**
@@ -87,8 +96,12 @@ public class ContentBody {
             return needGZip;
         }
 
-        if (type == ContentType.APPLICATION_OCTET_STREAM) {
-            if (bytesBody.length > AUTO_GZIP_BODY_SIZE) { //byte数据，大于n个字节
+        if (type == ContentType.APPLICATION_OCTET_STREAM && bytesBody != null) {
+            if (bytesBody.length > AUTO_GZIP_SIZE) { //byte数据，大于n个字节
+                return true;
+            }
+        } else if (type == ContentType.APPLICATION_JSON && jsonBody != null) {
+            if (jsonBody.length() > AUTO_GZIP_SIZE) { //unicode数据，大于n个字节
                 return true;
             }
         }
@@ -99,11 +112,12 @@ public class ContentBody {
         return this.type;
     }
 
-    public Object getContentBody() {
-        if (type == ContentType.APPLICATION_OCTET_STREAM)
-            return bytesBody;
-        else
-            return jsonBody;
+    public String getStrContentBody() {
+        return jsonBody;
+    }
+
+    public byte[] getBytesContentBody() {
+        return bytesBody;
     }
 
     public String getContentBodyAsStr() {

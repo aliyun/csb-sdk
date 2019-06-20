@@ -9,11 +9,10 @@ import lombok.Getter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
-import static com.alibaba.csb.sdk.ContentBody.AUTO_GZIP_BODY_SIZE;
+import static com.alibaba.csb.sdk.ContentBody.AUTO_GZIP_SIZE;
 import static com.alibaba.csb.sdk.internel.HttpClientHelper.trimWhiteSpaces;
 
 /**
@@ -132,6 +131,11 @@ public class HttpParameters {
         @Getter
         private byte[] fileBytes;
         private Boolean needGZip;
+        static private Set<String> notNeedGZipFileSet = new HashSet<String>();//常见已压缩的文件后缀，以便对这些文件不再自动压缩
+
+        static {
+            notNeedGZipFileSet.addAll(Arrays.asList("gzip", "zip", "xz", "jar", "war", "jpg", "jpeg", "png", "7z", "rar", "arj", "tgz", "mp3", "mpg", "mpeg", "avi", "mov", "rm"));
+        }
 
         /**
          * 请求是否需要压缩：
@@ -142,8 +146,15 @@ public class HttpParameters {
             if (needGZip != null) {
                 return needGZip;
             }
+            int index = fileName.lastIndexOf(".");
+            if (index >= 0 && index < fileName.length()) {
+                String fileExt = fileName.substring(index + 1).toLowerCase();
+                if (notNeedGZipFileSet.contains(fileExt)) {
+                    return false; //对于已经压缩的文件，不再压缩
+                }
+            }
 
-            if (fileBytes.length > AUTO_GZIP_BODY_SIZE) { //byte数据，大于n个字节
+            if (fileBytes.length > AUTO_GZIP_SIZE) { //byte数据，大于n个字节
                 return true;
             }
             return false;
@@ -204,6 +215,12 @@ public class HttpParameters {
             }
             if (contentBody != null) {
                 throw new IllegalArgumentException("无法同时发送 contentBody 和 文件");
+            }
+            if (file == null) {
+                throw new IllegalArgumentException("file不允许为空");
+            }
+            if (key == null) {
+                throw new IllegalArgumentException("key不允许为空");
             }
 
             if (attatchFileMap == null) {
@@ -506,7 +523,7 @@ public class HttpParameters {
             if (method.equalsIgnoreCase("POST") == false) {
                 throw new IllegalArgumentException("发送contentBody必须使用POST");
             }
-            if (attatchFileMap != null || attatchFileMap.isEmpty() == false) {
+            if (attatchFileMap != null && attatchFileMap.isEmpty() == false) {
                 throw new IllegalArgumentException("无法同时发送 contentBody 和 文件");
             }
 

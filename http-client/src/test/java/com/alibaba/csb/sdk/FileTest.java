@@ -4,8 +4,39 @@ import com.alibaba.fastjson.JSON;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FileTest {
+
+    /**
+     * 使用body发送json，自动压缩
+     */
+    @Test
+    public void testPostBodyJson() {
+        HttpParameters.Builder builder = new HttpParameters.Builder();
+        builder.requestURL("http://localhost:8086/jsontest.jsp") // 设置请求的URL
+                .api("http2http1") // 设置服务名
+                .version("1.0.0") // 设置版本号
+                .method("post") // 设置调用方式, get/post
+                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+
+        try {
+            // 设置请求参数
+            builder.putParamsMap("name", "name1").putParamsMap("times", "3");
+            Map<String, String> kvMap = new HashMap<String, String>();
+            for (int i = 0; i < 100; ++i) {
+                kvMap.put(String.valueOf(i), "abc中文佛挡杀佛顶替枯lksd" + i);
+            }
+            builder.contentBody(new ContentBody(JSON.toJSONString(kvMap)));
+
+            HttpReturn ret = HttpCaller.invokeReturn(builder.build());
+            System.out.println("------- ret=" + JSON.toJSONString(ret));
+        } catch (HttpCallerException e) {
+            // error process
+            e.printStackTrace(System.out);
+        }
+    }
 
     /**
      * 使用body直接发送文件，响应body文件

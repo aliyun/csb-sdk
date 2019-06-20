@@ -21,7 +21,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
@@ -773,10 +772,6 @@ public class HttpCaller {
         Map<String, String> directHheaderParamsMap = hp.getHeaderParamsMap();
         String restfulProtocolVersion = hp.getRestfulProtocolVersion();
         boolean nonceFlag = hp.isNonce();
-
-        if (cb != null && cb.getNeedGZip()) {
-            directHheaderParamsMap.put(HTTP.CONTENT_ENCODING, GZIP);
-        }
 
         HttpReturn ret = new HttpReturn();
         ret.diagnosticFlag = hp.isDiagnostic();
