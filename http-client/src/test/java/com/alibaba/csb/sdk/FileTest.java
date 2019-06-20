@@ -30,7 +30,7 @@ public class FileTest {
             for (int i = 0; i < 100; ++i) {
                 kvMap.put(String.valueOf(i), "abc中文佛挡杀佛顶替枯lksd" + i);
             }
-            builder.contentBody(new ContentBody(JSON.toJSONString(kvMap)));
+//            builder.contentBody(new ContentBody(JSON.toJSONString(kvMap)));
 
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
@@ -51,10 +51,11 @@ public class FileTest {
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+        builder.needGZipRequest(false);
 
         try {
             // 设置请求参数
-            builder.putParamsMap("name", "name1").putParamsMap("times", "3");
+            builder.putParamsMap("name", "name中文1").putParamsMap("times", "3");
             builder.contentBody(new ContentBody(new File("D:\\tmp\\user-extend.jar")));
 
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
@@ -76,6 +77,7 @@ public class FileTest {
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+        builder.needGZipRequest(false);
 
         // 设置form请求参数
         builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");

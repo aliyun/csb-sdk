@@ -262,13 +262,15 @@ public class HttpClientHelper {
             if (fileMap != null && fileMap.isEmpty() == false) { //有附件，则使用 form+附件 提交
                 MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create();
                 for (NameValuePair nvp : nvps) {
+                    String name = URLEncoder.encode(nvp.getName(), HTTP.UTF_8);
+                    String value = URLEncoder.encode(nvp.getValue(), HTTP.UTF_8);
                     if (needGZipRequest) {
-                        org.apache.http.entity.mime.content.ContentBody body = new ByteArrayBody(GZipUtils.gzipBytes(nvp.getValue().getBytes(HttpCaller.DEFAULT_CHARSET)), ContentType.APPLICATION_FORM_URLENCODED, null);
-                        FormBodyPartBuilder partBuilder = FormBodyPartBuilder.create(nvp.getName(), body);
+                        org.apache.http.entity.mime.content.ContentBody body = new ByteArrayBody(GZipUtils.gzipBytes(value.getBytes(HttpCaller.DEFAULT_CHARSET)), ContentType.APPLICATION_FORM_URLENCODED, null);
+                        FormBodyPartBuilder partBuilder = FormBodyPartBuilder.create(name, body);
                         partBuilder.setField(HTTP.CONTENT_ENCODING, GZIP);
                         multiBuilder.addPart(partBuilder.build());
                     } else {
-                        multiBuilder.addTextBody(nvp.getName(), nvp.getValue(), ContentType.APPLICATION_FORM_URLENCODED);
+                        multiBuilder.addTextBody(name, value, ContentType.APPLICATION_FORM_URLENCODED);
                     }
                 }
 
@@ -296,7 +298,7 @@ public class HttpClientHelper {
 
                 if (cb.getContentType() == ContentType.APPLICATION_JSON) {  //无附件，有json body内容，则 application/json 方式提交
                     StringEntity strEntity = new StringEntity(cb.getStrContentBody(), HttpCaller.DEFAULT_CHARSET);// 解决中文乱码问题
-                    strEntity.setContentType(ContentType.APPLICATION_JSON.getMimeType());
+                    strEntity.setContentType(ContentType.APPLICATION_JSON.toString());
                     entity = strEntity;
                     if (needGZipRequest) {
                         entity = new GzipCompressingEntity(entity);

@@ -162,7 +162,7 @@ public class HttpParameters {
         private String ak;
         private String sk;
         private String restfulProtocolVersion;
-        private String method = "GET";
+        private String method = "POST";
         private ContentBody contentBody = null;
         private Map<String, AttachFile> attatchFileMap;
         private String requestUrl;
