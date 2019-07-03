@@ -10,12 +10,37 @@ import java.util.Map;
 public class FileTest {
 
     /**
-     * 使用body发送json，自动压缩
+     * 使用body发送json
+     */
+    @Test
+    public void testPostBody() {
+        HttpParameters.Builder builder = new HttpParameters.Builder();
+        builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
+                .api("http2http1") // 设置服务名
+                .version("1.0.0") // 设置版本号
+                .method("post") // 设置调用方式, get/post
+                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+
+        try {
+            builder.needGZipRequest(true);
+
+            // 设置请求参数
+            builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3");
+            HttpReturn ret = HttpCaller.invokeReturn(builder.build());
+            System.out.println("------- ret=" + JSON.toJSONString(ret));
+        } catch (HttpCallerException e) {
+            // error process
+            e.printStackTrace(System.out);
+        }
+    }
+
+    /**
+     * 使用body发送json
      */
     @Test
     public void testPostBodyJson() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
-        builder.requestURL("http://localhost:8086/jsontest.jsp") // 设置请求的URL
+        builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
@@ -30,7 +55,7 @@ public class FileTest {
             for (int i = 0; i < 100; ++i) {
                 kvMap.put(String.valueOf(i), "abc中文佛挡杀佛顶替枯lksd" + i);
             }
-//            builder.contentBody(new ContentBody(JSON.toJSONString(kvMap)));
+            builder.contentBody(new ContentBody(JSON.toJSONString(kvMap)));
 
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
@@ -46,17 +71,17 @@ public class FileTest {
     @Test
     public void testPostBodyFile() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
-        builder.requestURL("http://localhost:8086/jsontest.jsp") // 设置请求的URL
+        builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
-        builder.needGZipRequest(false);
+        builder.needGZipRequest(true);
 
         try {
             // 设置请求参数
             builder.putParamsMap("name", "name中文1").putParamsMap("times", "3");
-            builder.contentBody(new ContentBody(new File("D:\\tmp\\user-extend.jar")));
+            builder.contentBody(new ContentBody(new File("D:\\tmp\\AuthenticationMapper.xml")));
 
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
@@ -72,7 +97,7 @@ public class FileTest {
     @Test
     public void testPostFormFile() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
-        builder.requestURL("http://localhost:8086/jsontest.jsp") // 设置请求的URL
+        builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post

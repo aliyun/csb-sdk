@@ -4,8 +4,8 @@ import com.alibaba.csb.trace.TraceData;
 import com.alibaba.csb.trace.TraceFactory;
 import com.alibaba.csb.utils.LogUtils;
 import com.alibaba.csb.utils.TraceIdUtils;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -128,13 +128,20 @@ public class HttpParameters {
         return sb.toString();
     }
 
-    @AllArgsConstructor
     public static class AttachFile {
+        @Setter
+        private HttpParameters httpParameters;
         @Getter
         private String fileName;
         @Getter
         private byte[] fileBytes;
-        private boolean needGZip;
+        private Boolean needGZip;
+
+        public AttachFile(String fileName, byte[] fileBytes, Boolean needGZip) {
+            this.fileName = fileName;
+            this.fileBytes = fileBytes;
+            this.needGZip = needGZip;
+        }
 
         /**
          * 请求是否需要压缩：
@@ -142,7 +149,11 @@ public class HttpParameters {
          * 2. 如果用户未指定，则自动判断（大于nK单位，则压缩）
          */
         public boolean isNeedGZip() {
-            return needGZip;
+            if (needGZip == null) {
+                return httpParameters != null ? httpParameters.isNeedGZipRequest() : false;
+            } else {
+                return needGZip;
+            }
         }
     }
 
@@ -578,7 +589,13 @@ public class HttpParameters {
          * @return
          */
         public HttpParameters build() {
-            return new HttpParameters(this);
+            HttpParameters httpParameters = new HttpParameters(this);
+            if (attatchFileMap != null) {
+                for (AttachFile attachFile : attatchFileMap.values()) {
+                    attachFile.setHttpParameters(httpParameters);
+                }
+            }
+            return httpParameters;
         }
 
         /**
