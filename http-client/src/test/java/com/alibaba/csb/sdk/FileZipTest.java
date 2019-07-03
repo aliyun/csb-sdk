@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileTest {
+public class FileZipTest {
 
     /**
      * 使用body发送json
@@ -95,7 +95,7 @@ public class FileTest {
      * 使用body直接form请求，附件发送文件。响应json，附件是文件
      */
     @Test
-    public void testPostFormFile() {
+    public void testPostFormFiles() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
                 .api("http2http1") // 设置服务名
