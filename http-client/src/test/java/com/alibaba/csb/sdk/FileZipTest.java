@@ -13,7 +13,7 @@ public class FileZipTest {
      * 使用body发送json
      */
     @Test
-    public void testPostBody() {
+    public void testPostForm() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
                 .api("http2http1") // 设置服务名
@@ -22,7 +22,7 @@ public class FileZipTest {
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
         try {
-            builder.needGZipRequest(true);
+//            builder.needGZipRequest(true);
 
             // 设置请求参数
             builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3");
