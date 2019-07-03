@@ -49,7 +49,7 @@ public class DiagnosticHelper {
         }
 
         if (cb != null) {
-            if (cb.getContentType() == ContentType.APPLICATION_OCTET_STREAM) {
+            if (cb.getContentType().equals(ContentType.APPLICATION_OCTET_STREAM)) {
                 size += cb.getBytesContentBody().length;
             } else {
                 size += cb.getStrContentBody().length();
