@@ -265,12 +265,13 @@ public class HttpClientHelper {
                     String name = URLEncoder.encode(nvp.getName(), HTTP.UTF_8);
                     String value = URLEncoder.encode(nvp.getValue(), HTTP.UTF_8);
                     if (needGZipRequest) {
-                        org.apache.http.entity.mime.content.ContentBody body = new ByteArrayBody(GZipUtils.gzipBytes(value.getBytes(HttpCaller.DEFAULT_CHARSET)), ContentType.APPLICATION_FORM_URLENCODED, null);
+                        byte[] bytes = GZipUtils.gzipBytes(value.getBytes(HttpCaller.DEFAULT_CHARSET));
+                        org.apache.http.entity.mime.content.ContentBody body = new ByteArrayBody(bytes, ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET), null);
                         FormBodyPartBuilder partBuilder = FormBodyPartBuilder.create(name, body);
                         partBuilder.setField(HTTP.CONTENT_ENCODING, GZIP);
                         multiBuilder.addPart(partBuilder.build());
                     } else {
-                        multiBuilder.addTextBody(name, value, ContentType.APPLICATION_FORM_URLENCODED);
+                        multiBuilder.addTextBody(name, value, ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET));
                     }
                 }
 
