@@ -312,8 +312,7 @@ public class HttpClientHelper {
             }
 
             httpost.setEntity(entity);
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return httpost;
