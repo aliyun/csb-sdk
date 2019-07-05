@@ -190,7 +190,7 @@ public class HttpParameters {
         private boolean overrideBizId = false;
 
         public Builder() {
-            signContentBody = Boolean.parseBoolean(System.getProperty("csb_sign_content_body", "true")); //默认body参考签名，为了兼容历史版本，允许设置系统变量，以便不参与签名
+            signContentBody = Boolean.parseBoolean(System.getProperty("csb_sign_content_body", "false")); //默认body参考签名，为了兼容历史版本，暂不参与签名
             headerParamsMap.put("Accept-Encoding", HttpCaller.GZIP);//默认设置接受gzip
         }
 
