@@ -7,13 +7,11 @@
 提供了一套客户调用端集成开发工具，方便用户统一调用服务总线开放出来的服务。
 
 ## CSB-SDK的目录结构
-* common       公共底层类,供HTTP-SDK和WS-SDK使用
-* http-client  调用HTTP服务的客户端SDK  [details](http-client/README.md)
-* ws-client    调用WebService服务的客户端SDK [details](ws-client/README.md)
-* samples      使用上述两个SDK的单元测试示例 [details](samples/README.md)
-* others       其他语言的SDK参考实现代码, 包括PHP, Go和Node.js 
-
-注意: 我们只提供Java版本的SDK的维护和支持，对于其他语言的参考实现，暂时不提供维护和支持。
+* common    公共底层类,供HTTP-SDK和WS-SDK使用
+* HTTP-SDK  调用HTTP服务的客户端SDK  [details](http-client/README.md)
+* WS-SDK    调用WebService服务的客户端SDK [details](ws-client/README.md)
+* Samples   使用上述两个SDK的单元测试示例 [details](samples/README.md)
+* others    其他语言的SDK实现代码, 包括PHP, Go和Node.js
 
 # 使用SDK
 
@@ -71,47 +69,17 @@
   </repositories>
 ```
 
-## 从源码生成
+## 使用独立的客户包
 
-注意：
-
--  本地应该提前安装Git, JAVA, MAVEN等工具,才可以从源码进行编译；
--  编译前，可以根据用户最终使用SDK的运行环境选择不同的JDK版本。
-
-下面的命令会展示如何编译SDK源码，生成(1)maven依赖或者(2)独立JAR包。 所谓独立JAR包是SDK的编译class
-及其依赖的jar包里的class文件重新打包成一个独立的JAR, 它可以运行命令工具(java -jar standalone.jar)，
-还可以把这个jar包放置在用户客户端运行CLASSPATH就可以在运行时使用SDK编程接口。
+下面的命令可以把SDK代码及其依赖的底层JAR包统一打包成一个包,客户直接在其CLASSPATH中应用这个唯一的包即可执行SDK的调用功能
 
 ```
-# 1. download sourcefrom Github (once time only)
-git clone https://github.com/aliyun/csb-sdk.git
-cd csb-sdk
-     
-
-# 2. show and switch to desired branch, e.g.
-git branch
-git checkout 1.1.5.2
-
-# 3. Build common module
-cd common
-mvn clean install 
-
-# 4. Build http SDK
-cd ../http-client
-
-# 4.1 install as maven dependency to local repository
-mvn clean install  -Dmaven.test.skip
-
-# 4.2 build as a standalone jar
+# Build http SDK
+cd http-client
 bash gen-standaloneJar.sh
 
-# 5. Build WS SDK
-cd ../ws-client
-
-# 5.1 install as maven dependency to local repository
-mvn clean install  -Dmaven.test.skip
-
-# 5.2 build as a standalone jar
+# Build WS SDK
+cd ws-client
 bash gen-standaloneJar.sh
 
 ```
