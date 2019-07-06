@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -205,6 +206,13 @@ public class HttpParameters {
         /**
          * 增加附件
          */
+        public Builder addAttachFile(String key, String fileName, InputStream inputStream) {
+            return addAttachFile(key, fileName, inputStream, false);
+        }
+
+        /**
+         * 增加附件
+         */
         public Builder addAttachFile(String key, File file) {
             return addAttachFile(key, file, false);
         }
@@ -215,23 +223,45 @@ public class HttpParameters {
          * @param needGZip 如果不设置，则系统自动判断是否压缩
          */
         public Builder addAttachFile(String key, File file, boolean needGZip) {
+            if (file == null) {
+                throw new IllegalArgumentException("file不允许为空");
+            }
+            return addAttachFile(key, file.getName(), HttpCaller.readFile(file), needGZip);
+        }
+
+        /**
+         * 增加附件
+         *
+         * @param needGZip 如果不设置，则系统自动判断是否压缩
+         */
+        public Builder addAttachFile(String key, String fileName, InputStream inputStream, boolean needGZip) {
+            if (inputStream == null) {
+                throw new IllegalArgumentException("file内容不允许为空");
+            }
+            return addAttachFile(key, fileName, HttpCaller.readInputStream(inputStream), needGZip);
+        }
+
+        private Builder addAttachFile(String key, String fileName, byte[] bytes, boolean needGZip) {
             if (method.equalsIgnoreCase("POST") == false) {
                 throw new IllegalArgumentException("发送附件必须使用POST");
             }
             if (contentBody != null) {
                 throw new IllegalArgumentException("无法同时发送 contentBody 和 文件");
             }
-            if (file == null) {
-                throw new IllegalArgumentException("file不允许为空");
+            if (bytes == null) {
+                throw new IllegalArgumentException("file内容不允许为空");
             }
             if (key == null) {
                 throw new IllegalArgumentException("key不允许为空");
+            }
+            if (fileName == null) {
+                throw new IllegalArgumentException("fileName不允许为空");
             }
 
             if (attatchFileMap == null) {
                 attatchFileMap = new HashMap<String, AttachFile>();
             }
-            attatchFileMap.put(key, new AttachFile(file.getName(), HttpCaller.readFile(file), needGZip));
+            attatchFileMap.put(key, new AttachFile(fileName, bytes, needGZip));
             return this;
         }
 

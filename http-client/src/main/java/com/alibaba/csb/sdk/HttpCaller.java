@@ -1067,38 +1067,47 @@ public class HttpCaller {
         return readFile(new File(file));
     }
 
+
     public static byte[] readFile(File file) {
         if (file.exists() && file.isFile() && file.canRead()) {
             if (file.length() > MAX_FILE_SIZE)
                 throw new IllegalArgumentException("file is too large exceed the MAX-SIZE");
 
-            InputStream ios = null;
-            ByteArrayOutputStream bos = null;
-            byte[] buffer = null;
             try {
-                ios = new FileInputStream(file);
+                return readInputStream(new FileInputStream(file));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            throw new IllegalArgumentException("bad file to read:" + file);
+        }
+    }
+
+    public static byte[] readInputStream(InputStream inputStream) {
+        if (inputStream != null) {
+            ByteArrayOutputStream bos = null;
+            try {
                 bos = new ByteArrayOutputStream();
                 byte[] b = new byte[1024];
                 int n;
-                while ((n = ios.read(b)) != -1) {
+                while ((n = inputStream.read(b)) != -1) {
                     bos.write(b, 0, n);
                 }
-                buffer = bos.toByteArray();
+                return bos.toByteArray();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
                 try {
-                    if (ios != null)
-                        ios.close();
+                    if (inputStream != null)
+                        inputStream.close();
                     if (bos != null)
                         bos.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            return buffer;
         } else {
-            throw new IllegalArgumentException("bad file to read:" + file);
+            throw new IllegalArgumentException("inputSteam must no null");
         }
     }
 
