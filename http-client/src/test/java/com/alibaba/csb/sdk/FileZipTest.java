@@ -19,10 +19,10 @@ public class FileZipTest {
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
-                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+                .accessKey("dad8f1c0a45341bb96a4c33741bd2c99").secretKey("K+O0O0H2JZotVxSHgnXnODd36OY="); // 设置accessKey 和 设置secretKey
 
         try {
-//            builder.needGZipRequest(true);
+            builder.needGZipRequest(true);
 
             // 设置请求参数
             builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3");
@@ -44,10 +44,10 @@ public class FileZipTest {
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
-                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+                .accessKey("dad8f1c0a45341bb96a4c33741bd2c99").secretKey("K+O0O0H2JZotVxSHgnXnODd36OY="); // 设置accessKey 和 设置secretKey
 
         try {
-            builder.needGZipRequest(true);
+//            builder.needGZipRequest(true);
 
             // 设置请求参数
             builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3");
@@ -75,8 +75,8 @@ public class FileZipTest {
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
-                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
-        builder.needGZipRequest(true);
+                .accessKey("dad8f1c0a45341bb96a4c33741bd2c99").secretKey("K+O0O0H2JZotVxSHgnXnODd36OY="); // 设置accessKey 和 设置secretKey
+//        builder.needGZipRequest(true);
 
         try {
             // 设置请求参数
@@ -98,11 +98,12 @@ public class FileZipTest {
     public void testPostFormFiles() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
+//        builder.requestURL("http://localhost:7001/jsontest.jsp") // 设置请求的URL
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
-                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
-        builder.needGZipRequest(false);
+                .accessKey("dad8f1c0a45341bb96a4c33741bd2c99").secretKey("K+O0O0H2JZotVxSHgnXnODd36OY="); // 设置accessKey 和 设置secretKey
+        builder.needGZipRequest(true);
 
         // 设置form请求参数
         builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
