@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class FileZipTest {
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
-                .accessKey("dad8f1c0a45341bb96a4c33741bd2c99").secretKey("K+O0O0H2JZotVxSHgnXnODd36OY="); // 设置accessKey 和 设置secretKey
+                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
         try {
             builder.needGZipRequest(true);
@@ -44,7 +45,7 @@ public class FileZipTest {
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
-                .accessKey("dad8f1c0a45341bb96a4c33741bd2c99").secretKey("K+O0O0H2JZotVxSHgnXnODd36OY="); // 设置accessKey 和 设置secretKey
+                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
         try {
 //            builder.needGZipRequest(true);
@@ -75,7 +76,7 @@ public class FileZipTest {
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
-                .accessKey("dad8f1c0a45341bb96a4c33741bd2c99").secretKey("K+O0O0H2JZotVxSHgnXnODd36OY="); // 设置accessKey 和 设置secretKey
+                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 //        builder.needGZipRequest(true);
 
         try {
@@ -102,17 +103,18 @@ public class FileZipTest {
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
-                .accessKey("dad8f1c0a45341bb96a4c33741bd2c99").secretKey("K+O0O0H2JZotVxSHgnXnODd36OY="); // 设置accessKey 和 设置secretKey
+                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
         builder.needGZipRequest(true);
 
-        // 设置form请求参数
-        builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
-        builder.addAttachFile("file1", new File("D:\\tmp\\user-extend.jar"));
-        builder.addAttachFile("file2", new File("D:\\tmp\\AuthenticationMapper.xml"), true); //对文件进行压缩传输
         try {
+            // 设置form请求参数
+            builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
+            builder.addAttachFile("file1", new File("D:\\tmp\\user-extend.jar"));
+            builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\tmp\\AuthenticationMapper.xml")), true); //对文件进行压缩传输
+
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
-        } catch (HttpCallerException e) {
+        } catch (Exception e) {
             // error process
             e.printStackTrace(System.out);
         }
