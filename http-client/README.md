@@ -110,7 +110,7 @@ java [sys-props] -jar http-sdk-1.1.5.4.jar [options...]
    builder.nonce(true);
    
    //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
-   builder.needGZipRequest(true); 
+   builder.setContentEncoding(ContentEncoding.gzip);
       
    //进行调用 返回结果
    String result = null;
@@ -168,7 +168,7 @@ java [sys-props] -jar http-sdk-1.1.5.4.jar [options...]
   builder.contentBody(cb);
   
   //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
-  builder.needGZipRequest(true); 
+  builder.setContentEncoding(ContentEncoding.gzip);
       
   //进行调用，返回结果
   try {
@@ -190,14 +190,14 @@ java [sys-props] -jar http-sdk-1.1.5.4.jar [options...]
       .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
   
   //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
-  builder.needGZipRequest(true); 
+  builder.setContentEncoding(ContentEncoding.gzip);
       
     // 设置form请求参数
   builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
   
   //设置上传文件
-  builder.addAttachFile("file1", new File("uploadFile1.xxx")); //未指定是否压缩传输，则会根据 builder.needGZipRequest(boolean) 的设置来定义是否压缩
-  builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\tmp\\AuthenticationMapper.xml")), true); //对文件进行压缩传输//明确要求对此文件进行压缩传输
+  builder.addAttachFile("file1", new File("uploadFile1.xxx")); //未指定是否压缩传输，则会根据 builder.setContentEncoding() 的设置来定义是否压缩
+  builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\tmp\\AuthenticationMapper.xml")), ContentEncoding.gzip); //对文件进行压缩传输//明确要求对此文件进行压缩传输
  
   //进行调用，返回结果
   try {
