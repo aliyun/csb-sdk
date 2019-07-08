@@ -5,5 +5,5 @@ package com.alibaba.csb.sdk;
  * 2019/7/8-16:56.
  */
 public enum ContentEncoding {
-    gzip;
+    none, gzip;
 }
