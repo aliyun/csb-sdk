@@ -225,7 +225,7 @@ public class HttpCaller {
 
     static {
         //默认20M
-        MAX_FILE_SIZE = Integer.getInteger("csb_max_file_size", 20 * 1024 * 1024);
+        MAX_FILE_SIZE = Integer.getInteger("csb_max_file_size", 20) * 1024 * 1024;
     }
 
     protected HttpCaller() {
