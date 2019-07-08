@@ -24,6 +24,12 @@ import static com.alibaba.csb.sdk.internel.HttpClientHelper.trimWhiteSpaces;
  * @since 2016
  */
 public class HttpParameters {
+    public static final long MAX_FILE_AMOUNT;
+
+    static {
+        MAX_FILE_AMOUNT = Integer.getInteger("csb_max_file_amount", 5); //一次最多上传5个附件
+    }
+
     private Builder builder;
 
     String getApi() {
@@ -261,6 +267,11 @@ public class HttpParameters {
             if (attatchFileMap == null) {
                 attatchFileMap = new HashMap<String, AttachFile>();
             }
+
+            if (attatchFileMap.size() >= MAX_FILE_AMOUNT) {
+                throw new IllegalArgumentException("附件数量超过限制");
+            }
+
             attatchFileMap.put(key, new AttachFile(fileName, bytes, needGZip));
             return this;
         }
