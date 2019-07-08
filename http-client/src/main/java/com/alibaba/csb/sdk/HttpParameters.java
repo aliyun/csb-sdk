@@ -72,8 +72,8 @@ public class HttpParameters {
         return builder.paramsMap;
     }
 
-    boolean isNeedGZipRequest() {
-        return builder.needGZipRequest;
+    ContentEncoding getContentEncoding() {
+        return builder.contentEncoding;
     }
 
     Map<String, String> getHeaderParamsMap() {
@@ -142,24 +142,23 @@ public class HttpParameters {
         private String fileName;
         @Getter
         private byte[] fileBytes;
-        private Boolean needGZip;
+        private ContentEncoding contentEncoding;
 
-        public AttachFile(String fileName, byte[] fileBytes, Boolean needGZip) {
+        public AttachFile(String fileName, byte[] fileBytes, ContentEncoding contentEncoding) {
             this.fileName = fileName;
             this.fileBytes = fileBytes;
-            this.needGZip = needGZip;
+            this.contentEncoding = contentEncoding;
         }
 
         /**
          * 请求是否需要压缩：
          * 1. 如果用户明确不需要，则不压缩
-         * 2. 如果用户未指定，则自动判断（大于nK单位，则压缩）
          */
-        public boolean isNeedGZip() {
-            if (needGZip == null) {
-                return httpParameters != null ? httpParameters.isNeedGZipRequest() : false;
+        public ContentEncoding getContentEncoding() {
+            if (contentEncoding == null) {
+                return httpParameters != null ? httpParameters.getContentEncoding() : null;
             } else {
-                return needGZip;
+                return contentEncoding;
             }
         }
     }
@@ -190,7 +189,7 @@ public class HttpParameters {
         private boolean timestamp = true;
         private boolean signContentBody;
         private Map<String, String> paramsMap = new HashMap<String, String>();
-        private boolean needGZipRequest = false;//是否对paramsMap和contentBody进行压缩
+        private ContentEncoding contentEncoding;
         private Map<String, String> headerParamsMap = new HashMap<String, String>();
         private boolean diagnostic = false;
         private HttpServletRequest request;
@@ -204,8 +203,8 @@ public class HttpParameters {
         /**
          * 设置是否对 paramsMap和contentBody 进行压缩
          */
-        public Builder needGZipRequest(boolean needGZipRequest) {
-            this.needGZipRequest = needGZipRequest;
+        public Builder setContentEncoding(ContentEncoding contentEncoding) {
+            this.contentEncoding = contentEncoding;
             return this;
         }
 
@@ -213,41 +212,37 @@ public class HttpParameters {
          * 增加附件
          */
         public Builder addAttachFile(String key, String fileName, InputStream inputStream) {
-            return addAttachFile(key, fileName, inputStream, false);
+            return addAttachFile(key, fileName, inputStream, null);
         }
 
         /**
          * 增加附件
          */
         public Builder addAttachFile(String key, File file) {
-            return addAttachFile(key, file, false);
+            return addAttachFile(key, file, null);
         }
 
         /**
          * 增加附件
-         *
-         * @param needGZip 如果不设置，则系统自动判断是否压缩
          */
-        public Builder addAttachFile(String key, File file, boolean needGZip) {
+        public Builder addAttachFile(String key, File file, ContentEncoding contentEncoding) {
             if (file == null) {
                 throw new IllegalArgumentException("file不允许为空");
             }
-            return addAttachFile(key, file.getName(), HttpCaller.readFile(file), needGZip);
+            return addAttachFile(key, file.getName(), HttpCaller.readFile(file), contentEncoding);
         }
 
         /**
          * 增加附件
-         *
-         * @param needGZip 如果不设置，则系统自动判断是否压缩
          */
-        public Builder addAttachFile(String key, String fileName, InputStream inputStream, boolean needGZip) {
+        public Builder addAttachFile(String key, String fileName, InputStream inputStream, ContentEncoding contentEncoding) {
             if (inputStream == null) {
                 throw new IllegalArgumentException("file内容不允许为空");
             }
-            return addAttachFile(key, fileName, HttpCaller.readInputStream(inputStream), needGZip);
+            return addAttachFile(key, fileName, HttpCaller.readInputStream(inputStream), contentEncoding);
         }
 
-        private Builder addAttachFile(String key, String fileName, byte[] bytes, boolean needGZip) {
+        private Builder addAttachFile(String key, String fileName, byte[] bytes, ContentEncoding contentEncoding) {
             if (method.equalsIgnoreCase("POST") == false) {
                 throw new IllegalArgumentException("发送附件必须使用POST");
             }
@@ -272,7 +267,7 @@ public class HttpParameters {
                 throw new IllegalArgumentException("附件数量超过限制");
             }
 
-            attatchFileMap.put(key, new AttachFile(fileName, bytes, needGZip));
+            attatchFileMap.put(key, new AttachFile(fileName, bytes, contentEncoding));
             return this;
         }
 

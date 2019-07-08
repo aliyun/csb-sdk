@@ -242,7 +242,7 @@ public class HttpClientHelper {
      *
      * @return
      */
-    public static HttpPost createPost(final String url, Map<String, String> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, HttpParameters.AttachFile> fileMap, boolean needGZipRequest) {
+    public static HttpPost createPost(final String url, Map<String, String> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, HttpParameters.AttachFile> fileMap, ContentEncoding contentEncoding) {
         //set both cb and urlParams
         String newUrl = url;
         List<NameValuePair> nvps = toNVP(urlParams);
@@ -264,7 +264,7 @@ public class HttpClientHelper {
                 for (NameValuePair nvp : nvps) {
                     String name = URLEncoder.encode(nvp.getName(), HTTP.UTF_8);
                     String value = URLEncoder.encode(nvp.getValue(), HTTP.UTF_8);
-                    if (needGZipRequest) {
+                    if (ContentEncoding.gzip.equals(contentEncoding)) {
                         byte[] bytes = GZipUtils.gzipBytes(value.getBytes(HttpCaller.DEFAULT_CHARSET));
                         org.apache.http.entity.mime.content.ContentBody body = new ByteArrayBody(bytes, ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET), null);
                         FormBodyPartBuilder partBuilder = FormBodyPartBuilder.create(name, body);
@@ -277,7 +277,7 @@ public class HttpClientHelper {
 
                 for (Entry<String, HttpParameters.AttachFile> fileEntry : fileMap.entrySet()) {
                     HttpParameters.AttachFile file = fileEntry.getValue();
-                    if (file.isNeedGZip()) { //对附件进行压缩
+                    if (ContentEncoding.gzip.equals(file.getContentEncoding())) { //对附件进行压缩
                         FormBodyPartBuilder partBuilder = FormBodyPartBuilder.create(fileEntry.getKey(), new ByteArrayBody(GZipUtils.gzipBytes(file.getFileBytes()), file.getFileName()));
                         partBuilder.setField(HTTP.CONTENT_ENCODING, GZIP);
                         multiBuilder.addPart(partBuilder.build());
@@ -288,12 +288,12 @@ public class HttpClientHelper {
                 entity = multiBuilder.build();
             } else if (cb == null) { //无附件，无body内容，则使用form提交
                 entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
-                if (needGZipRequest) {
+                if (ContentEncoding.gzip.equals(contentEncoding)) {
                     entity = new GzipCompressingEntity(entity);
                     httpost.setHeader(HTTP.CONTENT_ENCODING, GZIP);
                 }
             } else {
-                if (needGZipRequest) {
+                if (ContentEncoding.gzip.equals(contentEncoding)) {
                     httpost.setHeader(HTTP.CONTENT_ENCODING, GZIP); //不参与签名，因为服务端需要先解析这个头，然后才参获得实际内容。同时兼容历史版本
                 }
 
@@ -301,12 +301,12 @@ public class HttpClientHelper {
                     StringEntity strEntity = new StringEntity(cb.getStrContentBody(), HttpCaller.DEFAULT_CHARSET);// 解决中文乱码问题
                     strEntity.setContentType(ContentType.APPLICATION_JSON.toString());
                     entity = strEntity;
-                    if (needGZipRequest) {
+                    if (ContentEncoding.gzip.equals(contentEncoding)) {
                         entity = new GzipCompressingEntity(entity);
                     }
                 } else {  //无附件，有二进制body内容，则 APPLICATION_OCTET_STREAM 方式提交
                     entity = new ByteArrayEntity(cb.getBytesContentBody(), cb.getContentType());
-                    if (needGZipRequest) {
+                    if (ContentEncoding.gzip.equals(contentEncoding)) {
                         entity = new GzipCompressingEntity(entity);
                     }
                 }
