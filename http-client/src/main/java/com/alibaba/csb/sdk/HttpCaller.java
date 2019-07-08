@@ -1070,9 +1070,6 @@ public class HttpCaller {
 
     public static byte[] readFile(File file) {
         if (file.exists() && file.isFile() && file.canRead()) {
-            if (file.length() > MAX_FILE_SIZE)
-                throw new IllegalArgumentException("file is too large exceed the MAX-SIZE");
-
             try {
                 return readInputStream(new FileInputStream(file));
             } catch (IOException e) {
@@ -1092,6 +1089,10 @@ public class HttpCaller {
                 int n;
                 while ((n = inputStream.read(b)) != -1) {
                     bos.write(b, 0, n);
+
+                    if (bos.size() > MAX_FILE_SIZE) {
+                        throw new IllegalArgumentException("attach file is too large exceed the MAX-SIZE");
+                    }
                 }
                 return bos.toByteArray();
             } catch (IOException e) {

@@ -48,7 +48,7 @@ public class FileZipTest {
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
         try {
-//            builder.needGZipRequest(true);
+            builder.needGZipRequest(true);
 
             // 设置请求参数
             builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3");
@@ -72,12 +72,12 @@ public class FileZipTest {
     @Test
     public void testPostBodyFile() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
-        builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
+        builder.requestURL("http://localhost:18086/CSB") // 设置请求的URL
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
-//        builder.needGZipRequest(true);
+        builder.needGZipRequest(true);
 
         try {
             // 设置请求参数
@@ -98,7 +98,7 @@ public class FileZipTest {
     @Test
     public void testPostFormFiles() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
-        builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
+        builder.requestURL("http://localhost:18086/CSB") // 设置请求的URL
 //        builder.requestURL("http://localhost:7001/jsontest.jsp") // 设置请求的URL
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
@@ -110,7 +110,7 @@ public class FileZipTest {
             // 设置form请求参数
             builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
             builder.addAttachFile("file1", new File("D:\\tmp\\user-extend.jar"));
-            builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\tmp\\AuthenticationMapper.xml")), true); //对文件进行压缩传输
+            builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\tmp\\AuthenticationMapper.xml")), false); //对文件进行压缩传输
 
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
