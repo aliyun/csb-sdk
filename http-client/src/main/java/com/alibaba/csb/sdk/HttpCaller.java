@@ -1148,9 +1148,9 @@ public class HttpCaller {
             String url = qidx > -1 ? requestUrl.substring(0, qidx) : requestUrl;
 
             int cidx = url.indexOf(":");
-            int pidx = url.indexOf(":", cidx + 2);
+            int pidx = url.indexOf(":", cidx + 3);
             if (pidx < 0) {
-                pidx = url.indexOf("/", cidx + 2);
+                pidx = url.indexOf("/", cidx + 3);
             }
             String dest = url.substring(cidx + 3, pidx);
             LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
