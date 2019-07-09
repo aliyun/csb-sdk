@@ -1,21 +1,20 @@
 package com.alibaba.csb.ws.sdk.internal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import java.util.*;
 import javax.xml.bind.JAXBException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
+import com.alibaba.csb.sdk.CsbSDKConstants;
+import com.alibaba.csb.trace.TraceData;
+import com.alibaba.csb.utils.TraceIdUtils;
+import com.alibaba.csb.ws.sdk.WSClientException;
+import com.alibaba.csb.ws.sdk.WSClientSDK;
+import com.alibaba.csb.ws.sdk.WSParams;
+
 //import org.apache.cxf.headers.Header;
 //import org.apache.cxf.jaxb.JAXBDataBinding;
-import static com.alibaba.csb.sdk.CsbSDKConstants.*;
-import com.alibaba.csb.ws.sdk.WSClientException;
-import com.alibaba.csb.ws.sdk.WSParams;
 
 /**
  * Client invocation Interceptor, to set security related info into RequestContext of binding
@@ -39,13 +38,20 @@ public class BindingInterceptor {
 		wsparams.mockRequest(mock);
 	}
 
-	/* packaged */ List<Handler> before(Object proxy) throws JAXBException {
+	/* packaged */ List<Handler> before(Object pxy) throws JAXBException {
 		// 拦截器BindingInterceptor方法调用:before()!");
-		if (!(proxy instanceof BindingProvider)) {
+		if (!(pxy instanceof BindingProvider)) {
 			throw new WSClientException("proxy is not a legal soap client, can not do the interceptor");
 		}
+		BindingProvider proxy = (BindingProvider) pxy;
+		Map<String, List<String>> requestHeaders = (Map<String, List<String>>) proxy.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
+		if (requestHeaders == null) {
+			requestHeaders = new HashMap<String, List<String>>();
+            proxy.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
+		}
+		addTraceHeaders(requestHeaders, wsparams);
 		// put security info into http request headers for over-proxy invocation
-		setSecrectHeaders((BindingProvider)proxy, wsparams);
+		setSecretHeaders(requestHeaders, wsparams);
 
 		// skip this soap header logic
 		if (HEADERS_INSOAP) {
@@ -62,19 +68,11 @@ public class BindingInterceptor {
 			// run!!!
 			bp.getBinding().setHandlerChain(newHandlers);
 		}
-
 		return handlers;
-
 	}
 
-	private void setSecrectHeaders(BindingProvider proxy, WSParams params) {
+	private void setSecretHeaders(Map<String, List<String>> requestHeaders, WSParams params) {
 		//Add HTTP request Headers
-		Map<String, List<String>> requestHeaders = (Map<String, List<String>>)proxy.getRequestContext().get(MessageContext.HTTP_REQUEST_HEADERS);
-		
-		if (requestHeaders == null) {
-			requestHeaders = new HashMap<String, List<String>>();
-		}
-		
 		Map<String, List<String>> secHeaders = SOAPHeaderHandler.genSecrectHeaders(params);
 		requestHeaders.putAll(secHeaders);
 		/*
@@ -85,8 +83,6 @@ public class BindingInterceptor {
 			}
 			System.out.println("-----------------");
 		}*/
-		proxy.getRequestContext().put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
-
 	}
 
 	/* packaged */ public void after(Object proxy) {
@@ -103,6 +99,25 @@ public class BindingInterceptor {
 
 			bp.getBinding().setHandlerChain(handlers);
 		}
+	}
+
+	private void addTraceHeaders(Map<String, List<String>> requestHeaders, WSParams params) {
+		if (!requestHeaders.containsKey(CsbSDKConstants.TRACEID_KEY)) { //优先使用-H/putHeader的方式
+			if (params.getTraceId() == null) {
+				params.traceId(TraceIdUtils.generate());
+			}
+			requestHeaders.put(CsbSDKConstants.TRACEID_KEY, Arrays.asList(params.getTraceId()));
+		}
+		if (!requestHeaders.containsKey(CsbSDKConstants.RPCID_KEY)) { //优先使用-H/putHeader的方式
+			if (params.getRpcId() == null) {
+				params.rpcId(TraceData.RPCID_DEFAULT);
+			}
+			requestHeaders.put(CsbSDKConstants.RPCID_KEY, Arrays.asList(params.getRpcId()));
+		}
+		if (!requestHeaders.containsKey(WSClientSDK.bizIdKey())) { //优先使用-H/putHeader的方式
+			requestHeaders.put(WSClientSDK.bizIdKey(), Arrays.asList(params.getBizId()));
+		}
+		requestHeaders.put(CsbSDKConstants.REQUESTID_KEY, Arrays.asList(params.getRequestId()));
 	}
 
 	public void setWSParams(WSParams wsparams) {

@@ -1,19 +1,18 @@
 package com.alibaba.csb.security.spi;
 
-import java.util.List;
-import java.util.Map;
+import com.alibaba.csb.sdk.security.SortedParamList;
 
 /**
- * SPI interface, provide different signature implementations.
- *
- * Created on 18/6/15.
+ * 客户端请求签名接口
  */
 public interface SignService {
-  /**
-   * 将制定的参数记性签名处理
-   * @param paramsMap      待签名的请求参数key=values键值对
-   * @param securityKey    securityKey 进行签名的安全码
-   */
-  String generateSignature(final Map<String, List<String>> paramsMap, final String securityKey);
-
+    /**
+     * 客户端请求参数进行签名处理
+     *
+     * @param paramNodeList 已排序的待签名请求参数key=values键值对列表
+     * @param accessKey     进行签名的凭证识别码
+     * @param secretKey     进行签名的安全码
+     * @return 客户端签名串
+     */
+    String generateSignature(final SortedParamList paramNodeList, final String accessKey, final String secretKey);
 }

@@ -1,9 +1,6 @@
 package com.alibaba.csb.sdk.internel;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-
+import com.alibaba.csb.sdk.HttpCallerException;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
 import org.apache.http.HttpResponse;
@@ -23,12 +20,12 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 
-import com.alibaba.csb.sdk.HttpCallerException;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 
 public class HttpClientFactory {
 	private static ConnectionKeepAliveStrategy createKeepAliveStrategy() {
 		return new ConnectionKeepAliveStrategy() {
-			@Override
 			public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
 				HeaderElementIterator it = new BasicHeaderElementIterator(
 						response.headerIterator(HTTP.CONN_KEEP_ALIVE));
@@ -72,7 +69,6 @@ public class HttpClientFactory {
 
 			// 1. trust https server certificate always.
 			SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-				@Override
 				public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType)
 						throws java.security.cert.CertificateException {
 					return true;

@@ -11,18 +11,19 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 ## 1. 工具包的下载地址
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里  
-[最新的包 http-sdk-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.5.3.jar)  
-[http-sdk-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.5.2.jar)  
+[最新的包 http-sdk-1.1.5.4.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.4.jar)  
+[http-sdk-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.3.jar)  
+[http-sdk-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.2.jar)  
 [http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)  
 [旧的http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)  
 [trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)  
 * 如果用编程的方式,可以不下载这个standalone的Jar包,而是在用户的pom.xml里引用如下的dependency:
 
-```
+```xml
 <dependency>
   <groupId>com.alibaba.csb.sdk</groupId>
   <artifactId>http-client</artifactId>
-  <version>1.1.5.3</version>
+  <version>1.1.5.4</version>
 </dependency>
 ```
 
@@ -31,8 +32,8 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 ### 方式一: 使用命令行直接调用
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 
-```
-java [sys-props] -jar http-sdk-1.1.5.2.jar [options...]
+```shell
+java [sys-props] -jar http-sdk-1.1.5.4.jar [options...]
 ```
 
 参数取值说明:
@@ -59,12 +60,14 @@ java [sys-props] -jar http-sdk-1.1.5.2.jar [options...]
 * **sys-props**      为可选的**JVM系统参数**, 可以设置如下的一项或者多项（空格分隔），具体包括：
   * -Dtest.stress.times=n   压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
   * -Dhttp.caller.DEBUG=true    命令行打开调试模式
+  * -Dcsb_max_file_size=M字节 附件大小限制，默认20M
+  * -Dcsb_max_file_amount=文件数   附件数量限制，默认5
 
 * 注意：上述命令行方式在1.1.4.0版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
 
 ### 方式二: 使用编程方式调用
 
-```
+```java 
  import com.alibaba.csb.sdk.HttpCaller;
  import com.alibaba.csb.sdk.HttpCallerException;
  ...
@@ -73,17 +76,16 @@ java [sys-props] -jar http-sdk-1.1.5.2.jar [options...]
   **注意：**在编程方式调用时，首先要在整个JVM范围内启动一次HttpCaller.warmup()来加载SDK所需要的类,
   否则在第一次调用HttpCaller的doGet/doPost/invoke等方法时会很慢(~5s)
 
-```
+```java 
   HttpCaller.warmup();
 ```
 
   (1) 使用Builder的方式构造调用参数，然后进行调用 （推荐用法）
 
-```  
+```java
  import com.alibaba.csb.sdk.HttpParameters;
  import com.alibaba.csb.sdk.HttpCaller;
  import com.alibaba.csb.sdk.HttpCallerException;
- 
   
   HttpParameters.Builder builder = HttpParameters.newBuilder();
       
@@ -106,6 +108,9 @@ java [sys-props] -jar http-sdk-1.1.5.2.jar [options...]
    
    //设置是否生成防重放Nonce, 默认值是false, 这个功能仅在SDK1.1.4及CSB-Broker 1.1.2后支持
    builder.nonce(true);
+   
+   //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
+   builder.setContentEncoding(ContentEncoding.gzip);
       
    //进行调用 返回结果
    String result = null;
@@ -143,9 +148,9 @@ java [sys-props] -jar http-sdk-1.1.5.2.jar [options...]
    }
 ```
 
- (2) 如果使用json或者bytes内容的作为http body，使用下面的方法
+ (2) 如果使用json或者bytes（如文件）内容的作为http body，使用下面的方法
 
-```
+```java
   //构造ContentBody对象
   ContentBody cb = new ContentBody(jsonObject.toSring());
   //或者
@@ -161,19 +166,50 @@ java [sys-props] -jar http-sdk-1.1.5.2.jar [options...]
       .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
      
   builder.contentBody(cb);
+  
+  //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
+  builder.setContentEncoding(ContentEncoding.gzip);
       
   //进行调用，返回结果
-  String result = null;
   try {
-      	result = HttpCaller.invoke(builder.build());
+      HttpReturn ret = HttpCaller.invokeReturn(builder.build());
   } catch (HttpCallerException e) {
       	// error process
   }     
 ```
 
- (3) 直接调用方式 (旧的使用方式，已过期，不推荐)
+ (3) 多文件上传，使用下面的方法
 
+```java
+  //如果需要传递请求参数 可以拼接到请求URL中，或者设置paramsMap参数由SDK内部进行拼接
+  HttpParameters.Builder builder = HttpParameters.newBuilder();      
+  builder.requestURL("http://broker-vip:8086/CSB?arg0=123") // 设置请求的URL,可以拼接URL请求参数
+      .api("test") // 设置服务名
+      .version("1.0.0") // 设置版本号
+      .method("post") // 设置调用方式, 必须为 post
+      .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+  
+  //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
+  builder.setContentEncoding(ContentEncoding.gzip);
+      
+    // 设置form请求参数
+  builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
+  
+  //设置上传文件
+  builder.addAttachFile("file1", new File("uploadFile1.xxx")); //未指定是否压缩传输，则会根据 builder.setContentEncoding() 的设置来定义是否压缩
+  builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\tmp\\AuthenticationMapper.xml")), ContentEncoding.gzip); //对文件进行压缩传输//明确要求对此文件进行压缩传输
+ 
+  //进行调用，返回结果
+  try {
+      	HttpReturn ret = HttpCaller.invokeReturn(builder.build());
+  } catch (HttpCallerException e) {
+      	// error process
+  }     
 ```
+
+ (4) 直接调用方式 (旧的使用方式，已过期，不推荐)
+
+```java
  Map<String,String> params = new HashMap<String,String>();
     
  Object smd = ... // 一个具体的复杂对象
@@ -224,18 +260,16 @@ java [sys-props] -jar http-sdk-1.1.5.2.jar [options...]
 如果CSB 控制台发布出来的HTTP 服务声明需要鉴权处理，则客户端调用该服务试CSB 要对每个访问请求进行身份验证。这就要求客户端无论使用HTTP 还是HTTPS协议提交请求，都需要在请求中包含签名（Signature）信息。
 CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来验证请求的发送者身份。 Access Key ID 和Access Key Secret由在管理控制台在服务订购时候指定和确认，HTTP SDK在访问时，按照下面的方法对请求进行签名处理：
 
-1 使用请求参数构造规范化的请求字符串（Canonicalized Query String）。
+1. 使用请求参数构造规范化的请求字符串（Canonicalized Query String）。
   a.  按照参数名称的字典顺序对请求中所有的请求参数，包括上文中中描述的“公共请求参数”（但不包括_api_signature 参数本身）和给定了的请求接口的自定义参数进行排序。
   说明：当使用GET方法提交请求时，这些参数就是请求URI中的参数部分（即URI 中“?”之后由“&”连接的部分）。
 
   b.  参数名称和值使用英文等号（=）进行连接。再把英文等号连接得到的字符串按参数名称的字典顺序依次使用&符号连接，即得到规范化请求字符串。
   注意：请求参数是原始的name-value，即不能进行URL Encode等操作。
-
-2 按照RFC2104 的定义，使用上述用于签名的字符串计算签名HMAC 值。注意：计算签名时使用的Key 就是用户持有的SecretKey，使用的哈希算法是SHA1。
-
-3 按照Base64编码规则把上面的HMAC值编码成字符串，即得到签名值（Signature）。
-
-4 将得到的签名值作为_api_signature参数添加到请求参数中，即完成对请求签名的过程。
+2. 按照RFC2104 的定义，使用上述用于签名的字符串计算签名HMAC 值。注意：计算签名时使用的Key 就是用户持有的SecretKey，使用的哈希算法是SHA1。
+3. 按照Base64编码规则把上面的HMAC值编码成字符串，即得到签名值（Signature）。
+4. 将得到的签名值作为_api_signature参数添加到请求参数中，即完成对请求签名的过程。
+5. 多文件上传（multipart/form-data）请求时，文件的key、name和内容均不参与签名。
 
 ####  HTTP SDK 签名处理的图示
 
@@ -247,7 +281,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 ### 4.2. 高级功能
 #### 设置代理地址 （注意：从1.1.4开始支持）
 
-```
+```java
   String proxyHost = "...";
   int proxyPort = ...;
   HttpCaller.setProxyHost(proxyHost, proxyPort, null); //注意：本次设置只对本线程起作用
@@ -259,7 +293,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 #### 关于连接参数的设置：
 * 可以为http/https设置以下的全局性系统参数：
 
-```
+```shell
       -Dhttp.caller.connection.max          设置连接池的最大连接数，默认是200
       -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是-1， 永不超时
       -Dhttp.caller.connection.so.timeout   设置读取超时时间（毫秒），默认是-1， 永不超时
@@ -270,7 +304,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 
 * 也可以使用下面的方法设置以上的某一个或者多个参数：
 
-```
+```java
       Map sysParams = new HashMap();
       sysParams.put("http.caller.connection.timeout","3000"); //设置连接超时为3秒
       HttpCaller.setConnectionParams(sysParams); //注意：本次设置只对本线程起作用
@@ -280,7 +314,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 
 #### 自定义签名和验签类 （注意：从1.1.5.2开始支持）
 详细使用请参考 [1.1.5.2发布说明](release/r20181031.md) 。客户端示意代码：
-```
+```java
    builder.requestURL("http://localhost:8086/CSB").api("PING").version("vcsb").method("get") .accessKey("ak").secretKey("sk")
             .signImpl("your-sign-impl-class").verifySignImpl("your-verify-sign-impl-class"); //指定客户端签名类 和 CSB服务端验签类
   ...
@@ -293,7 +327,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 
 ### 4.4. 在无Java对象的情况下，使用泛化的形式转换json串的工具
 
-```
+```java
   一个辅助工具类Java对象到JSON串的泛化转换，在不定义复杂对象类的情况下，把HTTP参数转换为Json串
 
  用法：
@@ -342,7 +376,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 * -bizId e48ffd7c1e7f4d07b7fc141f43503cb1
 * -H '$bizid:e48ffd7c1e7f4d07b7fc141f43503cb1'
 * -H优先于-bizId
-```
+```shell
 java -jar http-client-1.1.5.3.jar \
 -api item.hsf.add -version 1.0.0 -method post \
 -bizIdKey bizid -bizId e48ffd7c1e7f4d07b7fc141f43503cb2 \
@@ -352,7 +386,7 @@ java -jar http-client-1.1.5.3.jar \
 
 ### HttpCaller
 #### 设置bizIdKey
-```
+```java
 static {
     HttpCaller.bizIdKey("bizid"); //默认为_biz_id
 }
@@ -361,7 +395,7 @@ static {
 bizId(x)建议使用，该方法适用于一个完整请求的各个环节（一个请求可能调用多次csb）
 * 作为请求发起方调用该方法会设置bizId
 * 在中间环节调用该方法不会覆盖最初设置的bizId
-```
+```java
 HttpParameters.Builder builder = HttpParameters.newBuilder()
       .bizId(BIZ_ID);
 ```
@@ -369,7 +403,7 @@ setBizId(x)，不建议使用，该方法会覆盖原有bizId，不适合中间�
   
 #### web应用
 * web.xml 引入trace filter
-```
+```xml
 <filter>
     <filter-name>TraceFilter</filter-name>
     <filter-class>com.alibaba.csb.trace.TraceFilter</filter-class>
@@ -380,13 +414,13 @@ setBizId(x)，不建议使用，该方法会覆盖原有bizId，不适合中间�
 </filter-mapping>
 ```
 * 调用trace api
-```
+```java
 builder.trace(httpServletRequest)
 builder.setRequest(httpServletRequest).trace()
 ```
 #### EDAS
 引入trace-eagleeye包
-```
+```xml
 <dependency>
     <groupId>com.alibaba.csb.trace</groupId>
     <artifactId>trace-eagleeye</artifactId>
@@ -397,7 +431,7 @@ builder.setRequest(httpServletRequest).trace()
 ### 日志输出
 #### 引入log4j
 name限制为CSBSDK，e.g. log4j2.xml
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration status="WARN" monitorInterval="30">
   <appenders>

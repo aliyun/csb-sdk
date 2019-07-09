@@ -5,14 +5,14 @@
 
     <groupId>com.alibaba.csb</groupId>
     <artifactId>sdk-sample</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.5.2</version>
     <name>sdk demo for http and ws</name>
     <packaging>jar</packaging>
 
     <properties>
         <spring.version>3.2.7.RELEASE</spring.version>
         <cxf-version>3.0.5</cxf-version>
-        <sdk.version>1.1.4-SNAPSHOT</sdk.version>
+        <sdk.version>1.1.5.2</sdk.version>
     </properties>
 
     <dependencies>
@@ -50,16 +50,6 @@
     </dependencies>
 
     <repositories>
-    	<repository>
-           <id>central1</id>
-                    <url>http://repo.maven.apache.org/maven2</url>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-           </snapshots>
-        </repository>
         <repository>
             <id>csb-sdk-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
@@ -70,7 +60,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        
     </repositories>
 
     <build>

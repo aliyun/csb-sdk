@@ -1,7 +1,15 @@
 package com.alibaba.csb.ws.sdk;
 
-import javax.xml.soap.MimeHeaders;
+import java.rmi.RemoteException;
+import java.text.MessageFormat;
 import java.util.Map;
+import javax.xml.soap.MimeHeaders;
+
+import com.alibaba.csb.sdk.CsbSDKConstants;
+import com.alibaba.csb.trace.TraceData;
+import com.alibaba.csb.utils.IPUtils;
+import com.alibaba.csb.utils.LogUtils;
+import com.alibaba.csb.utils.TraceIdUtils;
 
 /**
  * <pre>
@@ -95,6 +103,16 @@ public class AxisCallWrapper extends org.apache.axis.client.Call {
 	}
 
 	private boolean addHttpHeaders(MimeHeaders mimeHeaders, WSParams params) {
+		if(params.getTraceId()==null){
+			params.traceId(TraceIdUtils.generate());
+		}
+		mimeHeaders.addHeader(CsbSDKConstants.TRACEID_KEY, params.getTraceId());
+		if (params.getRpcId() == null) {
+			params.rpcId(TraceData.RPCID_DEFAULT);
+		}
+		mimeHeaders.addHeader(CsbSDKConstants.RPCID_KEY, params.getRpcId());
+		mimeHeaders.addHeader(WSClientSDK.bizIdKey(), params.getBizId());
+		mimeHeaders.addHeader(CsbSDKConstants.REQUESTID_KEY, params.getRequestId());
 		if (mimeHeaders != null) {
 			Map<String, String> headers =WSClientSDK.generateSignHeaders(params);
 			for(Map.Entry<String,String> kv:headers.entrySet()) {
@@ -104,5 +122,54 @@ public class AxisCallWrapper extends org.apache.axis.client.Call {
 		}
 
 		return false;
+	}
+
+	@Override
+	public Object invoke(Object[] params) throws RemoteException {
+		long startTime = System.currentTimeMillis();
+		int code = 200;
+		String endpoint = super.getTargetEndpointAddress();
+		String operation = super.getOperationName().getLocalPart();
+		String msg = null;
+		try {
+			Object result = super.invoke(params);
+			return result;
+		} catch (RemoteException e) {
+			code = 500;
+			msg = e.getMessage();
+			throw e;
+		} finally {
+			log(startTime, endpoint, operation, code, msg);
+		}
+	}
+
+	private void log(long startTime, String endpoint, String operation, int code, String msg) {
+		long endTime = System.currentTimeMillis();
+		try {
+			int qidx = endpoint.indexOf("?");
+			String url = qidx > -1 ? endpoint.substring(0, qidx) : endpoint;
+
+			int cidx = url.indexOf(":");
+			int pidx = url.indexOf(":", cidx + 2);
+			if (pidx < 0) {
+				pidx = url.indexOf("/", cidx + 2);
+			}
+			String dest = url.substring(cidx + 3, pidx);
+
+			String method = operation.substring(operation.indexOf("}") + 1);
+			LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
+					, "WS", IPUtils.getLocalHostIP(), dest
+					, params.getBizId(), params.getRequestId()
+					, params.getTraceId(), params.getRpcId()
+					, params.getApi(), params.getVersion()
+					, defaultValue(params.getAk()), defaultValue(params.getSk()), method
+					, url, code, "", defaultValue(msg)});
+		} catch (Throwable e) {
+			LogUtils.exception(MessageFormat.format("csb invoke error, api:{0}, version:{1}", params.getApi(), defaultValue(params.getSk())), e);
+		}
+	}
+
+	private String defaultValue(String val) {
+		return val == null ? "" : val.trim();
 	}
 }

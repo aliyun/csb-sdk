@@ -1,17 +1,19 @@
 package com.alibaba.csb.ws.sdk;
 
+import com.alibaba.csb.sdk.CsbSDKConstants;
+import com.alibaba.csb.sdk.security.SignUtil;
+import com.alibaba.csb.ws.sdk.internal.AxisStubDynamicProxyHandler;
+import com.alibaba.csb.ws.sdk.internal.BindingDynamicProxyHandler;
+import org.apache.axis.client.Stub;
+
+import javax.net.ssl.*;
+import javax.xml.ws.BindingProvider;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.xml.soap.MimeHeaders;
-import javax.xml.ws.BindingProvider;
-
-import com.alibaba.csb.sdk.CsbSDKConstants;
-import com.alibaba.csb.sdk.security.DefaultSignServiceImpl;
-import com.alibaba.csb.sdk.security.SignUtil;
-import com.alibaba.csb.ws.sdk.internal.BindingDynamicProxyHandler;
-import com.alibaba.csb.ws.sdk.internal.SOAPHeaderHandler;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Bind accessKey, secretKey into the WS client caller (i.e. Dispath, Proxy)
@@ -63,7 +65,49 @@ public class WSClientSDK {
 	private static boolean warmupFlag = false;
 	private static final String BOUND_HANDLER_KEY = "__DynamicProxyHandler";
 	public static final boolean PRINT_SIGNINFO = Boolean.getBoolean("WSClientSDK.print.signinfo");
-	
+    private static AtomicReference<String> BIZ_ID_KEY = new AtomicReference<String>();
+
+    static {
+        disableSslVerification();
+    }
+
+    private static void disableSslVerification() {
+        try {
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }
+            };
+
+            // Install the all-trusting trust manager
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            // Create all-trusting host name verifier
+            HostnameVerifier allHostsValid = new HostnameVerifier() {
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            };
+
+            // Install the all-trusting host verifier
+            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
+    }
+
 	/**
 	 * 加载HttpSDK所需要的类 (如，签名相关的)
 	 * 
@@ -76,7 +120,26 @@ public class WSClientSDK {
 		SignUtil.warmup();
 		warmupFlag = true;
 	}
-	
+
+    /**
+     * init bizIdKey
+     *
+     * @param bizIdKey
+     */
+    public static void bizIdKey(String bizIdKey) {
+        BIZ_ID_KEY.compareAndSet(null, bizIdKey);
+    }
+
+    /**
+     * get bizIdkey
+     *
+     * @return
+     */
+    public static String bizIdKey() {
+        String bizIdKey = BIZ_ID_KEY.get();
+        return bizIdKey == null ? CsbSDKConstants.BIZID_KEY : bizIdKey;
+    }
+
 	/**
 	 * 给proxy/dispath 绑定ak/sk安全对
 	 * 
@@ -105,6 +168,12 @@ public class WSClientSDK {
 		validateProxy(proxy);
 
 		BindingDynamicProxyHandler handler = getHandler((BindingProvider)proxy);
+		handler.setParams(params);
+		return handler.bind(proxy);
+	}
+
+	public static <T extends Stub> Object bind(T proxy, WSParams params) throws WSClientException {
+		AxisStubDynamicProxyHandler handler = new AxisStubDynamicProxyHandler();
 		handler.setParams(params);
 		return handler.bind(proxy);
 	}
@@ -207,10 +276,11 @@ public class WSClientSDK {
 	public static Map<String, String> generateSignHeaders(WSParams params) {
 		Map<String, String> extSignHeaderMap = genExtHeader(params.getFingerPrinter());
 		Map<String, String> requestHeaders = SignUtil.newParamsMap(null, params.getApi(), params.getVersion(),
-				params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap, null, params.getSignImpl());
+				params.getAk(), params.getSk(), params.isTimestamp(), params.isNonce(), extSignHeaderMap, null, params.getSignImpl(),params.getVerifySignImpl());
 
-		if (params.isMockRequest())
+		if (params.isMockRequest()) {
 			requestHeaders.put(CsbSDKConstants.HEADER_MOCK, "true");
+		}
 
 		return requestHeaders;
 	}

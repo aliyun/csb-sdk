@@ -7,25 +7,27 @@
 	<parent>
 		<groupId>com.alibaba.csb.sdk</groupId>
 		<artifactId>csb.sdk.parent</artifactId>
-		<version>1.1.4-SNAPSHOT</version>
+		<version>1.1.5.4-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
 	<properties>
-		<fastjson.version>1.2.7</fastjson.version>
+		<fastjson.version>1.2.48</fastjson.version>
+		<slf4j.version>1.7.25</slf4j.version>
 		<organization.name>Aliware CSB Team</organization.name>
 	</properties>
 
 	<name>CSB :: SDK :: httpclient</name>
 	<groupId>com.alibaba.csb.sdk</groupId>
 	<artifactId>http-client</artifactId>
+	<version>${csb.sdk.version}</version>
 
 
 	<dependencies>
 		<dependency>
 			<groupId>com.alibaba.csb.sdk</groupId>
 			<artifactId>common</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
+			<version>${csb.sdk.version}</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -44,14 +46,19 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpasyncclient</artifactId>
-			<version>4.1</version>
+			<version>4.1.4</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.4.1</version>
+			<version>4.5.6</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5.6</version>
+        </dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -62,10 +69,21 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>1.2.3</version>
-			<scope>test</scope>
+			<version>${fastjson.version}</version>
+			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>3.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 	<profiles>
@@ -98,9 +116,13 @@
 		<profile>
 			<id>doclint-java8-disable</id>
 			<activation>
+				<!--<activeByDefault>true</activeByDefault>-->
 				<jdk>[1.8,)</jdk>
 			</activation>
 			<properties>
+				<!--<maven.compiler.source>1.8</maven.compiler.source>
+				<maven.compiler.target>1.8</maven.compiler.target>
+				<maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>-->
 				<javadoc.opts>-Xdoclint:none</javadoc.opts>
 			</properties>
 		</profile>
@@ -147,7 +169,7 @@
 				<executions>
 					<execution>
 						<id>make-assembly</id>
-						<phase>assembly</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>assembly</goal>
 						</goals>

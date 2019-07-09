@@ -27,20 +27,27 @@ import java.util.Map;
  *
  * @author Alibaba Middleware CSB Team
  * @author liaotian.wq
- *
  * @since 2018
- *
  */
 public class HttpReturn {
-  public String responseHttpStatus;
-  public String response;
-  public String responseHeaders;
-  public Map<String,String> diagnosticInfo = new HashMap<String, String>(); //定义成Map类型，方便增减新的诊断项
-  public boolean diagnosticFlag;
+    public int httpCode;
+    public String responseHttpStatus;
+    public String response;
+    public byte[] responseBytes;
+    /**
+     * 请使用 respHttpHeaderMap
+     */
+    @Deprecated
+    public String responseHeaders;
+    public Map<String, String> respHttpHeaderMap;
+    public Map<String, String> diagnosticInfo = new HashMap<String, String>(); //定义成Map类型，方便增减新的诊断项
+    public boolean diagnosticFlag;
 
-  public HttpReturn(){}
+    public HttpReturn() {
+    }
 
-  public HttpReturn(String response) {
-    this.response = response;
-  }
+    public HttpReturn(String response) {
+        this.response = response;
+    }
+
 }
