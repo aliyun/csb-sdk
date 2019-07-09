@@ -1194,9 +1194,9 @@ public class HttpCaller {
             String url = qidx > -1 ? requestUrl.substring(0, qidx) : requestUrl;
 
             int cidx = url.indexOf(":");
-            int pidx = url.indexOf(":", cidx + 2);
+            int pidx = url.indexOf(":", cidx + 3);
             if (pidx < 0) {
-                pidx = url.indexOf("/", cidx + 2);
+                pidx = url.indexOf("/", cidx + 3);
             }
             String dest = url.substring(cidx + 3, pidx);
             LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
@@ -1213,5 +1213,10 @@ public class HttpCaller {
 
     private static String defaultValue(String val) {
         return val == null ? "" : val.trim();
+    }
+
+    public static void main(String[] args) {
+        String s = "http://100.100.80.76/api/admin/ServiceRepositoryAPI";
+        log(HttpParameters.newBuilder().build(), System.currentTimeMillis(), s, null, "ss");
     }
 }
