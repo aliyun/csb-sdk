@@ -195,23 +195,23 @@ public class CmdHttpCaller {
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
 
             if (curlOnly) {
-                System.out.println("---- curlString = " + ret.response);
+                System.out.println("---- curlString = " + ret.getResponseStr());
             } else {
                 if (isDebug) {
                     System.out.println("Diagnostic Info:" + ret.diagnosticInfo);
                 }
                 System.out.println("---- response http headers = " + ret.responseHeaders);
                 if (changeCharset) {
-                    System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret.response));
+                    System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret.getResponseStr()));
                 } else {
-                    System.out.println("---- retStr = " + ret.response);
+                    System.out.println("---- retStr = " + ret.getResponseStr());
                 }
 
                 //call multi-times for stress or flow-ctrl testing
                 int times = Integer.getInteger("test.stress.times", 0);
                 for (int i = 2; i <= times; i++) {
                     ret = HttpCaller.invokeReturn(builder.build());
-                    System.out.println("---- retStr [#" + i + "] = " + ret.response);
+                    System.out.println("---- retStr [#" + i + "] = " + ret.getResponseStr());
                 }
             }
         } catch (Exception e) {

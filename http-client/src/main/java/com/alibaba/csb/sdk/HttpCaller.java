@@ -433,7 +433,7 @@ public class HttpCaller {
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
 
-        return doGet(hp, null).response;
+        return doGet(hp, null).getResponseStr();
     }
 
     /**
@@ -638,7 +638,7 @@ public class HttpCaller {
         httpGet.setConfig(getRequestConfig());
         HttpClientHelper.printDebugInfo("requestURL=" + requestURL);
 
-        return doHttpReq(requestURL, httpGet, null).response;
+        return doHttpReq(requestURL, httpGet, null).getResponseStr();
     }
 
     /**
@@ -747,7 +747,7 @@ public class HttpCaller {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version)
                 .contentBody(cb).accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
-        return doPost(hp, null).response;
+        return doPost(hp, null).getResponseStr();
     }
 
     /**
@@ -989,7 +989,7 @@ public class HttpCaller {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
-        return doPost(hp, null).response;
+        return doPost(hp, null).getResponseStr();
     }
 
     /**
@@ -1001,7 +1001,7 @@ public class HttpCaller {
             respHttpHeaderMap.putAll(res.respHttpHeaderMap);
         }
 
-        return res.response;
+        return res.getResponseStr();
     }
 
     /**
@@ -1019,7 +1019,7 @@ public class HttpCaller {
             resHttpHeaders.append(res.responseHeaders);
         }
 
-        return res.response;
+        return res.getResponseStr();
     }
 
     /**
