@@ -269,7 +269,7 @@ public class HttpParameters {
             }
 
 
-            if (getTotalFileSize() > TOTAL_FILE_SIZE) {
+            if (getTotalFileSize() + bytes.length > TOTAL_FILE_SIZE) {
                 throw new IllegalArgumentException("attach file is too large exceed the MAX-SIZE");
             }
 
