@@ -225,7 +225,7 @@ public class HttpCaller {
 
     static {
         //默认15M
-        TOTAL_FILE_SIZE = Integer.getInteger("csb_attach_total_file_size", 15) * 1024 * 1024;
+        TOTAL_FILE_SIZE = Integer.getInteger("csb_httpAttachmentTotalMBSize", 15) * 1024 * 1024;
     }
 
     protected HttpCaller() {

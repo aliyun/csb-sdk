@@ -28,7 +28,7 @@ public class HttpParameters {
     public static final long MAX_FILE_AMOUNT;
 
     static {
-        MAX_FILE_AMOUNT = Integer.getInteger("csb_attach_max_file_amount", 5); //一次最多上传5个附件
+        MAX_FILE_AMOUNT = Integer.getInteger("csb_httpAttachmentMaxAmount", 5); //一次最多上传5个附件
     }
 
     private Builder builder;
