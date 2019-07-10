@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static com.alibaba.csb.sdk.HttpCaller.TOTAL_FILE_SIZE;
 import static com.alibaba.csb.sdk.internel.HttpClientHelper.trimWhiteSpaces;
 
 /**
@@ -27,7 +28,7 @@ public class HttpParameters {
     public static final long MAX_FILE_AMOUNT;
 
     static {
-        MAX_FILE_AMOUNT = Integer.getInteger("csb_max_file_amount", 5); //一次最多上传5个附件
+        MAX_FILE_AMOUNT = Integer.getInteger("csb_attach_max_file_amount", 5); //一次最多上传5个附件
     }
 
     private Builder builder;
@@ -267,8 +268,23 @@ public class HttpParameters {
                 throw new IllegalArgumentException("附件数量超过限制");
             }
 
+
+            if (getTotalFileSize() > TOTAL_FILE_SIZE) {
+                throw new IllegalArgumentException("attach file is too large exceed the MAX-SIZE");
+            }
+
             attatchFileMap.put(key, new AttachFile(fileName, bytes, contentEncoding));
             return this;
+        }
+
+        public int getTotalFileSize() {
+            int totalSize = 0;
+            if (attatchFileMap != null) {
+                for (Entry<String, AttachFile> stringAttachFileEntry : attatchFileMap.entrySet()) {
+                    totalSize += stringAttachFileEntry.getValue().fileBytes.length;
+                }
+            }
+            return totalSize;
         }
 
         /**

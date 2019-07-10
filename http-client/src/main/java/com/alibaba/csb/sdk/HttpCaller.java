@@ -221,11 +221,11 @@ public class HttpCaller {
     protected static final ThreadLocal<RequestConfig.Builder> requestConfigBuilderLocal = new ThreadLocal<RequestConfig.Builder>();
 
     protected static AtomicReference<String> BIZ_ID_KEY = new AtomicReference<String>();
-    public static final long MAX_FILE_SIZE;
+    public static final long TOTAL_FILE_SIZE;
 
     static {
-        //默认20M
-        MAX_FILE_SIZE = Integer.getInteger("csb_max_file_size", 20) * 1024 * 1024;
+        //默认15M
+        TOTAL_FILE_SIZE = Integer.getInteger("csb_attach_total_file_size", 15) * 1024 * 1024;
     }
 
     protected HttpCaller() {
@@ -1089,10 +1089,6 @@ public class HttpCaller {
                 int n;
                 while ((n = inputStream.read(b)) != -1) {
                     bos.write(b, 0, n);
-
-                    if (bos.size() > MAX_FILE_SIZE) {
-                        throw new IllegalArgumentException("attach file is too large exceed the MAX-SIZE");
-                    }
                 }
                 return bos.toByteArray();
             } catch (IOException e) {
