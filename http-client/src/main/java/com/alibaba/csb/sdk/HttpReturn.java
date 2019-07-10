@@ -1,5 +1,7 @@
 package com.alibaba.csb.sdk;
 
+import org.apache.http.protocol.HTTP;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +50,22 @@ public class HttpReturn {
 
     public HttpReturn(String response) {
         this.response = response;
+    }
+
+    /**
+     * 不管响应类型是文本还是二进制，始终转换为string输出
+     */
+    public String getResponseStr() {
+        if (response != null) {
+            return response;
+        } else if (responseBytes != null) {
+            try {
+                return new String(responseBytes, HTTP.UTF_8);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+        return null;
     }
 
 }

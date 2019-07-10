@@ -221,11 +221,11 @@ public class HttpCaller {
     protected static final ThreadLocal<RequestConfig.Builder> requestConfigBuilderLocal = new ThreadLocal<RequestConfig.Builder>();
 
     protected static AtomicReference<String> BIZ_ID_KEY = new AtomicReference<String>();
-    public static final long MAX_FILE_SIZE;
+    public static final long TOTAL_FILE_SIZE;
 
     static {
-        //默认20M
-        MAX_FILE_SIZE = Integer.getInteger("csb_max_file_size", 20) * 1024 * 1024;
+        //默认15M
+        TOTAL_FILE_SIZE = Integer.getInteger("csb_httpAttachmentTotalMBSize", 15) * 1024 * 1024;
     }
 
     protected HttpCaller() {
@@ -433,7 +433,7 @@ public class HttpCaller {
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
 
-        return doGet(hp, null).response;
+        return doGet(hp, null).getResponseStr();
     }
 
     /**
@@ -638,7 +638,7 @@ public class HttpCaller {
         httpGet.setConfig(getRequestConfig());
         HttpClientHelper.printDebugInfo("requestURL=" + requestURL);
 
-        return doHttpReq(requestURL, httpGet, null).response;
+        return doHttpReq(requestURL, httpGet, null).getResponseStr();
     }
 
     /**
@@ -747,7 +747,7 @@ public class HttpCaller {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version)
                 .contentBody(cb).accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
-        return doPost(hp, null).response;
+        return doPost(hp, null).getResponseStr();
     }
 
     /**
@@ -989,7 +989,7 @@ public class HttpCaller {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
                 .build();
-        return doPost(hp, null).response;
+        return doPost(hp, null).getResponseStr();
     }
 
     /**
@@ -1001,7 +1001,7 @@ public class HttpCaller {
             respHttpHeaderMap.putAll(res.respHttpHeaderMap);
         }
 
-        return res.response;
+        return res.getResponseStr();
     }
 
     /**
@@ -1019,7 +1019,7 @@ public class HttpCaller {
             resHttpHeaders.append(res.responseHeaders);
         }
 
-        return res.response;
+        return res.getResponseStr();
     }
 
     /**
@@ -1089,10 +1089,6 @@ public class HttpCaller {
                 int n;
                 while ((n = inputStream.read(b)) != -1) {
                     bos.write(b, 0, n);
-
-                    if (bos.size() > MAX_FILE_SIZE) {
-                        throw new IllegalArgumentException("attach file is too large exceed the MAX-SIZE");
-                    }
                 }
                 return bos.toByteArray();
             } catch (IOException e) {
@@ -1194,9 +1190,9 @@ public class HttpCaller {
             String url = qidx > -1 ? requestUrl.substring(0, qidx) : requestUrl;
 
             int cidx = url.indexOf(":");
-            int pidx = url.indexOf(":", cidx + 2);
+            int pidx = url.indexOf(":", cidx + 3);
             if (pidx < 0) {
-                pidx = url.indexOf("/", cidx + 2);
+                pidx = url.indexOf("/", cidx + 3);
             }
             String dest = url.substring(cidx + 3, pidx);
             LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
@@ -1213,5 +1209,10 @@ public class HttpCaller {
 
     private static String defaultValue(String val) {
         return val == null ? "" : val.trim();
+    }
+
+    public static void main(String[] args) {
+        String s = "http://100.100.80.76/api/admin/ServiceRepositoryAPI";
+        log(HttpParameters.newBuilder().build(), System.currentTimeMillis(), s, null, "ss");
     }
 }

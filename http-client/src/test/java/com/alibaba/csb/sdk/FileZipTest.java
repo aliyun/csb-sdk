@@ -98,8 +98,8 @@ public class FileZipTest {
     @Test
     public void testPostFormFiles() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
-        builder.requestURL("http://localhost:18086/CSB") // 设置请求的URL
-//        builder.requestURL("http://localhost:7001/jsontest.jsp") // 设置请求的URL
+        builder.requestURL("http://localhost:8086/CSB") // 设置请求的URL
+//        builder.requestURL("http://localhost:18086/jsontest.jsp") // 设置请求的URL
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
