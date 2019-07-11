@@ -10,6 +10,7 @@
 * common    公共底层类,供HTTP-SDK和WS-SDK使用
 * HTTP-SDK  调用HTTP服务的客户端SDK  [details](http-client/README.md)
 * WS-SDK    调用WebService服务的客户端SDK [details](ws-client/README.md)
+* SpringCloud  csb支持SpringCloud的插件(feign,resttemplate)
 * Samples   使用上述两个SDK的单元测试示例 [details](samples/README.md)
 * others    其他语言的SDK实现代码, 包括PHP, Go和Node.js
 
