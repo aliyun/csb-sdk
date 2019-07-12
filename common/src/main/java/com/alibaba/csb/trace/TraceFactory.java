@@ -12,10 +12,7 @@ public class TraceFactory {
     private static final String TRACE_BINDER_PATH = TRACE_BINDER_CLASS.replace('.', '/') + ".class";
 
     static final int UNINITIALIZED = 0;
-    static final int ONGOING_INITIALIZATION = 1;
-    static final int FAILED_INITIALIZATION = 2;
-    static final int SUCCESSFUL_INITIALIZATION = 3;
-    static final int NOP_FALLBACK_INITIALIZATION = 4;
+    static final int INITIALIZED = 1;
     static volatile int INITIALIZATION_STATE = UNINITIALIZED;
     static volatile Class<?> traceBinderClass = null;
 
@@ -43,7 +40,6 @@ public class TraceFactory {
         if (INITIALIZATION_STATE == UNINITIALIZED) {
             synchronized (TraceFactory.class) {
                 if (INITIALIZATION_STATE == UNINITIALIZED) {
-                    INITIALIZATION_STATE = ONGOING_INITIALIZATION;
                     performInitialization();
                 }
             }
@@ -68,7 +64,7 @@ public class TraceFactory {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        INITIALIZATION_STATE = SUCCESSFUL_INITIALIZATION;
+        INITIALIZATION_STATE = INITIALIZED;
     }
 
 }
