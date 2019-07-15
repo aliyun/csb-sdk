@@ -16,17 +16,18 @@ public class FileZipTest {
     @Test
     public void testPostForm() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
-        builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
+        builder.requestURL("http://localhost:18086/CSB") // 设置请求的URL
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
         try {
-            builder.setContentEncoding(ContentEncoding.gzip);
+//            builder.setContentEncoding(ContentEncoding.gzip);
 
             // 设置请求参数
-            builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3");
+            builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3")
+                    .putParamsMap("str2", "31").putParamsMap("str2", "32").putParamsMap("str2", "33");
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
         } catch (HttpCallerException e) {
@@ -41,7 +42,7 @@ public class FileZipTest {
     @Test
     public void testPostBodyJson() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
-        builder.requestURL("http://localhost:18086/http2http1") // 设置请求的URL
+        builder.requestURL("http://localhost:18086/CSB") // 设置请求的URL
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
