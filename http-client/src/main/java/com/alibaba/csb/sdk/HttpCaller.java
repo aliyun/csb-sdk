@@ -942,11 +942,13 @@ public class HttpCaller {
         HttpEntity responseEntity = response.getEntity();
         Header header = responseEntity.getContentType();
         if (header == null) {
-            throw new RuntimeException("HTTP响应错误，无 Content-Type header");
+            rret.response = EntityUtils.toString(responseEntity); //兼容csb本身的不规范
+            return;
         }
         String contentType = header.getValue();
         if (contentType == null || contentType == "") {
-            throw new RuntimeException("HTTP响应错误，Content-Type header值为空");
+            rret.response = EntityUtils.toString(responseEntity);//兼容csb本身的不规范
+            return;
         }
 
         contentType = contentType.toLowerCase();
