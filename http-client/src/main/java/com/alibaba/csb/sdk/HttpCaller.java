@@ -8,6 +8,7 @@ import com.alibaba.csb.trace.TraceData;
 import com.alibaba.csb.utils.IPUtils;
 import com.alibaba.csb.utils.LogUtils;
 import com.alibaba.csb.utils.TraceIdUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -939,10 +940,15 @@ public class HttpCaller {
 
     static private void fetchResponseBody(HttpResponse response, HttpReturn rret) throws IOException {
         HttpEntity responseEntity = response.getEntity();
-        String contentType = responseEntity.getContentType().getValue();
-        if (contentType == null) {
+        Header header = responseEntity.getContentType();
+        if (header == null) {
             throw new RuntimeException("HTTP响应错误，无 Content-Type header");
         }
+        String contentType = header.getValue();
+        if (contentType == null || contentType == "") {
+            throw new RuntimeException("HTTP响应错误，Content-Type header值为空");
+        }
+
         contentType = contentType.toLowerCase();
         if (contentType.startsWith("text") || contentType.contains("json") || contentType.contains("xml")) {
             rret.response = EntityUtils.toString(responseEntity);
