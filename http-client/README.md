@@ -12,8 +12,6 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里  
 [最新的包 http-sdk-1.1.5.4.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.4.jar)  
-[http-sdk-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.3.jar)  
-[http-sdk-1.1.5.2.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.2.jar)  
 [http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)  
 [旧的http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)  
 [trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)  
@@ -377,7 +375,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 * -H '$bizid:e48ffd7c1e7f4d07b7fc141f43503cb1'
 * -H优先于-bizId
 ```shell
-java -jar http-client-1.1.5.3.jar \
+java -jar http-client-1.1.5.4.jar \
 -api item.hsf.add -version 1.0.0 -method post \
 -bizIdKey bizid -bizId e48ffd7c1e7f4d07b7fc141f43503cb2 \
 -D "item={\"itemName\":\"benz\",\"quantity\":10}" \
