@@ -36,6 +36,7 @@ java [sys-props] -jar http-sdk-1.1.5.4.jar [options...]
 
 参数取值说明:
  -ak <arg>        accessKey, 可选
+ -sk <arg>        secretKey, 可选
  -api <arg>       服务名
  -D <arg>         请求参数, 格式: -D "key=value" 可以定多个-D参数
  -d,--debug       打印调试信息
@@ -44,7 +45,6 @@ java [sys-props] -jar http-sdk-1.1.5.4.jar [options...]
  -method <arg>    请求类型, 默认get, 可选的值为: get, post, cget和cpost
  -nonce           -nonce 是否做nonce防重放处理，不定义为不做nonce重放处理
  -proxy <arg>     设置代理地址, 格式: proxy_hostname:proxy_port
- -sk <arg>        secretKey, 可选
  -url <arg>       请求地址，e.g: http://broker-ip:8086/CSB?p1=v1
  -version <arg>   服务版本
  -bizIdKey <arg>  设置bizIdKey(默认:_biz_id)
