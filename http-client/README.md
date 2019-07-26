@@ -11,7 +11,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 ## 1. 工具包的下载地址
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里  
-[最新的包 http-sdk-1.1.5.4.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.4.jar)  
+[最新的包 http-sdk-1.1.5.4.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.4.jar)  ，[源代码包 http-sdk-1.1.5.4.source.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.4.source.jar)  
 [http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)  
 [旧的http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)  
 [trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)  
@@ -36,6 +36,7 @@ java [sys-props] -jar http-sdk-1.1.5.4.jar [options...]
 
 参数取值说明:
  -ak <arg>        accessKey, 可选
+ -sk <arg>        secretKey, 可选
  -api <arg>       服务名
  -D <arg>         请求参数, 格式: -D "key=value" 可以定多个-D参数
  -d,--debug       打印调试信息
@@ -44,7 +45,6 @@ java [sys-props] -jar http-sdk-1.1.5.4.jar [options...]
  -method <arg>    请求类型, 默认get, 可选的值为: get, post, cget和cpost
  -nonce           -nonce 是否做nonce防重放处理，不定义为不做nonce重放处理
  -proxy <arg>     设置代理地址, 格式: proxy_hostname:proxy_port
- -sk <arg>        secretKey, 可选
  -url <arg>       请求地址，e.g: http://broker-ip:8086/CSB?p1=v1
  -version <arg>   服务版本
  -bizIdKey <arg>  设置bizIdKey(默认:_biz_id)
