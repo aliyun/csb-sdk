@@ -96,6 +96,8 @@ java [sys-props] -jar http-sdk-1.1.5.5.jar [options...]
    // 设置请求参数
    builder.putParamsMap("key1", "value1");
    builder.putParamsMap("key2", "{\"a\":value1}"); // json format value
+   builder.putParamsMap("key3", "value1","value2","value3");//设置数组参数
+      
       
    //设置请求调用方式
    builder.method("get");
