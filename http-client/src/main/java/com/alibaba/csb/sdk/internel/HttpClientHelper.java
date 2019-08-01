@@ -39,7 +39,22 @@ public class HttpClientHelper {
             SdkLogger.print(msg);
     }
 
-    public static void mergeParams(Map<String, List<String>> urlParamsMap, Map<String, List<String>> paramsMap, boolean decodeFlag) throws HttpCallerException {
+    public static Map<String, List<String>> convertStrMap2ListStrMap(Map<String, String> paramsMap) {
+        if (paramsMap == null) {
+            return null;
+        }
+        Map<String, List<String>> stringListMap = new HashMap<String, List<String>>((int) (paramsMap.size() * 1.5));
+        for (Entry<String, String> entry : paramsMap.entrySet()) {
+            stringListMap.put(entry.getKey(), Arrays.asList(entry.getValue()));
+        }
+        return stringListMap;
+    }
+
+    public static void mergeParams(Map<String, List<String>> urlParamsMap, Map<String, String> paramsMap, boolean decodeFlag) throws HttpCallerException {
+        mergeParamsList(urlParamsMap, convertStrMap2ListStrMap(paramsMap), decodeFlag);
+    }
+
+    public static void mergeParamsList(Map<String, List<String>> urlParamsMap, Map<String, List<String>> paramsMap, boolean decodeFlag) throws HttpCallerException {
         if (paramsMap != null) {
             //decode all params first, due to it will be encode to construct the request URL later
             for (Entry<String, List<String>> kv : paramsMap.entrySet()) {

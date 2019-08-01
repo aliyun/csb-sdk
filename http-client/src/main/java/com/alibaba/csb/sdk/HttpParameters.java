@@ -538,7 +538,24 @@ public class HttpParameters {
          * @param map
          * @return
          */
-        public Builder putParamsMapAll(Map<String, List<String>> map) {
+        public Builder putParamsMapAll(Map<String, String> map) {
+            if (map != null) {
+                for (Entry<String, String> entry : map.entrySet()) {
+                    this.paramsMap.put(entry.getKey(), Arrays.asList(entry.getValue()));
+                }
+            } else {
+                throw new IllegalArgumentException("empty map!!");
+            }
+            return this;
+        }
+
+        /**
+         * 设置参数对集合
+         *
+         * @param map
+         * @return
+         */
+        public Builder putParamsMapListAll(Map<String, List<String>> map) {
             if (map != null) {
                 this.paramsMap.putAll(map);
             } else {
