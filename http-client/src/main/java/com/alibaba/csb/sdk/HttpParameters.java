@@ -10,7 +10,9 @@ import lombok.Setter;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -69,7 +71,7 @@ public class HttpParameters {
         return builder.restfulProtocolVersion;
     }
 
-    Map<String, String> getParamsMap() {
+    Map<String, List<String>> getParamsMap() {
         return builder.paramsMap;
     }
 
@@ -124,8 +126,17 @@ public class HttpParameters {
         sb.append("\n verifySignImpl=").append(this.getVerifySignImpl());
         sb.append("\n isDiagnostic=").append(this.isDiagnostic());
         sb.append("\n params: \n");
-        for (Entry<String, String> entry : builder.paramsMap.entrySet()) {
-            sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+        for (Entry<String, List<String>> entry : builder.paramsMap.entrySet()) {
+            sb.append(entry.getKey()).append("=");
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                sb.append(value);
+            } else if (value instanceof String[]) {
+                sb.append(Arrays.toString((String[]) value));
+            } else if (value instanceof List) {
+                sb.append(value);
+            }
+            sb.append("\n");
         }
 
         sb.append("\n http header params: \n");
@@ -189,7 +200,7 @@ public class HttpParameters {
         private boolean nonce;
         private boolean timestamp = true;
         private boolean signContentBody;
-        private Map<String, String> paramsMap = new HashMap<String, String>();
+        private Map<String, List<String>> paramsMap = new HashMap<String, List<String>>();
         private ContentEncoding contentEncoding;
         private Map<String, String> headerParamsMap = new HashMap<String, String>();
         private boolean diagnostic = false;
@@ -513,8 +524,11 @@ public class HttpParameters {
          * @param value
          * @return
          */
-        public Builder putParamsMap(String key, String value) {
-            this.paramsMap.put(key, value);
+        public Builder putParamsMap(String key, String... value) {
+            if (value == null) {
+                throw new IllegalArgumentException("value is not allow null.");
+            }
+            this.paramsMap.put(key, Arrays.asList(value));
             return this;
         }
 
@@ -524,7 +538,7 @@ public class HttpParameters {
          * @param map
          * @return
          */
-        public Builder putParamsMapAll(Map<String, String> map) {
+        public Builder putParamsMapAll(Map<String, List<String>> map) {
             if (map != null) {
                 this.paramsMap.putAll(map);
             } else {

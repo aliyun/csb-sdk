@@ -5,6 +5,7 @@ import com.alibaba.csb.sdk.HttpReturn;
 import org.apache.http.Header;
 import org.apache.http.entity.ContentType;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +32,7 @@ public class DiagnosticHelper {
         }
     }
 
-    public static void calcRequestSize(HttpReturn ret, String requestURL, Map<String, String> paramsMap, ContentBody cb) {
+    public static void calcRequestSize(HttpReturn ret, String requestURL, Map<String, List<String>> paramsMap, ContentBody cb) {
         if (ret == null || !ret.diagnosticFlag) {
             return;
         }
@@ -42,9 +43,15 @@ public class DiagnosticHelper {
         }
 
         if (paramsMap != null) {
-            for (Map.Entry<String, String> kv : paramsMap.entrySet()) {
-                if (kv.getKey() != null) size += kv.getKey().length();
-                if (kv.getValue() != null) size += kv.getValue().length();
+            for (Map.Entry<String, List<String>> kv : paramsMap.entrySet()) {
+                if (kv.getKey() != null) {
+                    size += kv.getKey().length();
+                }
+                for (String value : kv.getValue()) {
+                    if (value != null) {
+                        size += value.length();
+                    }
+                }
             }
         }
 

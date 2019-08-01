@@ -373,7 +373,7 @@ public class HttpCaller {
      * @deprecated 1. 新版本（1.0.2.1+）的CSB服务需要定义服务版本参数
      * 2. 推荐使用invoke()方法，并使用HttpParameters构造相关的参数
      */
-    public static String doGet(String requestURL, String apiName, Map<String, String> paramsMap)
+    public static String doGet(String requestURL, String apiName, Map<String, List<String>> paramsMap)
             throws HttpCallerException {
         return doGet(requestURL, apiName, paramsMap, defaultAK, defaultSK);
     }
@@ -390,7 +390,7 @@ public class HttpCaller {
      * @throws HttpCallerException 调用过程中发生的任何异常
      * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
      */
-    public static String doGet(String requestURL, String apiName, Map<String, String> paramsMap, String accessKey,
+    public static String doGet(String requestURL, String apiName, Map<String, List<String>> paramsMap, String accessKey,
                                String secretKey) throws HttpCallerException {
         return doGet(requestURL, apiName, null, paramsMap, accessKey, secretKey);
     }
@@ -408,7 +408,7 @@ public class HttpCaller {
      * @throws HttpCallerException 调用过程中发生的任何异常
      * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
      */
-    public static String doGet(String requestURL, String apiName, String version, Map<String, String> paramsMap,
+    public static String doGet(String requestURL, String apiName, String version, Map<String, List<String>> paramsMap,
                                String accessKey, String secretKey) throws HttpCallerException {
         return doGet(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null);
     }
@@ -428,7 +428,7 @@ public class HttpCaller {
      * @throws HttpCallerException 调用过程中发生的任何异常
      * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
      */
-    public static String doGet(String requestURL, String apiName, String version, Map<String, String> paramsMap,
+    public static String doGet(String requestURL, String apiName, String version, Map<String, List<String>> paramsMap,
                                String accessKey, String secretKey, String signImpl, String verifySignImpl) throws HttpCallerException {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
@@ -448,7 +448,7 @@ public class HttpCaller {
      * @param secretKey  安全key
      * @return 发送CSB请求需要增加的httpHeader，包含签名串等
      */
-    public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap, String accessKey, String secretKey) throws HttpCallerException {
+    public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, List<String>> paramsMap, String accessKey, String secretKey) throws HttpCallerException {
         return getCsbHeaders(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null);
     }
 
@@ -465,7 +465,7 @@ public class HttpCaller {
      * @param verifySignImpl 验签算法实现类名
      * @return 发送CSB请求需要增加的httpHeader，包含签名串等
      */
-    public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap,
+    public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, List<String>> paramsMap,
                                                     String accessKey, String secretKey, String signImpl, String verifySignImpl) throws HttpCallerException {
         Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
         HttpClientHelper.mergeParams(urlParamsMap, paramsMap, true);
@@ -481,7 +481,7 @@ public class HttpCaller {
         final String requestURL = hp.getRequestUrl();
         String apiName = hp.getApi();
         String version = hp.getVersion();
-        Map<String, String> paramsMap = hp.getParamsMap();
+        Map<String, List<String>> paramsMap = hp.getParamsMap();
         String accessKey = hp.getAccessKey();
         String secretKey = hp.getSecretkey();
         Map<String, String> directParamsMap = hp.getHeaderParamsMap();
@@ -653,7 +653,7 @@ public class HttpCaller {
      * @deprecated 1. 新版本的CSB服务需要定义服务版本参数
      * 2. 推荐使用invoke()方法，并使用HttpParameters构造相关的参数
      */
-    public static String doPost(String requestURL, String apiName, Map<String, String> paramsMap)
+    public static String doPost(String requestURL, String apiName, Map<String, List<String>> paramsMap)
             throws HttpCallerException {
         return doPost(requestURL, apiName, null, paramsMap);
     }
@@ -669,7 +669,7 @@ public class HttpCaller {
      * @throws HttpCallerException 调用过程中发生的任何异常
      * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
      */
-    public static String doPost(String requestURL, String apiName, String version, Map<String, String> paramsMap)
+    public static String doPost(String requestURL, String apiName, String version, Map<String, List<String>> paramsMap)
             throws HttpCallerException {
         return doPost(requestURL, apiName, version, paramsMap, defaultAK, defaultSK);
     }
@@ -686,7 +686,7 @@ public class HttpCaller {
      * @throws HttpCallerException 调用过程中发生的任何异常
      * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
      */
-    public static String doPost(String requestURL, String apiName, Map<String, String> paramsMap, String accessKey,
+    public static String doPost(String requestURL, String apiName, Map<String, List<String>> paramsMap, String accessKey,
                                 String secretKey) throws HttpCallerException {
         return doPost(requestURL, apiName, paramsMap, accessKey, secretKey, null, null);
     }
@@ -705,7 +705,7 @@ public class HttpCaller {
      * @throws HttpCallerException 调用过程中发生的任何异常
      * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
      */
-    public static String doPost(String requestURL, String apiName, Map<String, String> paramsMap, String accessKey,
+    public static String doPost(String requestURL, String apiName, Map<String, List<String>> paramsMap, String accessKey,
                                 String secretKey, String signImpl, String verifySignImpl) throws HttpCallerException {
         return doPost(requestURL, apiName, null, paramsMap, accessKey, secretKey, signImpl, verifySignImpl);
     }
@@ -766,7 +766,7 @@ public class HttpCaller {
         final String requestURL = hp.getRequestUrl();
         String apiName = hp.getApi();
         String version = hp.getVersion();
-        Map<String, String> paramsMap = hp.getParamsMap();
+        Map<String, List<String>> paramsMap = hp.getParamsMap();
         ContentBody cb = hp.getContentBody();
         String accessKey = hp.getAccessKey();
         String secretKey = hp.getSecretkey();
@@ -972,7 +972,7 @@ public class HttpCaller {
      * @throws HttpCallerException 调用过程中发生的任何异常
      * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
      */
-    public static String doPost(String requestURL, String apiName, String version, Map<String, String> paramsMap,
+    public static String doPost(String requestURL, String apiName, String version, Map<String, List<String>> paramsMap,
                                 String accessKey, String secretKey) throws HttpCallerException {
         return doPost(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null);
     }
@@ -992,7 +992,7 @@ public class HttpCaller {
      * @throws HttpCallerException 调用过程中发生的任何异常
      * @deprecated 推荐使用<strong>invoke()</strong>方法，并使用<tt>HttpParameters</tt>构造相关的参数
      */
-    public static String doPost(String requestURL, String apiName, String version, Map<String, String> paramsMap,
+    public static String doPost(String requestURL, String apiName, String version, Map<String, List<String>> paramsMap,
                                 String accessKey, String secretKey, String signImpl, String verifySignImpl) throws HttpCallerException {
         HttpParameters hp = HttpParameters.newBuilder().requestURL(requestURL).api(apiName).version(version).putParamsMapAll(paramsMap)
                 .accessKey(accessKey).secretKey(secretKey).signImpl(signImpl).verifySignImpl(verifySignImpl)
