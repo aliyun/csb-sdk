@@ -4,7 +4,7 @@
 
 
  * 如果使用命令行方式调用SDK,根据需要将standaloned的运行包放在调用端的CLASSPATH环境里  
-[最新版本 ws-sdk-1.1.5.4.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.4.jar), [源代码包 ws-sdk-1.1.5.4-sources.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.4-sources.jar)
+[最新版本 ws-sdk-1.1.5.5.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.5.jar), [源代码包 ws-sdk-1.1.5.5-sources.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.5-sources.jar)
 [ws-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.4.0.jar)  
 [旧版本 ws-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.0.4.2plus.jar)  
 [trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)  
@@ -14,7 +14,7 @@
  <dependency>
    <groupId>com.alibaba.csb.sdk</groupId>
    <artifactId>ws-client</artifactId>
-   <version>1.1.5.4</version>
+   <version>1.1.5.5</version>
  </dependency>
  ```
 
@@ -171,7 +171,7 @@ mock_response是一个特殊的header, 通常在接口测试时候使用，当�
 * -H '$bizid:e48ffd7c1e7f4d07b7fc141f43503cb1'
 * -H优先于-bizId
 ```
-java -jar http-client-1.1.5.4.jar \
+java -jar http-client-1.1.5.5.jar \
 -api item.hsf.add -version 1.0.0 -method post \
 -bizIdKey bizid -bizId e48ffd7c1e7f4d07b7fc141f43503cb2 \
 -D "item={\"itemName\":\"benz\",\"quantity\":10}" \

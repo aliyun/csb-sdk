@@ -481,7 +481,7 @@ public class HttpCaller {
         final String requestURL = hp.getRequestUrl();
         String apiName = hp.getApi();
         String version = hp.getVersion();
-        Map<String, String> paramsMap = hp.getParamsMap();
+        Map<String, List<String>> paramsMap = hp.getParamsMap();
         String accessKey = hp.getAccessKey();
         String secretKey = hp.getSecretkey();
         Map<String, String> directParamsMap = hp.getHeaderParamsMap();
@@ -495,7 +495,7 @@ public class HttpCaller {
         HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
 
         Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
-        HttpClientHelper.mergeParams(urlParamsMap, paramsMap, true);
+        HttpClientHelper.mergeParamsList(urlParamsMap, paramsMap, true);
         if (SdkLogger.isLoggable()) {
             SdkLogger.print("--+++ prepare params costs = " + (System.currentTimeMillis() - startT) + " ms ");
         }
@@ -766,7 +766,7 @@ public class HttpCaller {
         final String requestURL = hp.getRequestUrl();
         String apiName = hp.getApi();
         String version = hp.getVersion();
-        Map<String, String> paramsMap = hp.getParamsMap();
+        Map<String, List<String>> paramsMap = hp.getParamsMap();
         ContentBody cb = hp.getContentBody();
         String accessKey = hp.getAccessKey();
         String secretKey = hp.getSecretkey();
@@ -782,7 +782,7 @@ public class HttpCaller {
 
         Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
         String newRequestURL = HttpClientHelper.generateAsEncodeRequestUrl(requestURL, urlParamsMap);
-        HttpClientHelper.mergeParams(urlParamsMap, paramsMap, false);
+        HttpClientHelper.mergeParamsList(urlParamsMap, paramsMap, false);
 
         startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);
 

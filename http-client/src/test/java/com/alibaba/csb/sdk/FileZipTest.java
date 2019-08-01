@@ -27,7 +27,7 @@ public class FileZipTest {
 
             // 设置请求参数
             builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3")
-                    .putParamsMap("str2", "31").putParamsMap("str2", "32").putParamsMap("str2", "33");
+                    .putParamsMap("str2", "31", "32", "33");
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
         } catch (HttpCallerException e) {

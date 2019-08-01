@@ -39,13 +39,30 @@ public class HttpClientHelper {
             SdkLogger.print(msg);
     }
 
+    public static Map<String, List<String>> convertStrMap2ListStrMap(Map<String, String> paramsMap) {
+        if (paramsMap == null) {
+            return null;
+        }
+        Map<String, List<String>> stringListMap = new HashMap<String, List<String>>((int) (paramsMap.size() * 1.5));
+        for (Entry<String, String> entry : paramsMap.entrySet()) {
+            stringListMap.put(entry.getKey(), Arrays.asList(entry.getValue()));
+        }
+        return stringListMap;
+    }
+
     public static void mergeParams(Map<String, List<String>> urlParamsMap, Map<String, String> paramsMap, boolean decodeFlag) throws HttpCallerException {
+        mergeParamsList(urlParamsMap, convertStrMap2ListStrMap(paramsMap), decodeFlag);
+    }
+
+    public static void mergeParamsList(Map<String, List<String>> urlParamsMap, Map<String, List<String>> paramsMap, boolean decodeFlag) throws HttpCallerException {
         if (paramsMap != null) {
             //decode all params first, due to it will be encode to construct the request URL later
-            String value;
-            for (Entry<String, String> kv : paramsMap.entrySet()) {
-                value = decodeValue(kv.getKey(), kv.getValue(), decodeFlag);
-                urlParamsMap.put(kv.getKey(), Arrays.asList(value));
+            for (Entry<String, List<String>> kv : paramsMap.entrySet()) {
+                for (ListIterator<String> iter = kv.getValue().listIterator(); iter.hasNext(); ) {
+                    iter.set(decodeValue(kv.getKey(), iter.next(), decodeFlag));
+                }
+
+                urlParamsMap.put(kv.getKey(), kv.getValue());
             }
         }
     }
@@ -84,7 +101,7 @@ public class HttpClientHelper {
         return ret;
     }
 
-    public static void validateParams(String apiName, String accessKey, String securityKey, Map<String, String> paramsMap) throws HttpCallerException {
+    public static void validateParams(String apiName, String accessKey, String securityKey, Map<String, List<String>> paramsMap) throws HttpCallerException {
         if (apiName == null)
             throw new HttpCallerException(new InvalidParameterException("param apiName can not be null!"));
 
@@ -93,7 +110,7 @@ public class HttpClientHelper {
                     new InvalidParameterException("param securityKey can not be null for a given accessKey!"));
 
         if (paramsMap != null) {
-            for (Entry<String, String> kv : paramsMap.entrySet()) {
+            for (Entry<String, List<String>> kv : paramsMap.entrySet()) {
                 if (kv.getValue() == null) {
                     throw new HttpCallerException(new InvalidParameterException(
                             String.format("bad parasMap, the value for key [ %s ] is null, please remove the key or set its value, e.g. \"\"!", kv.getKey())));
@@ -189,7 +206,7 @@ public class HttpClientHelper {
             return "";
     }
 
-    public static String createPostCurlString(String url, Map<String, String> params, Map<String, String> headerParams, ContentBody cb, Map<String, String> directHheaderParamsMap) {
+    public static String createPostCurlString(String url, Map<String, List<String>> params, Map<String, String> headerParams, ContentBody cb, Map<String, String> directHheaderParamsMap) {
         StringBuffer sb = new StringBuffer("curl ");
 
         //透传的http headers
@@ -199,10 +216,13 @@ public class HttpClientHelper {
 
         if (params != null) {
             StringBuffer postSB = new StringBuffer();
-            for (Entry<String, String> e : params.entrySet()) {
-                if (postSB.length() > 0)
+            for (Entry<String, List<String>> e : params.entrySet()) {
+                if (postSB.length() > 0) {
                     postSB.append("&");
-                postSB.append(e.getKey()).append("=").append(URLEncoder.encode(e.getValue()));
+                }
+                for (String value : e.getValue()) {
+                    postSB.append(e.getKey()).append("=").append(URLEncoder.encode(value));
+                }
             }
             if (postSB.length() > 0) {
                 sb.append(" -d \"");
@@ -242,7 +262,7 @@ public class HttpClientHelper {
      *
      * @return
      */
-    public static HttpPost createPost(final String url, Map<String, String> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, HttpParameters.AttachFile> fileMap, ContentEncoding contentEncoding) {
+    public static HttpPost createPost(final String url, Map<String, List<String>> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, HttpParameters.AttachFile> fileMap, ContentEncoding contentEncoding) {
         //set both cb and urlParams
         String newUrl = url;
         List<NameValuePair> nvps = toNVP(urlParams);
@@ -319,14 +339,16 @@ public class HttpClientHelper {
         return httpost;
     }
 
-    private static List<NameValuePair> toNVP(Map<String, String> urlParams) {
+    private static List<NameValuePair> toNVP(Map<String, List<String>> urlParams) {
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
 
         //fix NPE
         if (urlParams != null) {
             Set<String> keySet = urlParams.keySet();
             for (String key : keySet) {
-                nvps.add(new BasicNameValuePair(key, urlParams.get(key)));
+                for (String value : urlParams.get(key)) {
+                    nvps.add(new BasicNameValuePair(key, value));
+                }
             }
         }
         return nvps;
