@@ -10,10 +10,7 @@ import lombok.Setter;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import static com.alibaba.csb.sdk.HttpCaller.TOTAL_FILE_SIZE;
@@ -518,7 +515,27 @@ public class HttpParameters {
         }
 
         /**
-         * 设置一个参数对
+         * 设置一个参数对列表
+         *
+         * @param key
+         * @param valueList
+         * @return
+         */
+        public Builder putParamsMap(String key, List<String> valueList) {
+            if (valueList == null) {
+                throw new IllegalArgumentException("valueList is not allow null.");
+            }
+            if (valueList instanceof ArrayList) {
+                this.paramsMap.put(key, valueList);
+
+            } else { //保证是数组list
+                this.paramsMap.put(key, Arrays.asList(valueList.toArray(new String[valueList.size()])));
+            }
+            return this;
+        }
+
+        /**
+         * 设置一个参数对列表
          *
          * @param key
          * @param value
