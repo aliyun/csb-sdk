@@ -25,4 +25,5 @@
 | 1.1.5.2 | snapshot | 20190130   | fix ServiceLoader.iterator multithread bug | [go](release/r20181031.md) |
 | 1.1.5.3 | snapshot | 20190603   | add trace function                         | [go](release/r20190603.md) |
 | 1.1.5.4 | snapshot | 20190710   | add http file&gzip surpport                         | [go](release/r20190710.md) |
+| 1.1.5.5 | snapshot | 20190810   | add http array surpport                         | [go](release/r20190810.md) |
 
