@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class FileZipTest {
 
             // 设置请求参数
             builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3")
-                    .putParamsMap("str2", "31", "32", "33");
+                    .putParamsMap("str2", "31", "32", "33").putParamsMap("str3", Arrays.asList("aa", "bb", "cc"));
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
         } catch (HttpCallerException e) {
