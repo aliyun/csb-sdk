@@ -41,6 +41,16 @@ com.alibaba.csb.sentinel.DemoSelfDefFlowControlImpl
 ```
 * 用户将扩展逻辑打成jar包，上传到CSB Broker的Docker内`/home/admin/cloud-gateway/patchlib`目录内。
 * 重启docker实例。
+### demo示例
+```java
+public class DemoSelfDefFlowControlImpl implements SelfDefFlowControl {
+
+    public void process(Map<String, Object> contextMap) throws LimitExceedException {
+        System.out.println("自定义流控逻辑" + contextMap.toString());
+        throw new LimitExceedException("自定义流控限制当前请求: " + contextMap.get(TRACE_ID));
+    }
+}
+```
 
 ## 转发请求给后端业务服务前的自定义处理
 ### 功能描述
@@ -96,3 +106,13 @@ com.abc.csb.BeforeSend2BackendHttpClass
 ```
 * 用户将扩展逻辑打成jar包，上传到CSB Broker的Docker内`/home/admin/cloud-gateway/patchlib`目录内。
 * 重启docker实例。
+### demo示例
+```java
+public class DemoBeforeSend2BackendHttp implements BeforeSend2BackendHttp {
+    public void process(Map<String, Object> contextMap) throws SelfDefProcessException {
+        System.out.println("DemoBeforeSend2BackendHttp.process contextMap: " + contextMap);
+        Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
+        headers.put("addTestHeader", "abc#@!");
+    }
+}
+```
