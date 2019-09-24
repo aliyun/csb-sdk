@@ -60,6 +60,36 @@ com.alibaba.csb.sentinel.DemoSelfDefFlowControlImpl
 
 ### 扩展接口定义
 ```java
+public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
+    /**
+     * 自定义处理逻辑，用户可以：
+     * <ul>
+     * <li>  增加、修改、删除：请求头</li>
+     * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
+     * </ul>
+     *
+     * @param contextMap 服务请求上下文信息map，各信息的key见 BaseSelfDefProcess 常量定义:
+     *                   <ul>
+     *                   <li> _inner_ecsb_trace_id CSB服务请求唯一标识</li>
+     *                   <li> _csb_internal_name_  CSB实例名</li>
+     *                   <li>_csb_broker_ip  CSB Broker节点的IP</li>
+     *                   <li>_api_name  CSB服务名</li>
+     *                   <li>_api_version  CSB服务版本号</li>
+     *                   <li>_api_group  CSB服务所属服务组名</li>
+     *                   <li>userId  服务访问者用户Id</li>
+     *                   <li>credentail_name  服务访问者凭证名</li>
+     *                   <li>_api_access_key  服务访问者的ak</li>
+     *                   <li>_remote_peer_ip  服务访问者IP</li>
+     *                   <li>backend_url  后端业务服务的http地址</li>
+     *                   <li>backend_method  请求后端业务服务的http方法：POST、GET等</li>
+     *                   <li>request_headers  请求后端业务服务的http头</li>
+     *                   <li>request_body  请求后端业务服务的http体：byte[]</li>
+     *                   </ul>
+     * @throws SelfDefProcessException
+     */
+    void process(final Map<String, Object> contextMap) throws SelfDefProcessException;
+}
+
 ```
 
 ### 使用说明
@@ -72,11 +102,11 @@ com.alibaba.csb.sentinel.DemoSelfDefFlowControlImpl
     <version>1.1.6.0-SNAPSHOT</version>
 </dependency>
 ```
-* 实现`com.alibaba.csb.sentinel.SelfDefFlowControl`的 `process` 方法。
-* 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.sentinel.SelfDefFlowControl`文件，文件内容如下：
+* 实现`com.alibaba.csb.SelfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`的 `process` 方法。
+* 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.SelfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`文件，文件内容如下：
 ```text
-#用户自定义流控扩展逻辑Java实现类全名，示例如下
-com.alibaba.csb.sentinel.DemoSelfDefFlowControlImpl
+#用户自定义流控扩展逻辑Java实现类全名
+com.abc.csb.BeforeSend2BackendHttpClass
 ```
 * 用户将扩展逻辑打成jar包，上传到CSB Broker的Docker内`/home/admin/cloud-gateway/patchlib`目录内。
 * 重启docker实例。

@@ -15,7 +15,7 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
      * 自定义处理逻辑，用户可以：
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
-     * <li>  抛出异常，以中止服务处理</li>
+     * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
      * </ul>
      *
      * @param contextMap 服务请求上下文信息map，各信息的key见 BaseSelfDefProcess 常量定义:
