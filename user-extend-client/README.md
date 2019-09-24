@@ -101,7 +101,7 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
 * 实现`com.alibaba.csb.SelfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`的 `process` 方法。
 * 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.SelfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`文件，文件内容如下：
 ```text
-#用户自定义流控扩展逻辑Java实现类全名
+#用户自定义扩展逻辑Java实现类全名
 com.abc.csb.BeforeSend2BackendHttpClass
 ```
 * 用户将扩展逻辑打成jar包，上传到CSB Broker的Docker内`/home/admin/cloud-gateway/patchlib`目录内。
