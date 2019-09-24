@@ -32,14 +32,7 @@ public interface SelfDefFlowControl {
 如果用户希望终止当前请求，则抛出 `LimitExceedException`异常即可。此时CSB客户端将收到的响应结果为“`LimitExceedException的异常信息描述`”。
 ### 使用说明
 本扩展功能基于Java SPI规范实现：
-* 引用接口包
-```xml
-<dependency>
-    <groupId>com.alibaba.csb.sdk</groupId>
-    <artifactId>user-extend-client</artifactId>
-    <version>1.1.2.1-SNAPSHOT</version>
-</dependency>
-```
+* [引用接口包 user-extend-client.1.1.6.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/user-extend-client.1.1.6.0.jar) 
 * 实现`com.alibaba.csb.sentinel.SelfDefFlowControl`的 `process` 方法。
 * 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.sentinel.SelfDefFlowControl`文件，文件内容如下：
 ```text
@@ -94,14 +87,7 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
 
 ### 使用说明
 本扩展功能基于Java SPI规范实现：
-* 引用接口包
-```xml
-<dependency>
-    <groupId>com.alibaba.csb.sdk</groupId>
-    <artifactId>user-extend-client</artifactId>
-    <version>1.1.6.0-SNAPSHOT</version>
-</dependency>
-```
+* [引用接口包 user-extend-client.1.1.6.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/user-extend-client.1.1.6.0.jar) 
 * 实现`com.alibaba.csb.SelfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`的 `process` 方法。
 * 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.SelfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`文件，文件内容如下：
 ```text
