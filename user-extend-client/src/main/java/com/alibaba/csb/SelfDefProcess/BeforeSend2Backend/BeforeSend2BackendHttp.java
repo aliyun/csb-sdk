@@ -1,20 +1,23 @@
-package com.alibaba.csb.sentinel;
+package com.alibaba.csb.SelfDefProcess.BeforeSend2Backend;
 
 import com.alibaba.csb.BaseSelfDefProcess;
+import com.alibaba.csb.SelfDefProcess.SelfDefProcessException;
 
 import java.util.Map;
 
 /**
- * 用户自定义流控接口
- * 通过SPI方式加载，用户将符合 SelfDefFlowControl 接口定义的类打jar包放到broker的 patchLib 目录下。
- * 要求jar 内有 META-INF/services/com/alibaba/csb/sentinel/SelfDefFlowControl 文件，且文件内容为“用户自定义流控实现类完整名”
- * <p>
+ * csb broker发送请求给后端http业务服务前，执行此逻辑。
  * Created by tingbin.ctb
- * 2019/3/25-18:03.
+ * 2019/9/25-18:03.
  */
-public interface SelfDefFlowControl extends BaseSelfDefProcess {
-
+public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
     /**
+     * 自定义处理逻辑，用户可以：
+     * <ul>
+     * <li>  增加、修改、删除：请求头</li>
+     * <li>  抛出异常，以中止服务处理</li>
+     * </ul>
+     *
      * @param contextMap 服务请求上下文信息map，各信息的key见 BaseSelfDefProcess 常量定义:
      *                   <ul>
      *                   <li> _inner_ecsb_trace_id {@link com.alibaba.csb.BaseSelfDefProcess#TRACE_ID}</li>
@@ -27,8 +30,12 @@ public interface SelfDefFlowControl extends BaseSelfDefProcess {
      *                   <li>credentail_name  {@link com.alibaba.csb.BaseSelfDefProcess#CREDENTIAL_NAME}</li>
      *                   <li>_api_access_key  {@link com.alibaba.csb.BaseSelfDefProcess#ACCESS_KEY}</li>
      *                   <li>_remote_peer_ip  {@link com.alibaba.csb.BaseSelfDefProcess#REMOTE_PEER_IP}</li>
+     *                   <li>backend_url  {@link com.alibaba.csb.BaseSelfDefProcess#BACKEND_URL}</li>
+     *                   <li>backend_method  {@link com.alibaba.csb.BaseSelfDefProcess#BACKEND_METHOD}</li>
+     *                   <li>request_headers  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_HEADERS}</li>
+     *                   <li>request_body  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_BODY}</li>
      *                   </ul>
-     * @throws LimitExceedException 如果流控异常，则终止服务后续处理流程，将异常信息返回给CSB客户端
+     * @throws SelfDefProcessException
      */
-    void process(final Map<String, Object> contextMap) throws LimitExceedException;
+    void process(final Map<String, Object> contextMap) throws SelfDefProcessException;
 }

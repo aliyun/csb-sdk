@@ -1,5 +1,4 @@
 # CSB用户自定义扩展说明
-目前仅提供“**自定义流控**”扩展。
 ## 自定义流控
 ### 功能描述
 CSB在流控处理逻辑中，自动调用用户自定义的流控逻辑，用户根据服务名、请求者accessKey等信息判断是否允许当前请求继续执行。
@@ -39,6 +38,38 @@ public interface SelfDefFlowControl {
     <groupId>com.alibaba.csb.sdk</groupId>
     <artifactId>user-extend-client</artifactId>
     <version>1.1.2.1-SNAPSHOT</version>
+</dependency>
+```
+* 实现`com.alibaba.csb.sentinel.SelfDefFlowControl`的 `process` 方法。
+* 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.sentinel.SelfDefFlowControl`文件，文件内容如下：
+```text
+#用户自定义流控扩展逻辑Java实现类全名，示例如下
+com.alibaba.csb.sentinel.DemoSelfDefFlowControlImpl
+```
+* 用户将扩展逻辑打成jar包，上传到CSB Broker的Docker内`/home/admin/cloud-gateway/patchlib`目录内。
+* 重启docker实例。
+
+## 转发请求给后端业务服务前的自定义处理
+### 功能描述
+在CSB broker转发请求给后端业务服务前，自动调用用户自定义的处理逻辑。用户可根据CSB实例名、CSB服务名、CSB凭证、后端业务服务地址、请求头、请求体等信息进行逻辑处理：
+1. 修改、增加、删除请求头。
+2. 抛出异常，以便中止服务处理，不再转发请求给后端业务服务。
+
+### 条件与约束
+当前仅支持后端业务服务是HTTP/HTTPS的服务。
+
+### 扩展接口定义
+```java
+```
+
+### 使用说明
+本扩展功能基于Java SPI规范实现：
+* 引用接口包
+```xml
+<dependency>
+    <groupId>com.alibaba.csb.sdk</groupId>
+    <artifactId>user-extend-client</artifactId>
+    <version>1.1.6.0-SNAPSHOT</version>
 </dependency>
 ```
 * 实现`com.alibaba.csb.sentinel.SelfDefFlowControl`的 `process` 方法。
