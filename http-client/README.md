@@ -295,9 +295,9 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 
 ```shell
       -Dhttp.caller.connection.max          设置连接池的最大连接数，默认是200
-      -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是-1， 永不超时
-      -Dhttp.caller.connection.so.timeout   设置读取超时时间（毫秒），默认是-1， 永不超时
-      -Dhttp.caller.connection.cr.timeout   设置从连接池获取连接实例的超时（毫秒），默认是-1， 永不超时      
+      -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是2000
+      -Dhttp.caller.connection.so.timeout   设置读取超时时间（毫秒），默认是90000
+      -Dhttp.caller.connection.cr.timeout   设置从连接池获取连接实例的超时（毫秒），默认是1000
       -Dhttp.caller.skip.connection.pool    如果设置为true,则不使用连接池。默认行为是false,使用连接池(支持长连接)
       -Dhttp.caller.connection.async        设置内部使用nio,默认fasle:同步io,true:nio（不支持连接池，不推荐使用）
 ```
