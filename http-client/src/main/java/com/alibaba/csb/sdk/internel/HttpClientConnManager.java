@@ -23,9 +23,9 @@ public class HttpClientConnManager {
     private static final int VALIDATE_PERIOD = Integer.getInteger("http.caller.connection.validate.span", 100);
     // 清除连接池中过期或者长时间限制的连接的时间间隔 (单位ms, 默认 5000ms)
     private static final int CLEAN_PERIOD = Integer.getInteger("http.caller.connection.clean.span", 5000);
-    private static final int MAX_CONNECTION_TIMEOUT = -1;
-    private static final int MAX_SOCKET_TIMEOUT = -1;
-    private static final int MAX_CR_TIMEOUT = -1;
+    private static final int MAX_CONNECTION_TIMEOUT = 2000;
+    private static final int MAX_SOCKET_TIMEOUT = 90000;
+    private static final int MAX_CR_TIMEOUT = 1000;
     private static final List<String> SUPPORTED_CONNECTION_PARAMS = Arrays.asList("http.caller.connection.max",
             "http.caller.connection.timeout",
             "http.caller.connection.so.timeout",

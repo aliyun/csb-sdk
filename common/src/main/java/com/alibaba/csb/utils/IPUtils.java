@@ -2,6 +2,7 @@ package com.alibaba.csb.utils;
 
 import java.net.*;
 import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Get the local host IP
@@ -9,17 +10,24 @@ import java.util.Enumeration;
 public class IPUtils {
     private static String DEFAULT_IP = "127000000001";
 
+    private static final AtomicReference<String> IP = new AtomicReference<String>();
+
     public static String getLocalHostIP() {
+        String ip = IP.get();
+        if (ip != null) {
+            return ip;
+        }
         Enumeration allNetInterfaces;
         try {
             allNetInterfaces = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException e) {
             try {
                 InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
-                return jdkSuppliedAddress.getHostAddress();
+                IP.compareAndSet(null, jdkSuppliedAddress.getHostAddress());
             } catch (UnknownHostException ex) {
-                return DEFAULT_IP;
+                IP.compareAndSet(null, DEFAULT_IP);
             }
+            return IP.get();
         }
 
         while (allNetInterfaces.hasMoreElements()) {
@@ -34,10 +42,12 @@ public class IPUtils {
             while (addresses.hasMoreElements()) {
                 InetAddress address = (InetAddress) addresses.nextElement();
                 if (!address.isLoopbackAddress() && address.getHostAddress().indexOf(":") == -1) {
-                    return address.getHostAddress();
+                    IP.compareAndSet(null, address.getHostAddress());
+                    return IP.get();
                 }
             }
         }
-        return DEFAULT_IP;
+        IP.compareAndSet(null, DEFAULT_IP);
+        return IP.get();
     }
 }

@@ -11,7 +11,8 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 ## 1. 工具包的下载地址
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里  
-[最新的包 http-sdk-1.1.5.5.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.5.jar)  ，[源代码包 http-sdk-1.1.5.5-sources.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.5-sources.jar)  
+[最新的包 http-client-1.1.5.6.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.6.jar)
+[http-client-1.1.5.5.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-client-1.1.5.5.jar)
 [http-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.1.4.0.jar)  
 [旧的http-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/http-sdk-1.0.4.2plus.jar)  
 [trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)  
@@ -21,7 +22,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 <dependency>
   <groupId>com.alibaba.csb.sdk</groupId>
   <artifactId>http-client</artifactId>
-  <version>1.1.5.5</version>
+  <version>1.1.5.6</version>
 </dependency>
 ```
 
@@ -31,7 +32,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 
 ```shell
-java [sys-props] -jar http-sdk-1.1.5.5.jar [options...]
+java [sys-props] -jar http-sdk-1.1.5.6.jar [options...]
 ```
 
 参数取值说明:
@@ -295,9 +296,9 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 
 ```shell
       -Dhttp.caller.connection.max          设置连接池的最大连接数，默认是200
-      -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是-1， 永不超时
-      -Dhttp.caller.connection.so.timeout   设置读取超时时间（毫秒），默认是-1， 永不超时
-      -Dhttp.caller.connection.cr.timeout   设置从连接池获取连接实例的超时（毫秒），默认是-1， 永不超时      
+      -Dhttp.caller.connection.timeout      设置连接超时时间（毫秒），默认是2000
+      -Dhttp.caller.connection.so.timeout   设置读取超时时间（毫秒），默认是90000
+      -Dhttp.caller.connection.cr.timeout   设置从连接池获取连接实例的超时（毫秒），默认是1000
       -Dhttp.caller.skip.connection.pool    如果设置为true,则不使用连接池。默认行为是false,使用连接池(支持长连接)
       -Dhttp.caller.connection.async        设置内部使用nio,默认fasle:同步io,true:nio（不支持连接池，不推荐使用）
 ```
@@ -377,7 +378,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 * -H '$bizid:e48ffd7c1e7f4d07b7fc141f43503cb1'
 * -H优先于-bizId
 ```shell
-java -jar http-client-1.1.5.5.jar \
+java -jar http-client-1.1.5.6.jar \
 -api item.hsf.add -version 1.0.0 -method post \
 -bizIdKey bizid -bizId e48ffd7c1e7f4d07b7fc141f43503cb2 \
 -D "item={\"itemName\":\"benz\",\"quantity\":10}" \
