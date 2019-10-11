@@ -49,6 +49,10 @@ public interface BaseSelfDefProcess {
      * 服务访问者IP
      */
     String REMOTE_PEER_IP = "_remote_peer_ip";
+    /**
+     * 后端业务服务提供者IP
+     */
+    String BACKEND_REAL_IP = "_remote_real_ip";
 
     /**
      * 后端业务服务的http地址
@@ -63,7 +67,15 @@ public interface BaseSelfDefProcess {
      */
     String REQUEST_HEADERS = "request_headers";
     /**
+     * 后端业务服务响应的http头
+     */
+    String RESPONSE_HEADERS = "response_headers";
+    /**
      * 请求后端业务服务的http体：byte[]
      */
     String REQUEST_BODY = "request_body";
+    /**
+     * 后端业务服务的响应http体：byte[]
+     */
+    String RESPONSE_BODY = "response_body";
 }
