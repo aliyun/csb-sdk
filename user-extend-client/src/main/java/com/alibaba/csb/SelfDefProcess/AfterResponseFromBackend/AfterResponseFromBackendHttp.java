@@ -1,4 +1,4 @@
-package com.alibaba.csb.SelfDefProcess.AfterResponseFromBackendHttp;
+package com.alibaba.csb.SelfDefProcess.AfterResponseFromBackend;
 
 import com.alibaba.csb.BaseSelfDefProcess;
 import com.alibaba.csb.SelfDefProcess.SelfDefProcessException;
@@ -10,7 +10,7 @@ import java.util.Map;
  * Created by tingbin.ctb
  * 2019/9/25-18:03.
  */
-public interface AfterResposeFromBackendHttp extends BaseSelfDefProcess {
+public interface AfterResponseFromBackendHttp extends BaseSelfDefProcess {
     /**
      * 自定义处理逻辑，用户可以：
      * <ul>
@@ -32,12 +32,7 @@ public interface AfterResposeFromBackendHttp extends BaseSelfDefProcess {
      *                   <li>_api_access_key  {@link BaseSelfDefProcess#ACCESS_KEY}</li>
      *                   <li>_remote_peer_ip  {@link BaseSelfDefProcess#REMOTE_PEER_IP}</li>
      *                   <li>_remote_real_ip  {@link com.alibaba.csb.BaseSelfDefProcess#BACKEND_REAL_IP}</li>
-     *                   <li>backend_url  {@link BaseSelfDefProcess#BACKEND_URL}</li>
-     *                   <li>backend_method  {@link BaseSelfDefProcess#BACKEND_METHOD}</li>
-     *                   <li>request_http_querys {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_HTTP_QUERYS}</li>
-     *                   <li>request_headers  {@link BaseSelfDefProcess#REQUEST_HEADERS}</li>
      *                   <li>response_headers  {@link BaseSelfDefProcess#RESPONSE_HEADERS}</li>
-     *                   <li>request_body  {@link BaseSelfDefProcess#REQUEST_BODY}</li>
      *                   <li>response_body  {@link BaseSelfDefProcess#RESPONSE_BODY}</li>
      *                   </ul>
      * @throws SelfDefProcessException

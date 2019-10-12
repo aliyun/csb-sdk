@@ -15,7 +15,7 @@ public class DemoBeforeSend2BackendHttp implements BeforeSend2BackendHttp {
     public void process(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoBeforeSend2BackendHttp.process contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
-        headers.put("addTestHeader", "abc#@!");
+        headers.put("addReqHeader", "reqHeader1");
 
         Map<String, List<String>> querys = (Map<String, List<String>>) contextMap.get(REQUEST_HTTP_QUERYS);
         querys.put("query1", Arrays.asList("queryValue1"));
