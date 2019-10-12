@@ -63,19 +63,28 @@ public interface BaseSelfDefProcess {
      */
     String BACKEND_METHOD = "backend_method";
     /**
-     * 请求后端业务服务的http头
+     * 请求后端业务服务的http query：map<String,List<String>>
+     */
+    String REQUEST_HTTP_QUERYS = "request_http_querys";
+    /**
+     * 请求后端业务服务的http头map
      */
     String REQUEST_HEADERS = "request_headers";
     /**
-     * 后端业务服务响应的http头
+     * 后端业务服务响应的http头map
      */
     String RESPONSE_HEADERS = "response_headers";
     /**
-     * 请求后端业务服务的http体：byte[]
+     * 请求后端业务服务的http体：Object。
+     * 1. 如果请求是form表单，则是Map对象。
+     * 2. 如果请求是非form的文本请求，则是String对象。
+     * 3. 其它请求，则是InputStream对象
      */
     String REQUEST_BODY = "request_body";
     /**
-     * 后端业务服务的响应http体：byte[]
+     * 后端业务服务的响应http体：Object
+     * 1. 如果响应是文本，则是String对象。
+     * 3. 其它请求，则是InputStream对象
      */
     String RESPONSE_BODY = "response_body";
 }

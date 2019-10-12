@@ -15,6 +15,8 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
      * 自定义处理逻辑，用户可以：
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
+     * <li>  增加、修改、删除：query参数</li>
+     * <li>  修改：body，如果是form请求，则直接body是map。如果是非form的文本请求，则body是String，需通过 contextMap.put(REQUEST_BODY, 新body) 方式修改body内容</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
      * </ul>
      *
@@ -33,6 +35,7 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
      *                   <li>_remote_real_ip  {@link com.alibaba.csb.BaseSelfDefProcess#BACKEND_REAL_IP}</li>
      *                   <li>backend_url  {@link com.alibaba.csb.BaseSelfDefProcess#BACKEND_URL}</li>
      *                   <li>backend_method  {@link com.alibaba.csb.BaseSelfDefProcess#BACKEND_METHOD}</li>
+     *                   <li>request_http_querys {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_HTTP_QUERYS}</li>
      *                   <li>request_headers  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_HEADERS}</li>
      *                   <li>request_body  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_BODY}</li>
      *                   </ul>

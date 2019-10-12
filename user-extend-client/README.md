@@ -68,8 +68,10 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
      * 自定义处理逻辑，用户可以：
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
+     * <li>  增加、修改、删除：query参数</li>
+     * <li>  修改：body，如果是form请求，则直接body是map。如果是非form的文本请求，则body是String，需通过 contextMap.put(REQUEST_BODY, 新body) 方式修改body内容</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
-     * </ul>
+   * </ul>
      *
      * @param contextMap 服务请求上下文信息map，各信息的key见 BaseSelfDefProcess 常量定义:
      *                   <ul>
@@ -85,8 +87,9 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
      *                   <li>_remote_peer_ip  服务访问者IP</li>
      *                   <li>backend_url  后端业务服务的http地址</li>
      *                   <li>backend_method  请求后端业务服务的http方法：POST、GET等</li>
+     *                   <li>request_http_querys  请求后端业务服务的http query：map<String,List<String>> </li>
      *                   <li>request_headers  请求后端业务服务的http头</li>
-     *                   <li>request_body  请求后端业务服务的http体：byte[]</li>
+     *                   <li>  修改：body，如果是form请求，则直接body是map。如果是非form的文本请求，则body是String，需通过 contextMap.put(REQUEST_BODY, 新body) 方式修改body内容</li>
      *                   </ul>
      * @throws SelfDefProcessException
      */
@@ -113,6 +116,18 @@ public class DemoBeforeSend2BackendHttp implements BeforeSend2BackendHttp {
         System.out.println("DemoBeforeSend2BackendHttp.process contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addTestHeader", "abc#@!");
+        
+        Map<String, List<String>> querys = (Map<String, List<String>>) contextMap.get(REQUEST_HTTP_QUERYS);
+        querys.put("query1", Arrays.asList("queryValue1"));
+        
+        Object body = contextMap.get(REQUEST_BODY);
+        if (body instanceof Map) { //form表单提交的请求
+           ((Map) body).put("field1", Arrays.asList("value1"));
+        } else if (body instanceof String) { //json和其它文本
+           contextMap.put(REQUEST_BODY, body + " + aaa");
+        } else if (body instanceof InputStream) {
+           ;
+        }
     }
 }
 ```
