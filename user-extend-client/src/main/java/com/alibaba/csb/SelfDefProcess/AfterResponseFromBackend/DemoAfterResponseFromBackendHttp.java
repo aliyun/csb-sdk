@@ -10,16 +10,17 @@ import java.util.Map;
  * 2019/9/24-11:33.
  */
 public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBackendHttp {
-    public void process(Map<String, Object> contextMap) throws SelfDefProcessException {
+    public Object process(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoAfterResponseFromBackendHttp.process contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
         headers.put("addRspHeader", "rspheader1");
 
         Object body = contextMap.get(RESPONSE_BODY);
         if (body instanceof String) { //json和其它文本
-            contextMap.put(REQUEST_BODY, body + " + response_bbb");
+            body += " + response_bbb"; //设置新的响应结果文本
         } else if (body instanceof InputStream) {
             ;
         }
+        return body;
     }
 }

@@ -15,7 +15,7 @@ public interface AfterResponseFromBackendHttp extends BaseSelfDefProcess {
      * 自定义处理逻辑，用户可以：
      * <ul>
      * <li>  增加、修改、删除：响应头</li>
-     * <li>  修改：响应body</li>
+     * <li>  修改：通过retrun新的响应body，达到修改body的目标。如果响应是文本，则是String对象。否则就是InputStream或byte[]对象。</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
      * </ul>
      *
@@ -35,7 +35,8 @@ public interface AfterResponseFromBackendHttp extends BaseSelfDefProcess {
      *                   <li>response_headers  {@link BaseSelfDefProcess#RESPONSE_HEADERS}</li>
      *                   <li>response_body  {@link BaseSelfDefProcess#RESPONSE_BODY}</li>
      *                   </ul>
+     * @return 响应body，csb将以此body返回给客户端。可以是string或byte[]
      * @throws SelfDefProcessException
      */
-    void process(final Map<String, Object> contextMap) throws SelfDefProcessException;
+    Object process(final Map<String, Object> contextMap) throws SelfDefProcessException;
 }
