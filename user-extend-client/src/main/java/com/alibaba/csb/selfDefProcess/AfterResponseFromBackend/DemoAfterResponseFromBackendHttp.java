@@ -13,7 +13,7 @@ public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBacken
     public Object process(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoAfterResponseFromBackendHttp.process contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
-        headers.put("addRspHeader", "rspheader1");
+        headers.put("addRspHeader", "rspheader1"); //增加http响应头
 
         Object body = contextMap.get(RESPONSE_BODY);
         if (body instanceof String) { //json和其它文本

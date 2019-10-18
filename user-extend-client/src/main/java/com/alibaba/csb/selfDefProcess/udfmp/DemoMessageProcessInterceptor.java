@@ -16,7 +16,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
     public Object requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.requestProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
-        headers.put("addReqHeader", "reqHeader1");
+        headers.put("addReqHeader", "reqHeader1");//增加http请求头
 
         contextMap.put(SELF_CONTEXT_PREFIX + "Obj1", "self1");//保存自定义上下文
 
@@ -37,7 +37,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
     public Object responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.responseProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
-        headers.put("addRspHeader", "rspheader1");
+        headers.put("addRspHeader", "rspheader1");//增加http响应头
 
         Object body = contextMap.get(RESPONSE_BODY);
         if (body instanceof String) { //json和其它文本

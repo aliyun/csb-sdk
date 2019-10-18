@@ -42,7 +42,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      *                   <li>request_headers  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_HEADERS}</li>
      *                   <li>request_body  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_BODY}</li>
      *                   </ul>
-     * @return 处理后的body
+     * @return 处理后的请求body
      */
     Object requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
 
@@ -73,7 +73,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      *                   <li>response_body  {@link BaseSelfDefProcess#RESPONSE_BODY}</li>
      *                   <li>response_exception  {@link BaseSelfDefProcess#RESPONSE_EXCEPTION}</li>
      *                   </ul>
-     * @return 响应body，csb将以此body返回给客户端。可以是string或byte[]
+     * @return  处理后的响应body，csb将以此body返回给客户端。可以是string或byte[]
      */
     Object responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
 }
