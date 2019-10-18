@@ -39,6 +39,11 @@ public interface BaseSelfDefProcess {
      */
     String API_GROUP = "_api_group";
     /**
+     * 服务拥有者用户Id
+     */
+    String API_OWNER_ID = "_api_owner_id";
+
+    /**
      * 服务访问者用户Id
      */
     String USER_ID = "userId";
@@ -101,4 +106,14 @@ public interface BaseSelfDefProcess {
      * 后端服务协议
      */
     String BACKEND_PROTOCO = "backend_Protoco";
+
+    /**
+     * 响应结果异常：后端业务服务返回的异常，或csb处理响应结果时产生的异常。可能为空
+     */
+    String RESPONSE_EXCEPTION = "response_exception";
+
+    /**
+     * 用户自定义上下文数据前缀，在请求消息自定义扩展时，用户可以向 contextMap里put数据，以便在后续该请求的自定义处理逻辑里使用。
+     */
+    String SELF_CONTEXT_PREFIX = "_self_";
 }

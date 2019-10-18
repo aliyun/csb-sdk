@@ -84,6 +84,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      *                   <li>_api_name  CSB服务名</li>
      *                   <li>_api_version  CSB服务版本号</li>
      *                   <li>_api_group  CSB服务所属服务组名</li>
+     *                   <li>_api_owner_id  服务拥有者用户Id</li>
      *                   <li>userId  服务访问者用户Id</li>
      *                   <li>credentail_name  服务访问者凭证名</li>
      *                   <li>_api_access_key  服务访问者的ak</li>
@@ -91,8 +92,6 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      *                   <li>_remote_real_ip  后端业务服务提供者IP</li>     
      *                   <li>server_protoco  开放协议</li>     
      *                   <li>backend_Protoco  后端服务协议</li>          
-     *                   <li>backend_url  后端业务服务的http地址</li>
-     *                   <li>backend_method  请求后端业务服务的http方法：POST、GET等</li>
      *                   <li>request_http_querys  请求后端业务服务的http query：map<String,List<String>> </li>
      *                   <li>request_headers  请求后端业务服务的http头</li>
      *                   <li>request_body，如果是form请求，则直接body是map。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>

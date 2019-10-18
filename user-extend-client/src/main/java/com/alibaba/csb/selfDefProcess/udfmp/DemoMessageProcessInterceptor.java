@@ -1,8 +1,9 @@
 package com.alibaba.csb.selfDefProcess.udfmp;
 
+import com.alibaba.csb.selfDefProcess.SelfDefProcessException;
+
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 public class DemoMessageProcessInterceptor implements ServerMessageProcessInterceptor {
@@ -12,13 +13,12 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
      *
      * @return
      */
-    public Object requestProcess(Map<String, Object> contextMap) throws RuntimeException {
+    public Object requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.requestProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");
 
-        Map<String, List<String>> querys = (Map<String, List<String>>) contextMap.get(REQUEST_HTTP_QUERYS);
-        querys.put("query1", Arrays.asList("queryValue1"));
+        contextMap.put(SELF_CONTEXT_PREFIX + "Obj1", "self1");//保存自定义上下文
 
         Object body = contextMap.get(REQUEST_BODY);
         if (body instanceof Map) { //form表单提交的请求
@@ -34,7 +34,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
      *
      * @return
      */
-    public Object responseProcess(Map<String, Object> contextMap) throws RuntimeException {
+    public Object responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.responseProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
         headers.put("addRspHeader", "rspheader1");
