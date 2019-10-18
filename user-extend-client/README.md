@@ -196,7 +196,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
 ```
 
 
-## 转发请求给后端业务服务前的自定义处理
+## 调用后端业务服务前的自定义处理
 ### 功能描述
 在CSB broker转发请求给后端业务服务前，自动调用用户自定义的处理逻辑。用户可根据CSB实例名、CSB服务名、CSB凭证、后端业务服务地址、请求头、请求体等信息进行逻辑处理：
 1. 修改、增加、删除请求头。
@@ -360,8 +360,8 @@ public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBacken
 # FAQ
 ## 各自定义扩展逻辑的关系？
 ```
-接收CSB客户端请求 --> 自定义开放服务请求消息处理 --> CSB控制台上服务参数映射 --> 自定义流控 --> 转发请求给后端业务服务前的自定义处理 
-                                                                                                                                   |
-向CSB客户端发送响应结果      <--    自定义开放服务响应消息处理   <--   后端业务服务响应后的自定义处理   <--     调用后端业务服务 <--
+接收CSB客户端请求 --> 自定义开放服务请求消息处理 --> CSB控制台上服务参数映射 --> 自定义流控 --> 调用后端业务服务前的自定义处理 
+                                                                                                                             |
+向CSB客户端发送响应结果    <--   自定义开放服务响应消息处理   <--  后端业务服务响应后的自定义处理   <--   调用后端业务服务 <--
 
 ```
