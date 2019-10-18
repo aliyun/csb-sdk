@@ -52,6 +52,97 @@ public class DemoSelfDefFlowControlImpl implements SelfDefFlowControl {
 }
 ```
 
+## 自定义开放服务请求/响应消息处理
+### 功能描述
+在CSB broker转发请求给后端业务服务前，自动调用用户自定义的处理逻辑。用户可根据CSB实例名、CSB服务名、CSB凭证、后端业务服务地址、请求头、请求体等信息进行逻辑处理：
+1. 修改、增加、删除请求头。
+2. 修改、增加、删除URL的query参数。
+3. 返回新的请求body对象。
+4. 抛出异常，以便中止服务处理，不再转发请求给后端业务服务。
+
+### 条件与约束
+当前仅支持后端业务服务是HTTP/HTTPS的服务。
+
+### 扩展接口定义
+```java
+public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
+     /**
+     * 请求消息处理:收到客户请求后调用。用户可以：
+     * <ul>
+     * <li>  增加、修改、删除：请求头</li>
+     * <li>  修改：通过retrun新的请求body，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
+     * <li> 保存自定义数据到服务处理上下文：直接put("_self_前缀的key",自定义value)</li>
+     * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
+     * </ul>
+     *
+     * @param contextMap 服务请求上下文信息map，各信息的key见 BaseSelfDefProcess 常量定义:
+     *                   <ul>
+     *                    <li> _biz_id 请求业务id</li>    
+     *                   <li> _inner_ecsb_trace_id CSB服务请求唯一标识</li>
+     *                   <li> _csb_internal_name_  CSB实例名</li>
+     *                   <li>_csb_broker_ip  CSB Broker节点的IP</li>
+     *                   <li>_api_name  CSB服务名</li>
+     *                   <li>_api_version  CSB服务版本号</li>
+     *                   <li>_api_group  CSB服务所属服务组名</li>
+     *                   <li>userId  服务访问者用户Id</li>
+     *                   <li>credentail_name  服务访问者凭证名</li>
+     *                   <li>_api_access_key  服务访问者的ak</li>
+     *                   <li>_remote_peer_ip  服务访问者IP</li>
+     *                   <li>_remote_real_ip  后端业务服务提供者IP</li>     
+     *                   <li>server_protoco  开放协议</li>     
+     *                   <li>backend_Protoco  后端服务协议</li>          
+     *                   <li>backend_url  后端业务服务的http地址</li>
+     *                   <li>backend_method  请求后端业务服务的http方法：POST、GET等</li>
+     *                   <li>request_http_querys  请求后端业务服务的http query：map<String,List<String>> </li>
+     *                   <li>request_headers  请求后端业务服务的http头</li>
+     *                   <li>request_body，如果是form请求，则直接body是map。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
+     *                   </ul>
+     * @return 请求body，csb将以此body发送给后端业务服务。如果是form请求，则返回原始request_body对象（map《String,List《String》》），其它情况可以返回string或byte[]。
+     * @throws SelfDefProcessException
+     */
+    Object requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
+}
+
+```
+
+### 使用说明
+本扩展功能基于Java SPI规范实现：
+* [引用接口包 user-extend-client.1.1.6.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/user-extend-client-1.1.6.0.jar) 
+* 实现`com.alibaba.csb.selfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`的 `process` 方法。
+* 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.selfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`文件，文件内容如下：
+```text
+#用户自定义扩展逻辑Java实现类全名
+com.abc.csb.BeforeSend2BackendHttpClass
+```
+* 用户将扩展逻辑打成jar包，上传到CSB Broker的Docker内`/home/admin/cloud-gateway/patchlib`目录内。
+* 重启docker实例。
+### demo示例
+```java
+public class DemoBeforeSend2BackendHttp implements BeforeSend2BackendHttp {
+    public Object process(Map<String, Object> contextMap) throws SelfDefProcessException {
+        System.out.println("DemoBeforeSend2BackendHttp.process contextMap: " + contextMap);
+        Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
+        headers.put("addReqHeader", "reqHeader1");
+
+        Map<String, List<String>> querys = (Map<String, List<String>>) contextMap.get(REQUEST_HTTP_QUERYS);
+        querys.put("query1", Arrays.asList("queryValue1"));
+
+        Object body = contextMap.get(REQUEST_BODY);
+        if (body instanceof Map) { //form表单提交的请求
+            ((Map) body).put("field1", Arrays.asList("value1"));
+        } else if (body instanceof String) { //json和其它文本
+            body += " + aaa";  //设置新的请求文本
+        } else if (body instanceof InputStream) {
+            ;
+        }
+        return body;
+    }
+}
+```
+
+
+
+
 ## 转发请求给后端业务服务前的自定义处理
 ### 功能描述
 在CSB broker转发请求给后端业务服务前，自动调用用户自定义的处理逻辑。用户可根据CSB实例名、CSB服务名、CSB凭证、后端业务服务地址、请求头、请求体等信息进行逻辑处理：
@@ -105,8 +196,8 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
 ### 使用说明
 本扩展功能基于Java SPI规范实现：
 * [引用接口包 user-extend-client.1.1.6.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/user-extend-client-1.1.6.0.jar) 
-* 实现`com.alibaba.csb.SelfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`的 `process` 方法。
-* 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.SelfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`文件，文件内容如下：
+* 实现`com.alibaba.csb.selfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`的 `process` 方法。
+* 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.selfDefProcess.BeforeSend2Backend.BeforeSend2BackendHttp`文件，文件内容如下：
 ```text
 #用户自定义扩展逻辑Java实现类全名
 com.abc.csb.BeforeSend2BackendHttpClass
@@ -186,8 +277,8 @@ public interface AfterResponseFromBackendHttp extends BaseSelfDefProcess {
 ### 使用说明
 本扩展功能基于Java SPI规范实现：
 * [引用接口包 user-extend-client.1.1.6.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/user-extend-client-1.1.6.0.jar) 
-* 实现`com.alibaba.csb.SelfDefProcess.AfterResponseFromBackend.AfterResponseFromBackendHttp`的 `process` 方法。
-* 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.SelfDefProcess.AfterResponseFromBackend.AfterResponseFromBackendHttp`文件，文件内容如下：
+* 实现`com.alibaba.csb.selfDefProcess.AfterResponseFromBackend.AfterResponseFromBackendHttp`的 `process` 方法。
+* 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.selfDefProcess.AfterResponseFromBackend.AfterResponseFromBackendHttp`文件，文件内容如下：
 ```text
 #用户自定义扩展逻辑Java实现类全名
 com.abc.csb.AfterResponseFromBackendHttpClass

@@ -1,6 +1,6 @@
-package com.alibaba.csb.SelfDefProcess.AfterResponseFromBackend;
+package com.alibaba.csb.selfDefProcess.AfterResponseFromBackend;
 
-import com.alibaba.csb.SelfDefProcess.SelfDefProcessException;
+import com.alibaba.csb.selfDefProcess.SelfDefProcessException;
 
 import java.io.InputStream;
 import java.util.Map;

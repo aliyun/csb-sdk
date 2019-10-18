@@ -1,4 +1,4 @@
-package com.alibaba.csb.SelfDefProcess;
+package com.alibaba.csb.selfDefProcess;
 
 import lombok.Data;
 

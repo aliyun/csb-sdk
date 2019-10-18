@@ -1,7 +1,7 @@
-package com.alibaba.csb.SelfDefProcess.BeforeSend2Backend;
+package com.alibaba.csb.selfDefProcess.BeforeSend2Backend;
 
 import com.alibaba.csb.BaseSelfDefProcess;
-import com.alibaba.csb.SelfDefProcess.SelfDefProcessException;
+import com.alibaba.csb.selfDefProcess.SelfDefProcessException;
 
 import java.util.Map;
 

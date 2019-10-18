@@ -10,6 +10,11 @@ package com.alibaba.csb;
  */
 public interface BaseSelfDefProcess {
     /**
+     * 请求业务id : String
+     */
+    String BIZ_ID = "_biz_id";
+
+    /**
      * CSB服务请求唯一标识
      */
     String TRACE_ID = "_inner_ecsb_trace_id";
@@ -87,4 +92,13 @@ public interface BaseSelfDefProcess {
      * 3. 其它请求，则是InputStream或byte[]对象
      */
     String RESPONSE_BODY = "response_body";
+
+    /**
+     * 开放协议
+     */
+    String SERVER_PROTOCO = "server_protoco";
+    /**
+     * 后端服务协议
+     */
+    String BACKEND_PROTOCO = "backend_Protoco";
 }
