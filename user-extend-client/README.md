@@ -361,7 +361,7 @@ public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBacken
 ## 各自定义扩展逻辑的关系？
 ```
 接收CSB客户端请求 --> 自定义开放服务请求消息处理 --> CSB控制台上服务参数映射 --> 自定义流控 --> 调用后端业务服务前的自定义处理 
-                                                                                                                             |
+                                                                                                                     |
 向CSB客户端发送响应结果    <--   自定义开放服务响应消息处理   <--  后端业务服务响应后的自定义处理   <--   调用后端业务服务 <--
 
 ```
