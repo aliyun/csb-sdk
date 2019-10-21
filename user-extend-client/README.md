@@ -57,6 +57,7 @@ public class DemoSelfDefFlowControlImpl implements SelfDefFlowControl {
 * 自定义开放服务请求消息处理：CSB broker接收到CSB客户端发来的请求后，调用此扩展逻辑 ，然后进行CSB控制台界面上的服务参数映射。用户可根据CSB实例名、CSB服务名、CSB凭证、后端业务服务地址、请求头、请求体等信息进行逻辑处理：
     * 修改、增加、删除请求头。
     * 返回新的请求body对象。
+    * 在服务请求消息处理中，可以设置 `_self_`开关的自定义key_value，以便在后续自定义扩展逻辑里使用。
     * 抛出异常，以便中止服务处理，不再转发请求给后端业务服务。
 * 自定义开放服务响应消息处理：CSB broker返回结果消息给CSB客户端之前，调用此扩展逻辑。用户可根据CSB实例名、CSB服务名、CSB凭证、响应头、响应体等信息进行逻辑处理：
     * 修改、增加、删除响应头。
@@ -66,6 +67,7 @@ public class DemoSelfDefFlowControlImpl implements SelfDefFlowControl {
 ### 条件与约束
 * 仅支持对外开放为 HTTP和WS 的服务。
 * 对外开放为WS服务时，暂未提供HttpHeader的入参、增加或修改能力。
+* `_self_`开关的自定义数据，会传递给作为httpheader传递给后端http协议服务，同时也会返回给csb的http客户端。
 
 ### 扩展接口定义
 ```java
