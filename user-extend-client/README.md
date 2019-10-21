@@ -75,7 +75,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      * 请求消息处理:收到客户请求后调用。用户可以：
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
-     * <li>  修改：通过retrun新的请求body，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
+     * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      * <li>  保存自定义数据到服务处理上下文：直接put("_self_前缀的key",自定义value)</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
      * </ul>
@@ -100,16 +100,15 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      *                   <li>request_headers  请求http头</li>
      *                   <li>request_body，如果是form请求，则直接body是map。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      *                   </ul>
-     * @return 处理后的请求body
      * @throws SelfDefProcessException
      */
-    Object requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
+    void requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
     
      /**
          * 响应消息处理:向客户发送响应结果之前调用
          * <ul>
          * <li>  增加、修改、删除：响应头</li>
-         * <li>  修改：通过retrun新的响应body，达到修改body的目标。如果响应是文本，则是String对象。否则就是InputStream或byte[]对象。</li>
+         * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果响应是文本，则是String对象。否则就是InputStream或byte[]对象。</li>
          * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
          * </ul>
          *
@@ -132,10 +131,9 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
          *                   <li>response_body  如果响应是文本，则是String对象。否则就是InputStream或byte[]对象</li>
          *                   <li>response_exception  响应结果异常：后端业务服务返回的异常，或csb处理响应结果时产生的异常。可能为空</li>
          *                   </ul>
-         * @return  处理后的响应body，csb将以此body返回给客户端。可以是string或byte[]
          * @throws SelfDefProcessException
          */
-        Object responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
+        void responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
 }
 ```
 
@@ -159,7 +157,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
      *
      * @return
      */
-    public Object requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
+    public void requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.requestProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");//增加http请求头
@@ -180,7 +178,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
      *
      * @return
      */
-    public Object responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
+    public void responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.responseProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
         headers.put("addRspHeader", "rspheader1"); //增加http响应头
@@ -191,7 +189,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
         } else if (body instanceof InputStream) {
             ;
         }
-        return body;
+        contextMap.put(RESPONSE_BODY, body);
     }
 }
 ```
@@ -216,7 +214,7 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
      * <li>  增加、修改、删除：query参数</li>
-     * <li>  修改：通过retrun新的响应body，达到修改body的目标。如果是form请求，则直接body是map。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
+     * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果是form请求，则直接body是map。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
    * </ul>
      *
@@ -239,10 +237,9 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
      *                   <li>request_headers  请求后端业务服务的http头</li>
      *                   <li>request_body，如果是form请求，则直接body是map。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      *                   </ul>
-     * @return 请求body，csb将以此body发送给后端业务服务。如果是form请求，则返回原始request_body对象（map《String,List《String》》），其它情况可以返回string或byte[]。
      * @throws SelfDefProcessException
      */
-    Object process(final Map<String, Object> contextMap) throws SelfDefProcessException;
+    void process(final Map<String, Object> contextMap) throws SelfDefProcessException;
 }
 
 ```
@@ -261,7 +258,7 @@ com.abc.csb.BeforeSend2BackendHttpClass
 ### demo示例
 ```java
 public class DemoBeforeSend2BackendHttp implements BeforeSend2BackendHttp {
-    public Object process(Map<String, Object> contextMap) throws SelfDefProcessException {
+    public void process(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoBeforeSend2BackendHttp.process contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");
@@ -277,7 +274,7 @@ public class DemoBeforeSend2BackendHttp implements BeforeSend2BackendHttp {
         } else if (body instanceof InputStream) {
             ;
         }
-        return body;
+       contextMap.put(RESPONSE_BODY, body);
     }
 }
 ```
@@ -300,7 +297,7 @@ public interface AfterResponseFromBackendHttp extends BaseSelfDefProcess {
      * 自定义处理逻辑，用户可以：
      * <ul>
      * <li>  增加、修改、删除：响应头</li>
-     * <li>  修改：通过retrun新的响应body，达到修改body的目标。如果响应是文本，则是String对象。否则就是InputStream或byte[]对象。</li>
+     * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果响应是文本，则是String对象。否则就是InputStream或byte[]对象。</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
    * </ul>
      *
@@ -323,7 +320,7 @@ public interface AfterResponseFromBackendHttp extends BaseSelfDefProcess {
      * @return 响应body，csb将以此body返回给客户端。可以是string或byte[]
      * @throws SelfDefProcessException
      */
-    Object process(final Map<String, Object> contextMap) throws SelfDefProcessException;
+    void process(final Map<String, Object> contextMap) throws SelfDefProcessException;
 }
 
 ```
@@ -342,7 +339,7 @@ com.abc.csb.AfterResponseFromBackendHttpClass
 ### demo示例
 ```java
 public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBackendHttp {
-    public Object process(Map<String, Object> contextMap) throws SelfDefProcessException {
+    public void process(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoAfterResponseFromBackendHttp.process contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
         headers.put("addRspHeader", "rspheader1");
@@ -353,7 +350,7 @@ public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBacken
         } else if (body instanceof InputStream) {
             ;
         }
-        return body;
+        contextMap.put(RESPONSE_BODY, body);
     }
 }
 ```

@@ -13,7 +13,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
      *
      * @return
      */
-    public Object requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
+    public void requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.requestProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");//增加http请求头
@@ -26,7 +26,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
         } else if (body instanceof String) { //json和其它文本
             body += " + aaa";  //设置新的请求文本
         }
-        return body;
+        contextMap.put(RESPONSE_BODY, body);
     }
 
     /**
@@ -34,7 +34,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
      *
      * @return
      */
-    public Object responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
+    public void responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.responseProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
         headers.put("addRspHeader", "rspheader1");//增加http响应头
@@ -45,6 +45,6 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
         } else if (body instanceof InputStream) {
             ;
         }
-        return body;
+        contextMap.put(RESPONSE_BODY, body);
     }
 }

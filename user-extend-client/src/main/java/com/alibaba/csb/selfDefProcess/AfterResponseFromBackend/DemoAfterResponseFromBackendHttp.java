@@ -10,7 +10,7 @@ import java.util.Map;
  * 2019/9/24-11:33.
  */
 public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBackendHttp {
-    public Object process(Map<String, Object> contextMap) throws SelfDefProcessException {
+    public void process(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoAfterResponseFromBackendHttp.process contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
         headers.put("addRspHeader", "rspheader1"); //增加http响应头
@@ -21,6 +21,6 @@ public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBacken
         } else if (body instanceof InputStream) {
             ;
         }
-        return body;
+        contextMap.put(RESPONSE_BODY, body);
     }
 }

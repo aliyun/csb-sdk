@@ -17,7 +17,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      * 请求消息处理:收到客户请求后调用。用户可以：
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
-     * <li>  修改：通过retrun新的请求body，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
+     * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      * <li>  保存自定义数据到服务处理上下文：直接put("_self_ {@link com.alibaba.csb.BaseSelfDefProcess#SELF_CONTEXT_PREFIX} 前缀的key",自定义value)</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
      * </ul>
@@ -42,15 +42,14 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      *                   <li>request_headers  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_HEADERS}</li>
      *                   <li>request_body  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_BODY}</li>
      *                   </ul>
-     * @return 处理后的请求body
      */
-    Object requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
+    void requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
 
     /**
      * 响应消息处理:向客户发送响应结果之前调用
      * <ul>
      * <li>  增加、修改、删除：响应头</li>
-     * <li>  修改：通过retrun新的响应body，达到修改body的目标。如果响应是文本，则是String对象。否则就是InputStream或byte[]对象。</li>
+     * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果响应是文本，则是String对象。否则就是InputStream或byte[]对象。</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
      * </ul>
      *
@@ -73,7 +72,6 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      *                   <li>response_body  {@link BaseSelfDefProcess#RESPONSE_BODY}</li>
      *                   <li>response_exception  {@link BaseSelfDefProcess#RESPONSE_EXCEPTION}</li>
      *                   </ul>
-     * @return  处理后的响应body，csb将以此body返回给客户端。可以是string或byte[]
      */
-    Object responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
+    void responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException;
 }

@@ -16,7 +16,7 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
      * <li>  增加、修改、删除：query参数</li>
-     * <li>  修改：通过retrun新的响应body，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
+     * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
      * </ul>
      *
@@ -39,8 +39,7 @@ public interface BeforeSend2BackendHttp extends BaseSelfDefProcess {
      *                   <li>request_headers  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_HEADERS}</li>
      *                   <li>request_body  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_BODY}</li>
      *                   </ul>
-     * @return 请求body，csb将以此body发送给后端业务服务。如果是form请求，则返回原始request_body对象（map《String,List《String》》），其它情况可以返回string或byte[]。
      * @throws SelfDefProcessException
      */
-    Object process(final Map<String, Object> contextMap) throws SelfDefProcessException;
+    void process(final Map<String, Object> contextMap) throws SelfDefProcessException;
 }

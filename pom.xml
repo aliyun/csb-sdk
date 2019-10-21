@@ -22,6 +22,7 @@
         <module>http-client</module>
         <module>ws-client</module>
         <module>trace-eagleeye</module>
+        <module>demoVerify</module>
     </modules>
 
     <organization>
