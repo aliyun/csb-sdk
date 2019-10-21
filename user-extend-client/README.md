@@ -67,7 +67,6 @@ public class DemoSelfDefFlowControlImpl implements SelfDefFlowControl {
 ### 条件与约束
 * 仅支持对外开放为 HTTP和WS 的服务。
 * 对外开放为WS服务时，暂未提供HttpHeader的入参、增加或修改能力。
-* `_self_`开关的自定义数据，会传递给作为httpheader传递给后端http协议服务，同时也会返回给csb的http客户端。
 
 ### 扩展接口定义
 ```java
