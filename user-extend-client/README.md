@@ -274,7 +274,7 @@ public class DemoBeforeSend2BackendHttp implements BeforeSend2BackendHttp {
         } else if (body instanceof InputStream) {
             ;
         }
-       contextMap.put(RESPONSE_BODY, body);
+       contextMap.put(REQUEST_BODY, body);
     }
 }
 ```
