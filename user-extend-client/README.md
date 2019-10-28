@@ -170,7 +170,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
         } else if (body instanceof String) { //json和其它文本
             body += " + aaa";  //设置新的请求文本
         }
-        return body;
+        contextMap.put(RESPONSE_BODY, body);
     }
 
     /**
