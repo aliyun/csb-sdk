@@ -77,6 +77,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      * <li>  增加、修改、删除：请求头</li>
      * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      * <li>  保存自定义数据到服务处理上下文：直接put("_self_前缀的key",自定义value)</li>
+     * <li>  直接中止处理流程，直接返回结果消息返回给CSB客户端</li>
      * <li>  抛出异常，以中止服务处理，异常消息将直接返回给CSB客户端</li>
      * </ul>
      *
@@ -164,13 +165,17 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
 
         contextMap.put(SELF_CONTEXT_PREFIX + "Obj1", "self1");//保存自定义上下文
 
-        Object body = contextMap.get(REQUEST_BODY);
-        if (body instanceof Map) { //form表单提交的请求
-            ((Map) body).put("field1", Arrays.asList("value1"));
-        } else if (body instanceof String) { //json和其它文本
-            body += " + aaa";  //设置新的请求文本
+        if ("true".equals(headers.get("mockFlag"))) {
+            contextMap.put(RESPONSE_BODY, "模拟响应结果");//直接返回模拟结果。
+        } else {
+            Object body = contextMap.get(REQUEST_BODY);
+            if (body instanceof Map) { //form表单提交的请求
+                ((Map) body).put("field1", Arrays.asList("value1"));
+            } else if (body instanceof String) { //json和其它文本
+                body += " + aaa";  //设置新的请求文本
+            }
+            contextMap.put(REQUEST_BODY, body);
         }
-        contextMap.put(REQUEST_BODY, body);
     }
 
     /**

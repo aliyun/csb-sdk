@@ -20,13 +20,17 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
 
         contextMap.put(SELF_CONTEXT_PREFIX + "Obj1", "self1");//保存自定义上下文
 
-        Object body = contextMap.get(REQUEST_BODY);
-        if (body instanceof Map) { //form表单提交的请求
-            ((Map) body).put("field1", Arrays.asList("value1"));
-        } else if (body instanceof String) { //json和其它文本
-            body += " + aaa";  //设置新的请求文本
+        if ("true".equals(headers.get("mockFlag"))) {
+            contextMap.put(RESPONSE_BODY, "模拟响应结果");//直接返回模拟结果。
+        } else {
+            Object body = contextMap.get(REQUEST_BODY);
+            if (body instanceof Map) { //form表单提交的请求
+                ((Map) body).put("field1", Arrays.asList("value1"));
+            } else if (body instanceof String) { //json和其它文本
+                body += " + aaa";  //设置新的请求文本
+            }
+            contextMap.put(REQUEST_BODY, body);
         }
-        contextMap.put(RESPONSE_BODY, body);
     }
 
     /**
