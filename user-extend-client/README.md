@@ -166,6 +166,9 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
         contextMap.put(SELF_CONTEXT_PREFIX + "Obj1", "self1");//保存自定义上下文
 
         if ("true".equals(headers.get("mockFlag"))) {
+                Map<String, String> responseHeaders = new HashMap<String, String>();
+                responseHeaders.put("mockResponse", "true");
+                contextMap.put(RESPONSE_HEADERS,responseHeaders);//设置返回结果httpheaders
             contextMap.put(RESPONSE_BODY, "模拟响应结果");//直接返回模拟结果。
         } else {
             Object body = contextMap.get(REQUEST_BODY);
