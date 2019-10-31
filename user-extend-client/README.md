@@ -75,6 +75,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      * 请求消息处理:收到客户请求后调用。用户可以：
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
+     * <li>  增加、修改、删除：query参数</li>
      * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      * <li>  保存自定义数据到服务处理上下文：直接put("_self_前缀的key",自定义value)</li>
      * <li>  直接中止处理流程：comtextMap设置了直RESPONSE_BODY，则会中止后续处理，直接将 RESPONSE_BODY 返回给CSB客户端（同时可设置响应消息头 RESPONSE_HEADERS，参见示例说明）</li>
@@ -162,6 +163,9 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
         System.out.println("DemoMessageProcessInterceptor.requestProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");//增加http请求头
+        
+        Map<String, List<String>> querys = (Map<String, List<String>>) contextMap.get(REQUEST_HTTP_QUERYS);
+        querys.put("query1", Arrays.asList("queryValue1")); //修改http query
 
         contextMap.put(SELF_CONTEXT_PREFIX + "Obj1", "self1");//保存自定义上下文
 

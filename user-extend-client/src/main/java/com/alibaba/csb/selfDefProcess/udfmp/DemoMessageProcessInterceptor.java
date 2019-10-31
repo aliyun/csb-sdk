@@ -5,6 +5,7 @@ import com.alibaba.csb.selfDefProcess.SelfDefProcessException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DemoMessageProcessInterceptor implements ServerMessageProcessInterceptor {
@@ -18,6 +19,9 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
         System.out.println("DemoMessageProcessInterceptor.requestProcess contextMap: " + contextMap);
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");//增加http请求头
+
+        Map<String, List<String>> querys = (Map<String, List<String>>) contextMap.get(REQUEST_HTTP_QUERYS);
+        querys.put("query1", Arrays.asList("queryValue1")); //修改http query
 
         contextMap.put(SELF_CONTEXT_PREFIX + "Obj1", "self1");//保存自定义上下文
 

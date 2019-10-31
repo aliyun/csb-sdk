@@ -18,7 +18,7 @@ public class DemoBeforeSend2BackendHttp implements BeforeSend2BackendHttp {
         headers.put("addReqHeader", "reqHeader1");//增加http请求头
 
         Map<String, List<String>> querys = (Map<String, List<String>>) contextMap.get(REQUEST_HTTP_QUERYS);
-        querys.put("query1", Arrays.asList("queryValue1"));
+        querys.put("query1", Arrays.asList("queryValue1")); //修改http query
 
         Object body = contextMap.get(REQUEST_BODY);
         if (body instanceof Map) { //form表单提交的请求
