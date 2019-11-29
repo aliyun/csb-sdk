@@ -75,6 +75,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      * 请求消息处理:收到客户请求后调用。用户可以：
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
+     * <li>  修改：后端接入服务的url</li>
      * <li>  增加、修改、删除：query参数</li>
      * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      * <li>  保存自定义数据到服务处理上下文：直接put("_self_前缀的key",自定义value)</li>
@@ -98,7 +99,8 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      *                   <li>_remote_peer_ip  服务访问者IP</li>
      *                   <li>_remote_real_ip  后端业务服务提供者IP</li>     
      *                   <li>server_protoco  开放协议</li>     
-     *                   <li>backend_Protoco  后端服务协议</li>          
+     *                   <li>backend_Protoco  后端服务协议</li>      
+     *                   <li>backend_url 后端服务地址URL</li>
      *                   <li>request_headers  请求http头</li>
      *                   <li>request_body，如果是form请求，则直接body是map。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      *                   </ul>

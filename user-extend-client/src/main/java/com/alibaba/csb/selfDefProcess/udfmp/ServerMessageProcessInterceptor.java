@@ -17,6 +17,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      * 请求消息处理:收到客户请求后调用。用户可以：
      * <ul>
      * <li>  增加、修改、删除：请求头</li>
+     * <li>  修改：后端接入服务的url</li>
      * <li>  增加、修改、删除：query参数</li>
      * <li>  修改：通过 contextMap.put(RESPONSE_BODY,body)，达到修改body的目标。如果是form请求，则直接body是map《String，List《String》》。如果是非form的文本请求，则body是String。其它请求，则是InputStream或byte[]对象</li>
      * <li>  保存自定义数据到服务处理上下文：直接put("_self_ {@link com.alibaba.csb.BaseSelfDefProcess#SELF_CONTEXT_PREFIX} 前缀的key",自定义value)</li>
@@ -40,6 +41,7 @@ public interface ServerMessageProcessInterceptor extends BaseSelfDefProcess {
      *                   <li>_remote_real_ip  {@link com.alibaba.csb.BaseSelfDefProcess#BACKEND_REAL_IP}</li>
      *                   <li>server_protoco {@link com.alibaba.csb.BaseSelfDefProcess#SERVER_PROTOCO}</li>
      *                   <li>backend_Protoco {@link com.alibaba.csb.BaseSelfDefProcess#BACKEND_PROTOCO}</li>
+     *                   <li>backend_url  {@link com.alibaba.csb.BaseSelfDefProcess#BACKEND_URL}</li>
      *                   <li>request_http_querys {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_HTTP_QUERYS}</li>
      *                   <li>request_headers  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_HEADERS}</li>
      *                   <li>request_body  {@link com.alibaba.csb.BaseSelfDefProcess#REQUEST_BODY}</li>
