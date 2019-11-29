@@ -20,6 +20,9 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");//增加http请求头
 
+        String backendUrl = (String) contextMap.get(BACKEND_URL);
+        headers.put(BACKEND_URL, backendUrl + "/demo1");//修改后端服务地址URL
+
         Map<String, List<String>> querys = (Map<String, List<String>>) contextMap.get(REQUEST_HTTP_QUERYS);
         querys.put("query1", Arrays.asList("queryValue1")); //修改http query
 
@@ -28,7 +31,7 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
         if ("true".equals(headers.get("mockFlag"))) {
             Map<String, String> responseHeaders = new HashMap<String, String>();
             responseHeaders.put("mockResponse", "true");
-            contextMap.put(RESPONSE_HEADERS,responseHeaders);//设置返回结果httpheaders
+            contextMap.put(RESPONSE_HEADERS, responseHeaders);//设置返回结果httpheaders
             contextMap.put(RESPONSE_BODY, "模拟响应结果");//直接返回模拟结果。
         } else {
             Object body = contextMap.get(REQUEST_BODY);
