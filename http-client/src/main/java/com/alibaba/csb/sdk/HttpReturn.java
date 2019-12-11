@@ -66,7 +66,7 @@ public class HttpReturn {
                     String contentTypeStr = respHttpHeaderMap.get(HTTP.CONTENT_TYPE);
                     if (contentTypeStr != null && contentTypeStr.equals("") == false) {
                         ContentType contentType = ContentType.parse(contentTypeStr);
-                        if (contentType != null) {
+                        if (contentType != null && contentType.getCharset() != null) {
                             charset = contentType.getCharset().name();
                         }
                     }
