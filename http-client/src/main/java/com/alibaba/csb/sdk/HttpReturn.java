@@ -1,5 +1,6 @@
 package com.alibaba.csb.sdk;
 
+import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 
 import java.util.HashMap;
@@ -60,7 +61,17 @@ public class HttpReturn {
             return response;
         } else if (responseBytes != null) {
             try {
-                return new String(responseBytes, HTTP.UTF_8);
+                String charset = HTTP.UTF_8;//没有返回contentType，则默认是utf-8，以便兼容历史http2ws无返回contentType的场景。
+                if (respHttpHeaderMap != null) {
+                    String contentTypeStr = respHttpHeaderMap.get(HTTP.CONTENT_TYPE);
+                    if (contentTypeStr != null && contentTypeStr.equals("") == false) {
+                        ContentType contentType = ContentType.parse(contentTypeStr);
+                        if (contentType != null) {
+                            charset = contentType.getCharset().name();
+                        }
+                    }
+                }
+                return new String(responseBytes, charset);
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage(), e);
             }

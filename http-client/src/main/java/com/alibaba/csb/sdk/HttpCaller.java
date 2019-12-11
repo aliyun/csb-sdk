@@ -22,6 +22,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
@@ -942,12 +943,12 @@ public class HttpCaller {
         HttpEntity responseEntity = response.getEntity();
         Header header = responseEntity.getContentType();
         if (header == null) {
-            rret.response = EntityUtils.toString(responseEntity); //兼容csb本身的不规范
+            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8); //兼容csb本身的不规范
             return;
         }
         String contentType = header.getValue();
         if (contentType == null || contentType == "") {
-            rret.response = EntityUtils.toString(responseEntity);//兼容csb本身的不规范
+            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8);//兼容csb本身的不规范
             return;
         }
 
