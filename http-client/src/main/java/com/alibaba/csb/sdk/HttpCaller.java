@@ -206,11 +206,10 @@ public class HttpCaller {
     protected static final String DEFAULT_RESTFUL_PROTOCOL_VERSION = "1.0";
     protected static final String RESTFUL_PROTOCOL_VERION_KEY = "restful_protocol_version";
 
-
     // TODO: must set truststore for ssl
     public static final String trustCA = System.getProperty("http.caller.ssl.trustca");
 
-    public static final String DEFAULT_CHARSET = "UTF-8";
+    public static final String DEFAULT_CHARSET = HTTP.UTF_8;
     public static final String GZIP = "gzip";
 
     protected static String defaultAK = null;
@@ -943,12 +942,12 @@ public class HttpCaller {
         HttpEntity responseEntity = response.getEntity();
         Header header = responseEntity.getContentType();
         if (header == null) {
-            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8); //兼容csb本身的不规范
+            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8); //兼容csb历史版本的不规范
             return;
         }
         String contentType = header.getValue();
         if (contentType == null || contentType == "") {
-            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8);//兼容csb本身的不规范
+            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8);//兼容csb历史版本的不规范
             return;
         }
 

@@ -6,6 +6,8 @@ import org.apache.http.protocol.HTTP;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.alibaba.csb.sdk.HttpCaller.DEFAULT_CHARSET;
+
 /**
  * Http Return 对象 包含调用的返回结果，并且包含一些诊断相关的信息包括：
  * <pre>
@@ -61,7 +63,7 @@ public class HttpReturn {
             return response;
         } else if (responseBytes != null) {
             try {
-                String charset = HTTP.UTF_8;//没有返回contentType，则默认是utf-8，以便兼容历史http2ws无返回contentType的场景。
+                String charset = DEFAULT_CHARSET;//没有返回contentType，使用默认值，以便兼容历史http2ws无返回contentType的场景。
                 if (respHttpHeaderMap != null) {
                     String contentTypeStr = respHttpHeaderMap.get(HTTP.CONTENT_TYPE);
                     if (contentTypeStr != null && contentTypeStr.equals("") == false) {
