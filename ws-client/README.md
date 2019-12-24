@@ -4,7 +4,8 @@
 
 
  * 如果使用命令行方式调用SDK,根据需要将standaloned的运行包放在调用端的CLASSPATH环境里  
-[最新版本 ws-sdk-1.1.5.5.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.5.jar), [源代码包 ws-sdk-1.1.5.5-sources.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.5-sources.jar)
+[最新版本 ws-sdk-1.1.5.7.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.7.jar)
+[ws-sdk-1.1.5.5.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.5.jar)
 [ws-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.4.0.jar)  
 [旧版本 ws-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.0.4.2plus.jar)  
 [trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)  
@@ -101,8 +102,7 @@ usage: java -jar wsclient.jar [options...]
  -soap12                      -soap12 为soap12调用, 不定义为soap11
  -nonce                       如果设置则进行防止重放
  -version <arg>               服务版本
- -wa <arg>                    wsdl地址，e.g:
-                              http://broker-ip:9081/api/version/method?wsdl
+ -action <arg>                SOAPAction，e.g:http://xx.com/abc
  -bizIdKey <arg>              设置bizIdKey(默认:_biz_id)
  -bizId <arg>                 设置bizId值(透传到endpoint)
 ```
@@ -117,9 +117,9 @@ TIP: 如何从已知的WSDL中确定上述调用参数
 
 ```
 java -jar target/ws-client-1.1.4-SNAPSHOT.jar  -ak ak -sk sk -api PING -version vcsb \
-  -wa http://11.239.187.178:9081/PING/vcsb/ws2restful?wsdl \
   -ea http://11.239.187.178:9081/PING/vcsb/ws2restful \
   -ns http://ws2restful.PING.csb/ -sname PING -pname ws2restfulPortType \
+  -action http://xx.yy/abc \
   -rd '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:test="http://ws2restful.PING.csb/">
 <soapenv:Header/>
 <soapenv:Body>
