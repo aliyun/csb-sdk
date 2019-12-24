@@ -24,7 +24,6 @@ public class CmdWsCallerTest {
                 "-sk", "sk",
                 "-api", "PING",
                 "-version", "vcsb",
-                "-wa", "http://11.239.187.178:9081/PING/vcsb/ws2restful?wsdl",
                 "-ea", "http://11.239.187.178:9081/PING/vcsb/ws2restful",
                 "-ns", "http://ws2restful.PING.csb/",
                 "-sname", "PING",
