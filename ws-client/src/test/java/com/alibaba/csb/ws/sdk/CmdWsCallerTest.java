@@ -41,6 +41,7 @@ public class CmdWsCallerTest {
                 "-ak", "ak",
                 "-sk", "sk",
                 "-api", "PING",
+                "-wa", "PING",
                 "-version", "vcsb",
                 "-ea", "http://localhost:9081/PING/vcsb/ws2restful",
                 "-ns", "http://webservices.amazon.com/AWSECommerceService/2011-08-01",
