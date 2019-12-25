@@ -33,6 +33,24 @@ public class WSInvoker {
      * @param sname
      * @param pname
      * @param isSoap12
+     * @param wa
+     * @param ea
+     * @return
+     * @throws Exception
+     */
+    public static Dispatch<SOAPMessage> createDispatch(WSParams params, String ns, String sname,
+                                                       String pname, boolean isSoap12, String wa, String ea) throws Exception {
+        return createDispatch(params, ns, sname, pname, null, isSoap12, ea);
+    }
+
+    /**
+     * 创建 soap dispatch
+     *
+     * @param params
+     * @param ns
+     * @param sname
+     * @param pname
+     * @param isSoap12
      * @param ea
      * @return
      * @throws Exception
@@ -111,6 +129,26 @@ public class WSInvoker {
         for (Map.Entry<String, String> kv : requestHeaders.entrySet()) {
             httpHeaders.put(kv.getKey(), Arrays.asList(kv.getValue()));
         }
+    }
+
+    /**
+     * ws调用，把一个soap文本发送到后端服务，并把返回soap转换为字符串返回
+     *
+     * @param params
+     * @param ns
+     * @param sname
+     * @param pname
+     * @param isSoap12
+     * @param wa
+     * @param ea
+     * @param reqSoap
+     * @param httpHeaders
+     * @return
+     * @throws Exception
+     */
+    public static String invokeSoapString(WSParams params, String ns, String sname,
+                                          String pname, boolean isSoap12, String wa, String ea, String reqSoap, Map<String, String> httpHeaders) throws Exception {
+        return invokeSoapString(params, ns, sname, pname, null, isSoap12, ea, reqSoap, httpHeaders);
     }
 
     /**
