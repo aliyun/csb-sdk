@@ -47,44 +47,43 @@ public class WSInvoker {
      * 创建 soap dispatch
      *
      * @param params
-     * @param ns
-     * @param sname
-     * @param pname
+     * @param nameSpace
+     * @param serviceName
+     * @param portName
      * @param isSoap12
-     * @param ea
+     * @param endpoint
      * @return
      * @throws Exception
      */
-    public static Dispatch<SOAPMessage> createDispatch(WSParams params, String ns, String sname, String pname, String soapActionUri, boolean isSoap12, String ea) throws Exception {
+    public static Dispatch<SOAPMessage> createDispatch(WSParams params, String nameSpace, String serviceName, String portName, String soapActionUri, boolean isSoap12, String endpoint) {
         // Service Qname as defined in the WSDL.
-        QName serviceName = new QName(ns, sname);
+        QName sName = new QName(nameSpace, serviceName);
 
         // Port QName as defined in the WSDL.
-        QName portName = new QName(ns, pname);
+        QName pName = new QName(nameSpace, portName);
 
         // Create a dynamic Service instance
-        Service service = Service.create(serviceName);
+        Service service = Service.create(sName);
 
         if (!isSoap12) {
-            service.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, ea);
+            service.addPort(pName, SOAPBinding.SOAP11HTTP_BINDING, endpoint);
         } else {
-            service.addPort(portName, SOAPBinding.SOAP12HTTP_BINDING, ea);
+            service.addPort(pName, SOAPBinding.SOAP12HTTP_BINDING, endpoint);
         }
 
         // Create a dispatch instance
-        Dispatch<SOAPMessage> dispatch = service.createDispatch(portName, SOAPMessage.class, Service.Mode.MESSAGE);
+        Dispatch<SOAPMessage> dispatch = service.createDispatch(pName, SOAPMessage.class, Service.Mode.MESSAGE);
 
         if (soapActionUri != null) {
             dispatch.getRequestContext().put(Dispatch.SOAPACTION_USE_PROPERTY, new Boolean(true));
             dispatch.getRequestContext().put(Dispatch.SOAPACTION_URI_PROPERTY, soapActionUri.trim());
         }
 
-        BindingProvider bp = (BindingProvider) dispatch;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, ea);
-
+        dispatch.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
         dispatch = WSClientSDK.bind(dispatch, params);
         return dispatch;
     }
+
 
     /**
      * 创建请求soap message
@@ -94,19 +93,25 @@ public class WSInvoker {
      * @return
      * @throws Exception
      */
-    public static SOAPMessage createSOAPMessage(boolean isSoap12, String reqSoap) throws Exception {
+    public static SOAPMessage createSOAPMessage(boolean isSoap12, String reqSoap) {
+        try {
+            // Add a port to the Service
+            SOAPMessage request = null;
+            InputStream is = new ByteArrayInputStream(reqSoap.getBytes());
+            if (!isSoap12) {
+                // covert string to soap message
+                request = MessageFactory.newInstance().createMessage(null, is);
+            } else {
+                request = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL).createMessage(null, is);
+            }
 
-        // Add a port to the Service
-        SOAPMessage request = null;
-        InputStream is = new ByteArrayInputStream(reqSoap.getBytes());
-        if (!isSoap12) {
-            // covert string to soap message
-            request = MessageFactory.newInstance().createMessage(null, is);
-        } else {
-            request = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL).createMessage(null, is);
+            return request;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
-        return request;
     }
 
 
