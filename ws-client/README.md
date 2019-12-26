@@ -51,6 +51,36 @@ Response	response	=	proxy.method1(...);
 …
 ```
 
+## 使用WSInvoker发起调用
+```java
+public class WSInvokerTest {
+    public void test() {
+        String nameSpace = "http://xxx.yyy.com/zzzService";
+        String serviceName = "zzzService";
+        String portName = "zzzServicePortType";
+        String soapActionUri = "http://xxx.yyy.com/action1";
+        boolean isSoap12 = false;
+        String endpoint = "http://localhost:9081/csbTest/1.0.0/ws2ws";
+        String reqSoap = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ws2=\"http://ws2ws.csbTest.csb/\">\n" +
+                "   <soapenv:Header/>\n" +
+                "   <soapenv:Body>\n" +
+                "      <ws2:ws2ws>\n" +
+                "         <pageSize>10</pageSize>\n" +
+                "      </ws2:ws2ws>\n" +
+                "   </soapenv:Body>\n" +
+                "</soapenv:Envelope>";
+        
+        WSParams params = WSParams.create().api("csbTest").version("1.0.0").accessKey("ak1").secretKey("sk");
+        
+        Dispatch<SOAPMessage> dispatch = WSInvoker.createDispatch(params, nameSpace, serviceName, portName, soapActionUri, isSoap12, endpoint);
+        SOAPMessage request = WSInvoker.createSOAPMessage(isSoap12, reqSoap);
+        
+        SOAPMessage response = dispatch.invoke(request);
+        System.out.println(response);
+    }
+}
+```
+
 ## 3. WSDL的开放说明
 
 根据CSB的设计约定，当CSB开放成WebService服务时，对应的WSDL的地址为如下格式：
