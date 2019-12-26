@@ -15,7 +15,7 @@
  <dependency>
    <groupId>com.alibaba.csb.sdk</groupId>
    <artifactId>ws-client</artifactId>
-   <version>1.1.5.5</version>
+   <version>1.1.5.7</version>
  </dependency>
  ```
 
