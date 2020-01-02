@@ -463,20 +463,20 @@ startTime|endTime|cost|HTTP/WS|localhost|dest|bizId|requestId|traceId|rpcId|api|
 * EDAS  
   EagleEye.getTraceId()  
   EagleEye.getRpcId()  
-  EagleEye.getUserData($bizIdKey)  
-  EagleEye.getRequestId()  
+  EagleEye.getUserData($bizIdKey)             //设置的bizIdKey, 默认为_biz_id  
+  EagleEye.getUserData("_inner_ecsb_request_id")  
 * HTTP/WS  
-  request.getHeader(TraceData.TRACEID_KEY)    //_inner_ecsb_trace_id  
-  request.getHeader(TraceData.RPCID_KEY)      //_inner_ecsb_rpc_id  
-  request.getHeader(HttpCaller.bizIdKey())    //设置的bizIdKey  
-  request.getHeader(REQUESTID_KEY)            //_inner_ecsb_request_id  
+  request.getHeader("_inner_ecsb_trace_id")  
+  request.getHeader("_inner_ecsb_rpc_id")  
+  request.getHeader($bizIdKey)                //设置的bizIdKey, 默认为_biz_id  
+  request.getHeader("_inner_ecsb_request_id")  
 * HSF  
   EagleEye.getTraceId()  
   EagleEye.getRpcId()  
   EagleEye.getUserData($bizIdKey)  
-  EagleEye.getRequestId()  
+  EagleEye.getUserData("_inner_ecsb_request_id")  
 * Dubbo  
-   RpcContext.getContext().getAttachment("_inner_ecsb_trace_id")  
-   RpcContext.getContext().getAttachment("_inner_ecsb_rpc_id")  
-   RpcContext.getContext().getAttachment($bizIdKey)  
-   RpcContext.getContext().getAttachment("_inner_ecsb_request_id")  
+  RpcContext.getContext().getAttachment("_inner_ecsb_trace_id")  
+  RpcContext.getContext().getAttachment("_inner_ecsb_rpc_id")  
+  RpcContext.getContext().getAttachment($bizIdKey)  //设置的bizIdKey, 默认为_biz_id  
+  RpcContext.getContext().getAttachment("_inner_ecsb_request_id")  
