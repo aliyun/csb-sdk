@@ -22,6 +22,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
@@ -205,11 +206,10 @@ public class HttpCaller {
     protected static final String DEFAULT_RESTFUL_PROTOCOL_VERSION = "1.0";
     protected static final String RESTFUL_PROTOCOL_VERION_KEY = "restful_protocol_version";
 
-
     // TODO: must set truststore for ssl
     public static final String trustCA = System.getProperty("http.caller.ssl.trustca");
 
-    public static final String DEFAULT_CHARSET = "UTF-8";
+    public static final String DEFAULT_CHARSET = HTTP.UTF_8;
     public static final String GZIP = "gzip";
 
     protected static String defaultAK = null;
@@ -942,12 +942,12 @@ public class HttpCaller {
         HttpEntity responseEntity = response.getEntity();
         Header header = responseEntity.getContentType();
         if (header == null) {
-            rret.response = EntityUtils.toString(responseEntity); //兼容csb本身的不规范
+            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8); //兼容csb历史版本的不规范
             return;
         }
         String contentType = header.getValue();
         if (contentType == null || contentType == "") {
-            rret.response = EntityUtils.toString(responseEntity);//兼容csb本身的不规范
+            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8);//兼容csb历史版本的不规范
             return;
         }
 
@@ -1203,12 +1203,12 @@ public class HttpCaller {
                 pidx = url.indexOf("/", cidx + 3);
             }
             String dest = url.substring(cidx + 3, pidx);
-            LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
+            LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
                     , "HTTP", IPUtils.getLocalHostIP(), dest
                     , headers.get(HttpCaller.bizIdKey()), headers.get(CsbSDKConstants.REQUESTID_KEY)
                     , headers.get(CsbSDKConstants.TRACEID_KEY), headers.get(CsbSDKConstants.RPCID_KEY)
                     , hp.getApi(), hp.getVersion()
-                    , defaultValue(hp.getAccessKey()), defaultValue(hp.getSecretkey()), hp.getMethod()
+                    , defaultValue(hp.getAccessKey()), hp.getMethod()
                     , url, httpReturn.httpCode, httpReturn.responseHttpStatus, defaultValue(msg)});
         } catch (Throwable e) {
             LogUtils.exception(MessageFormat.format("csb invoke error, api:{0}, version:{1}", hp.getApi(), hp.getVersion()), e);
