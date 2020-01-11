@@ -1203,12 +1203,12 @@ public class HttpCaller {
                 pidx = url.indexOf("/", cidx + 3);
             }
             String dest = url.substring(cidx + 3, pidx);
-            LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
+            LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
                     , "HTTP", IPUtils.getLocalHostIP(), dest
                     , headers.get(HttpCaller.bizIdKey()), headers.get(CsbSDKConstants.REQUESTID_KEY)
                     , headers.get(CsbSDKConstants.TRACEID_KEY), headers.get(CsbSDKConstants.RPCID_KEY)
                     , hp.getApi(), hp.getVersion()
-                    , defaultValue(hp.getAccessKey()), defaultValue(hp.getSecretkey()), hp.getMethod()
+                    , defaultValue(hp.getAccessKey()), hp.getMethod()
                     , url, httpReturn.httpCode, httpReturn.responseHttpStatus, defaultValue(msg)});
         } catch (Throwable e) {
             LogUtils.exception(MessageFormat.format("csb invoke error, api:{0}, version:{1}", hp.getApi(), hp.getVersion()), e);
