@@ -1,6 +1,7 @@
 package com.alibaba.csb.sdk;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.junit.Test;
 
 import java.io.File;
@@ -18,19 +19,21 @@ public class FileZipTest {
     public void testPostForm() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL("http://localhost:18086/CSB") // 设置请求的URL
-                .api("http2http1") // 设置服务名
+                .api("cas-1-1_csb_cas") // 设置服务名
+//                .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
 
         try {
-//            builder.setContentEncoding(ContentEncoding.gzip);
+            builder.setContentEncoding(ContentEncoding.gzip);
 
             // 设置请求参数
             builder.putParamsMap("name", "name1中文sdfs sdlkfsadfksdkfds").putParamsMap("times", "3")
                     .putParamsMap("str2", "31", "32", "33").putParamsMap("str3", Arrays.asList("aa", "bb", "cc"));
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret));
+            System.out.println("------- ret=" + ret.getResponseStr());
         } catch (HttpCallerException e) {
             // error process
             e.printStackTrace(System.out);
@@ -75,19 +78,20 @@ public class FileZipTest {
     public void testPostBodyFile() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL("http://localhost:18086/CSB") // 设置请求的URL
-                .api("http2http1") // 设置服务名
+                .api("cas-file-2-1_csb_cas") // 设置服务名
+//                .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
-        builder.setContentEncoding(ContentEncoding.gzip);
+//        builder.setContentEncoding(ContentEncoding.gzip);
 
         try {
             // 设置请求参数
             builder.putParamsMap("name", "name中文1").putParamsMap("times", "3");
-            builder.contentBody(new ContentBody(new File("D:\\tmp\\AuthenticationMapper.xml")));
+            builder.contentBody(new ContentBody(new File("D:\\temp\\csb-dev.jar")));
 
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
-            System.out.println("------- ret=" + JSON.toJSONString(ret));
+            System.out.println("------- ret=" + JSON.toJSONString(ret, SerializerFeature.PrettyFormat));
         } catch (HttpCallerException e) {
             // error process
             e.printStackTrace(System.out);
@@ -102,20 +106,21 @@ public class FileZipTest {
         HttpParameters.Builder builder = new HttpParameters.Builder();
         builder.requestURL("http://localhost:8086/CSB") // 设置请求的URL
 //        builder.requestURL("http://localhost:18086/jsontest.jsp") // 设置请求的URL
+//                .api("cas-file-2-1_csb_cas") // 设置服务名
                 .api("http2http1") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
                 .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
-        builder.setContentEncoding(ContentEncoding.gzip);
+//        builder.setContentEncoding(ContentEncoding.gzip);
 
         try {
             // 设置form请求参数
             builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
-            builder.addAttachFile("file1", new File("D:\\tmp\\user-extend.jar"));
-            builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\tmp\\AuthenticationMapper.xml")), ContentEncoding.none); //对文件进行压缩传输
+//            builder.addAttachFile("file1", new File("D:\\temp\\csb-dev.jar"));
+            builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\temp\\fileTest.xml")), ContentEncoding.none); //对文件进行压缩传输
 
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
-            System.out.println("------- ret=" + JSON.toJSONString(ret));
+            System.out.println("------- ret=" + JSON.toJSONString(ret, SerializerFeature.PrettyFormat));
         } catch (Exception e) {
             // error process
             e.printStackTrace(System.out);
