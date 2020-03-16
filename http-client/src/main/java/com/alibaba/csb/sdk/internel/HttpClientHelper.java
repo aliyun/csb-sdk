@@ -268,10 +268,12 @@ public class HttpClientHelper {
         List<NameValuePair> nvps = toNVP(urlParams);
         if (cb != null && urlParams != null) {
             String newParamStr = urlEncodedString(nvps, HTTP.UTF_8);
-            if (!url.contains("?")) {
-                newUrl = String.format("%s?%s", url, newParamStr);
-            } else {
-                newUrl = String.format("%s&%s", url, newParamStr);
+            if ("".equals(newParamStr) == false) { //避免出现最后多一个&： http://ip:port/x?y=1&
+                if (!url.contains("?")) {
+                    newUrl = String.format("%s?%s", url, newParamStr);
+                } else {
+                    newUrl = String.format("%s&%s", url, newParamStr);
+                }
             }
         }
         HttpPost httpost = new HttpPost(newUrl);
