@@ -946,7 +946,7 @@ public class HttpCaller {
             return;
         }
         String contentType = header.getValue();
-        if (contentType == null || contentType == "") {
+        if (contentType == null || contentType.equals("")) {
             rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8);//兼容csb历史版本的不规范
             return;
         }

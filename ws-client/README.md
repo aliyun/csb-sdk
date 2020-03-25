@@ -5,17 +5,13 @@
 
  * 如果使用命令行方式调用SDK,根据需要将standaloned的运行包放在调用端的CLASSPATH环境里  
 [最新版本 ws-sdk-1.1.5.7.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.7.jar)   
-[ws-sdk-1.1.5.5.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-client-1.1.5.5.jar)    
-[ws-sdk-1.1.4.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.1.4.0.jar)   
-[旧版本 ws-sdk-1.0.4.2plus.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/ws-sdk-1.0.4.2plus.jar)  
-[trace-eagleeye-1.1.5.3.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/trace-eagleeye-1.1.5.3.jar)  
  * 如果用编程的方式使用SDK,则需要将需要的dependency放到你的pom.xml (该依赖已经在maven central repository存在)
 
  ```
  <dependency>
    <groupId>com.alibaba.csb.sdk</groupId>
    <artifactId>ws-client</artifactId>
-   <version>1.1.5.5</version>
+   <version>1.1.5.7</version>
  </dependency>
  ```
 
@@ -49,6 +45,36 @@ proxy	=	WSClientSDK.bind(proxy,	params);
 //使用返回的Proxy，调用客户端方法
 Response	response	=	proxy.method1(...);	
 …
+```
+
+## 使用WSInvoker发起调用
+```java
+public class WSInvokerTest {
+    public void test() {
+        String nameSpace = "http://xxx.yyy.com/zzzService";
+        String serviceName = "zzzService";
+        String portName = "zzzServicePortType";
+        String soapActionUri = "http://xxx.yyy.com/action1";
+        boolean isSoap12 = false;
+        String endpoint = "http://localhost:9081/csbTest/1.0.0/ws2ws";
+        String reqSoap = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ws2=\"http://ws2ws.csbTest.csb/\">\n" +
+                "   <soapenv:Header/>\n" +
+                "   <soapenv:Body>\n" +
+                "      <ws2:ws2ws>\n" +
+                "         <pageSize>10</pageSize>\n" +
+                "      </ws2:ws2ws>\n" +
+                "   </soapenv:Body>\n" +
+                "</soapenv:Envelope>";
+        
+        WSParams params = WSParams.create().api("csbTest").version("1.0.0").accessKey("ak1").secretKey("sk");
+        
+        Dispatch<SOAPMessage> dispatch = WSInvoker.createDispatch(params, nameSpace, serviceName, portName, soapActionUri, isSoap12, endpoint);
+        SOAPMessage request = WSInvoker.createSOAPMessage(isSoap12, reqSoap);
+        
+        SOAPMessage response = dispatch.invoke(request);
+        System.out.println(response);
+    }
+}
 ```
 
 ## 3. WSDL的开放说明
