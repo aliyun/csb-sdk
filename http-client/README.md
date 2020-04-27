@@ -270,7 +270,7 @@ CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来�
 
 ####  HTTP SDK 签名处理的图示
 
-![alt http-sign-diagram](img/http-sign.png)
+![alt http-sign-diagram](img/httpSign.png)
 
 ####  请求参数中包含中文导致签名验证失败的问题
 SDK在将参数签名完成后，在发送给服务端之前，会把请求参数进行URLEncoder编码，编码方式为当前Java系统中的file.encoding系统参数所指定的值。如请求参数中包含有中文，并且客户单的系统Charset编码参数与服务端的不一致的时候，当使用GET方式调用就可能出现验签失败的问题；当这种情况发生时要检查两端的Charset编码是否一致， 可以在SDK客户端设置编码方式(如: -Dfile.encoding=UTF-8)使编码与服务器一致。如果你的中文参数是写死在Java程序代码中，需要保证源码的编码方式与服务端要求的一致，否则也会出现签名失败的问题.
