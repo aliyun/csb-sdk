@@ -319,7 +319,7 @@ public class HttpClientHelper {
                     httpost.setHeader(HTTP.CONTENT_ENCODING, GZIP); //不参与签名，因为服务端需要先解析这个头，然后才参获得实际内容。同时兼容历史版本
                 }
 
-                if (cb.getContentType() == ContentType.APPLICATION_JSON) {  //无附件，有json body内容，则 application/json 方式提交
+                if (cb.getContentType().equals(ContentType.APPLICATION_JSON)) {  //无附件，有json body内容，则 application/json 方式提交
                     StringEntity strEntity = new StringEntity(cb.getStrContentBody(), HttpCaller.DEFAULT_CHARSET);// 解决中文乱码问题
                     strEntity.setContentType(ContentType.APPLICATION_JSON.toString());
                     entity = strEntity;
