@@ -20,6 +20,7 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -126,7 +127,7 @@ public class HttpClientHelper {
             if (value == null) {
                 throw new HttpCallerException("bad params, the value for key {" + key + "} is null!");
             }
-            return URLDecoder.decode(value);
+            return urlDecoding(value, HTTP.UTF_8);
         }
 
         return value;
@@ -207,22 +208,6 @@ public class HttpClientHelper {
             return "";
     }
 
-    public static String getParamsUrlEncodingStr(Map<String, List<String>> params) {
-        try {
-            StringBuffer sb = new StringBuffer();
-            if (params != null) {
-                for (Entry<String, List<String>> e : params.entrySet()) {
-                    for (String value : e.getValue()) {
-                        sb.append("&").append(URLEncoder.encode(e.getKey(), HTTP.UTF_8)).append("=").append(URLEncoder.encode(value, HTTP.UTF_8));
-                    }
-                }
-            }
-            return sb.toString().substring(1); //去掉最前面的 &
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
-    }
-
     public static String createPostCurlString(String url, Map<String, List<String>> params, Map<String, String> headerParams, ContentBody cb, Map<String, String> directHheaderParamsMap) {
         StringBuffer sb = new StringBuffer("curl ");
 
@@ -238,7 +223,7 @@ public class HttpClientHelper {
                     postSB.append("&");
                 }
                 for (String value : e.getValue()) {
-                    postSB.append(e.getKey()).append("=").append(URLEncoder.encode(value));
+                    postSB.append(e.getKey()).append("=").append(urlEncoding(value, HTTP.UTF_8));
                 }
             }
             if (postSB.length() > 0) {
@@ -261,6 +246,22 @@ public class HttpClientHelper {
         sb.append(url);
         sb.append("\"");
         return sb.toString();
+    }
+
+    public static String urlEncoding(String str, String encoding) {
+        try {
+            return URLEncoder.encode(str, encoding);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
+    }
+
+    public static String urlDecoding(String str, String encoding) {
+        try {
+            return URLDecoder.decode(str, encoding);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     private static String urlEncodedString(List<NameValuePair> parameters, String charset) {
@@ -301,8 +302,8 @@ public class HttpClientHelper {
             if (fileMap != null && fileMap.isEmpty() == false) { //有附件，则使用 form+附件 提交
                 MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create();
                 for (NameValuePair nvp : nvps) {
-                    String name = URLEncoder.encode(nvp.getName(), HTTP.UTF_8);
-                    String value = URLEncoder.encode(nvp.getValue(), HTTP.UTF_8);
+                    String name = urlEncoding(nvp.getName(), HTTP.UTF_8);
+                    String value = urlEncoding(nvp.getValue(), HTTP.UTF_8);
                     if (ContentEncoding.gzip.equals(contentEncoding)) {
                         byte[] bytes = GZipUtils.gzipBytes(value.getBytes(HttpCaller.DEFAULT_CHARSET));
                         org.apache.http.entity.mime.content.ContentBody body = new ByteArrayBody(bytes, ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET), null);
@@ -352,7 +353,9 @@ public class HttpClientHelper {
             }
 
             httpost.setEntity(entity);
-        } catch (Exception e) {
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return httpost;
@@ -432,7 +435,6 @@ public class HttpClientHelper {
 
 
     public static String generateAsEncodeRequestUrl(String requestURL, Map<String, List<String>> urlParamsMap) {
-
         requestURL = HttpClientHelper.trimUrl(requestURL);
 
         StringBuffer params = new StringBuffer();
@@ -443,7 +445,7 @@ public class HttpClientHelper {
             if (kv.getValue() != null) {
                 List<String> vlist = kv.getValue();
                 for (String v : vlist) {
-                    params.append(URLEncoder.encode(kv.getKey())).append("=").append(URLEncoder.encode(v));
+                    params.append(urlEncoding(kv.getKey(), HTTP.UTF_8)).append("=").append(urlEncoding(v, HTTP.UTF_8));
                 }
             }
         }
@@ -456,4 +458,15 @@ public class HttpClientHelper {
         return newRequestURL;
     }
 
+    public static String getParamsUrlEncodingStr(Map<String, List<String>> params) {
+        StringBuffer sb = new StringBuffer();
+        if (params != null) {
+            for (Entry<String, List<String>> e : params.entrySet()) {
+                for (String value : e.getValue()) {
+                    sb.append("&").append(urlEncoding(e.getKey(), HTTP.UTF_8)).append("=").append(urlEncoding(value, HTTP.UTF_8));
+                }
+            }
+        }
+        return sb.toString().substring(1); //去掉最前面的 &
+    }
 }
