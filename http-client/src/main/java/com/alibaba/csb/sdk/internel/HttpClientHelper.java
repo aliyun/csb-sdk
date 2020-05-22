@@ -20,6 +20,7 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -204,6 +205,22 @@ public class HttpClientHelper {
             return sb.toString();
         } else
             return "";
+    }
+
+    public static String getParamsUrlEncodingStr(Map<String, List<String>> params) {
+        try {
+            StringBuffer sb = new StringBuffer();
+            if (params != null) {
+                for (Entry<String, List<String>> e : params.entrySet()) {
+                    for (String value : e.getValue()) {
+                        sb.append("&").append(URLEncoder.encode(e.getKey(), HTTP.UTF_8)).append("=").append(URLEncoder.encode(value, HTTP.UTF_8));
+                    }
+                }
+            }
+            return sb.toString().substring(1); //去掉最前面的 &
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     public static String createPostCurlString(String url, Map<String, List<String>> params, Map<String, String> headerParams, ContentBody cb, Map<String, String> directHheaderParamsMap) {

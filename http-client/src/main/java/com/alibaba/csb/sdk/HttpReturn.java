@@ -35,6 +35,7 @@ import static com.alibaba.csb.sdk.HttpCaller.DEFAULT_CHARSET;
  * @since 2018
  */
 public class HttpReturn {
+    private String requestUrl;//可能为空，目前只使用在生成http请求消息。
     public int httpCode;
     public String responseHttpStatus;
     public String response;
@@ -51,8 +52,38 @@ public class HttpReturn {
     public HttpReturn() {
     }
 
+    /**
+     * 根据请求消息，生成http GET请求内容。目前使用在控制台发送测试服务消息，通过命令通道转发@param requestUrl
+     */
+    public HttpReturn(String requestUrl, Map<String, String> directParamsMap, Map<String, String> headerParamsMap) {
+        this(requestUrl, directParamsMap, headerParamsMap, null);
+    }
+
+    /**
+     * 根据请求消息，生成http POST请求内容。目前使用在控制台发送测试服务消息，通过命令通道转发@param requestUrl
+     */
+    public HttpReturn(String requestUrl, Map<String, String> directParamsMap, Map<String, String> headerParamsMap, String body) {
+        this.requestUrl = requestUrl;
+        this.respHttpHeaderMap = new HashMap<String, String>();
+        respHttpHeaderMap.putAll(directParamsMap);
+        respHttpHeaderMap.putAll(headerParamsMap);
+        this.response = body;
+    }
+
     public HttpReturn(String response) {
         this.response = response;
+    }
+
+    public String getRequestUrl() {
+        return requestUrl;
+    }
+
+    public Map<String, String> getHeaderMap() {
+        return respHttpHeaderMap;
+    }
+
+    public String getBodyStr() {
+        return response;
     }
 
     /**

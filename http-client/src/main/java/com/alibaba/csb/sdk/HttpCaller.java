@@ -216,6 +216,7 @@ public class HttpCaller {
     protected static String defaultSK = null;
 
     protected static ThreadLocal<Boolean> toCurlCmd = new ThreadLocal<Boolean>();
+    protected static ThreadLocal<Boolean> toHttpRequest = new ThreadLocal<Boolean>();
     protected static ThreadLocal<HttpHost> proxyConfigThreadLocal = new ThreadLocal<HttpHost>();
 
     protected static final RequestConfig.Builder requestConfigBuilder = HttpClientConnManager.createConnBuilder();
@@ -313,6 +314,21 @@ public class HttpCaller {
 
     private static boolean isCurlResponse() {
         return toCurlCmd.get() != null && toCurlCmd.get() == true;
+    }
+
+    public static void setToHttpRequest(boolean flag) {
+        toHttpRequest.set(true);
+    }
+
+    /**
+     * 一次设置，只能读取一次，避免上下文影响
+     */
+    private static boolean isToHttpRequest() {
+        try {
+            return toHttpRequest.get() != null && toHttpRequest.get() == true;
+        } finally {
+            toHttpRequest.remove();
+        }
     }
 
     /**
@@ -507,9 +523,7 @@ public class HttpCaller {
         DiagnosticHelper.setSignDiagnosticInfo(ret, signDiagnosticInfo);
 
         endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
-
         String newRequestURL = HttpClientHelper.generateAsEncodeRequestUrl(requestURL, urlParamsMap);
-
 
         if (isCurlResponse()) {
             StringBuffer curl = new StringBuffer("curl ");
@@ -518,8 +532,10 @@ public class HttpCaller {
             curl.append(" -k ");
             curl.append("\"").append(newRequestURL).append("\"");
             ret.response = curl.toString();
-            ;
             return ret;
+        }
+        if (isToHttpRequest()) { //根据请求消息，生成http请求内容。目前使用在控制台发送测试服务消息，通过命令通道转发
+            return new HttpReturn(newRequestURL, directParamsMap, headerParamsMap);
         }
 
         DiagnosticHelper.calcRequestSize(ret, newRequestURL, null, null);
@@ -800,6 +816,16 @@ public class HttpCaller {
         if (isCurlResponse()) {
             return new HttpReturn(HttpClientHelper.createPostCurlString(newRequestURL, paramsMap, headerParamsMap, cb, directHheaderParamsMap));
         }
+        if (isToHttpRequest()) { //根据请求消息，生成http请求内容。目前使用在控制台发送测试服务消息，通过命令通道转发
+            String body;
+            if (cb == null || cb.getStrContentBody() == null) {
+                body = HttpClientHelper.getParamsUrlEncodingStr(paramsMap);
+            } else {
+                body = cb.getStrContentBody();
+            }
+            return new HttpReturn(newRequestURL, directHheaderParamsMap, headerParamsMap, body);
+        }
+
         DiagnosticHelper.calcRequestSize(ret, newRequestURL, paramsMap, cb);
         HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb, hp.getAttachFileMap(), hp.getContentEncoding());
         DiagnosticHelper.setRequestHeaders(ret, httpPost.getAllHeaders());
