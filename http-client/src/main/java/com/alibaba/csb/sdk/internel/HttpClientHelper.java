@@ -15,6 +15,7 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.FormBodyPartBuilder;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.message.BasicNameValuePair;
@@ -300,7 +301,7 @@ public class HttpClientHelper {
         HttpEntity entity;
         try {
             if (fileMap != null && fileMap.isEmpty() == false) { //有附件，则使用 form+附件 提交
-                MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create();
+                MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create().setMode(HttpMultipartMode.RFC6532); //http头 始终使用utf-8，解决附件文件名中文乱码
                 for (NameValuePair nvp : nvps) {
                     String name = urlEncoding(nvp.getName(), HTTP.UTF_8);
                     String value = urlEncoding(nvp.getValue(), HTTP.UTF_8);
