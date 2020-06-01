@@ -468,6 +468,10 @@ public class HttpClientHelper {
                 }
             }
         }
-        return sb.toString().substring(1); //去掉最前面的 &
+        if (sb.length() > 0) {
+            return sb.toString().substring(1); //去掉最前面的 &
+        } else {
+            return "";
+        }
     }
 }
