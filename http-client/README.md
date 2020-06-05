@@ -88,6 +88,7 @@ java [sys-props] -jar http-sdk-1.1.5.7.jar [options...]
       .api("test") // 设置服务名
       .version("1.0.0") // 设置版本号
       .method("get") // 设置调用方式, get/post
+      .contentType("application/x-www-form-urlencoded;charset=utf-8"); //设置请求content-type
       .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
       
    // 设置请求参数
@@ -160,6 +161,7 @@ java [sys-props] -jar http-sdk-1.1.5.7.jar [options...]
       .api("test") // 设置服务名
       .version("1.0.0") // 设置版本号
       .method("post") // 设置调用方式, 必须为 post
+      .contentType("application/octet-stream"); //设置请求content-type
       .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
      
   builder.contentBody(cb);
@@ -184,6 +186,7 @@ java [sys-props] -jar http-sdk-1.1.5.7.jar [options...]
       .api("test") // 设置服务名
       .version("1.0.0") // 设置版本号
       .method("post") // 设置调用方式, 必须为 post
+      .contentType("application/x-www-form-urlencoded;charset=utf-8"); //设置请求content-type
       .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
   
   //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
