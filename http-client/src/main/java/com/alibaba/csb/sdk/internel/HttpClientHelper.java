@@ -295,12 +295,14 @@ public class HttpClientHelper {
                 }
             }
         }
-        HttpPost httpost = new HttpPost(newUrl);
-        setHeaders(httpost, headerParams);
 
         if (contentType == null) {
             contentType = ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET); //默认值，兼容历史
         }
+
+        HttpPost httpost = new HttpPost(newUrl);
+        setHeaders(httpost, headerParams);
+        httpost.addHeader(HTTP.CONTENT_TYPE, contentType.toString());
 
         HttpEntity entity;
         try {
