@@ -127,4 +127,41 @@ public class FileZipTest {
         }
     }
 
+    /**
+     * 使用body直接form请求，附件发送文件。响应json，附件是文件
+     * 接入服务是 spring cloud
+     */
+    @Test
+    public void testPostFormFilesSpringCloud() {
+        HttpParameters.Builder builder = new HttpParameters.Builder();
+//        builder.requestURL("http://localhost:8086/1.0.0/http2nacos/postFoo/abc123?name=3") // 设置请求的URL
+        builder.requestURL("http://localhost:8086/csb") // 设置请求的URL
+                .api("http2http11") // 设置服务名
+                .version("1.0.0") // 设置版本号
+                .method("post") // 设置调用方式, get/post
+                .contentType("text/plain;charset=iso-8859-1"); //设置请求content-type
+//                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+//        builder.setContentEncoding(ContentEncoding.gzip);
+
+        try {
+            // 设置form请求参数
+            builder.putParamsMap("value1", "中文1");
+            builder.putParamsMap("value2", "中文2");
+            builder.putParamsMap("value3", "中文3");
+            builder.putParamsMap("value4", "中文4");
+            builder.putParamsMap("value5", "中文5");
+            builder.putParamsMap("value6", "中文6");
+            builder.addAttachFile("中文key2", "中文名2", new FileInputStream(new File("D:\\temp\\pom.xml")), ContentEncoding.none); //对文件进行压缩传输
+            builder.addAttachFile("中文key1", "中文名1", new FileInputStream(new File("D:\\temp\\pom.xml"))); //对文件进行压缩传输
+            builder.addAttachFile("中文key3", "中文名3", new FileInputStream(new File("D:\\temp\\pom.xml"))); //对文件进行压缩传输
+            builder.addAttachFile("中文key4", "中文名4", new FileInputStream(new File("D:\\temp\\pom.xml"))); //对文件进行压缩传输
+            builder.addAttachFile("中文key5", "中文名5", new FileInputStream(new File("D:\\temp\\pom.xml"))); //对文件进行压缩传输
+
+            HttpReturn ret = HttpCaller.invokeReturn(builder.build());
+            System.out.println("------- ret=" + JSON.toJSONString(ret, SerializerFeature.PrettyFormat));
+        } catch (Exception e) {
+            // error process
+            e.printStackTrace(System.out);
+        }
+    }
 }

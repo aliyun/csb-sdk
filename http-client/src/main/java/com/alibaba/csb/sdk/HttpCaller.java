@@ -827,7 +827,7 @@ public class HttpCaller {
         }
 
         DiagnosticHelper.calcRequestSize(ret, newRequestURL, paramsMap, cb);
-        HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb, hp.getAttachFileMap(), hp.getContentEncoding());
+        HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb, hp.getAttachFileMap(), hp.getContentEncoding(), hp.getContentType());
         DiagnosticHelper.setRequestHeaders(ret, httpPost.getAllHeaders());
 
         HttpClientHelper.setDirectHeaders(httpPost, directHheaderParamsMap);

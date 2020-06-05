@@ -6,6 +6,7 @@ import com.alibaba.csb.utils.LogUtils;
 import com.alibaba.csb.utils.TraceIdUtils;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.http.entity.ContentType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -58,6 +59,10 @@ public class HttpParameters {
 
     ContentBody getContentBody() {
         return builder.contentBody;
+    }
+
+    ContentType getContentType() {
+        return builder.contentType;
     }
 
     Map<String, AttachFile> getAttachFileMap() {
@@ -189,6 +194,7 @@ public class HttpParameters {
         private String sk;
         private String restfulProtocolVersion;
         private String method = "POST";
+        private ContentType contentType;
         private ContentBody contentBody = null;
         private Map<String, AttachFile> attatchFileMap;
         private String requestUrl;
@@ -615,6 +621,17 @@ public class HttpParameters {
             } else {
                 throw new IllegalArgumentException("empty map!!");
             }
+            return this;
+        }
+
+        /**
+         * 设置contentType
+         *
+         * @param contentTypeStr
+         * @return
+         */
+        public Builder contentType(String contentTypeStr) {
+            this.contentType = org.apache.http.entity.ContentType.parse(contentTypeStr);
             return this;
         }
 

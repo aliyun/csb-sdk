@@ -281,7 +281,7 @@ public class HttpClientHelper {
      *
      * @return
      */
-    public static HttpPost createPost(final String url, Map<String, List<String>> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, HttpParameters.AttachFile> fileMap, ContentEncoding contentEncoding) {
+    public static HttpPost createPost(final String url, Map<String, List<String>> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, HttpParameters.AttachFile> fileMap, ContentEncoding contentEncoding, ContentType contentType) {
         //set both cb and urlParams
         String newUrl = url;
         List<NameValuePair> nvps = toNVP(urlParams);
@@ -298,21 +298,29 @@ public class HttpClientHelper {
         HttpPost httpost = new HttpPost(newUrl);
         setHeaders(httpost, headerParams);
 
+        if (contentType == null) {
+            contentType = ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET); //默认值，兼容历史
+        }
+
         HttpEntity entity;
         try {
             if (fileMap != null && fileMap.isEmpty() == false) { //有附件，则使用 form+附件 提交
                 MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create().setMode(HttpMultipartMode.RFC6532); //http头 始终使用utf-8，解决附件文件名中文乱码
                 for (NameValuePair nvp : nvps) {
-                    String name = urlEncoding(nvp.getName(), HTTP.UTF_8);
-                    String value = urlEncoding(nvp.getValue(), HTTP.UTF_8);
+                    String name = nvp.getName();
+                    String value = nvp.getValue();
+                    if (contentType.getMimeType().equals(ContentType.APPLICATION_FORM_URLENCODED)) {
+                        name = urlEncoding(nvp.getName(), HTTP.UTF_8);
+                        value = urlEncoding(nvp.getValue(), HTTP.UTF_8);
+                    }
                     if (ContentEncoding.gzip.equals(contentEncoding)) {
                         byte[] bytes = GZipUtils.gzipBytes(value.getBytes(HttpCaller.DEFAULT_CHARSET));
-                        org.apache.http.entity.mime.content.ContentBody body = new ByteArrayBody(bytes, ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET), null);
+                        org.apache.http.entity.mime.content.ContentBody body = new ByteArrayBody(bytes, contentType, null);
                         FormBodyPartBuilder partBuilder = FormBodyPartBuilder.create(name, body);
                         partBuilder.setField(HTTP.CONTENT_ENCODING, GZIP);
                         multiBuilder.addPart(partBuilder.build());
                     } else {
-                        multiBuilder.addTextBody(name, value, ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET));
+                        multiBuilder.addTextBody(name, value, contentType);
                     }
                 }
 
