@@ -1,9 +1,6 @@
 package com.alibaba.csb.sdk;
 
-import org.apache.http.entity.ContentType;
-
 import java.io.File;
-import java.io.IOException;
 
 /**
  * 设置HTTP传输的body内容，可以是Json String或者是byte[]格式
@@ -18,7 +15,6 @@ public class ContentBody {
 
     private String jsonBody;
     private byte[] bytesBody;
-    private ContentType type;
 
     /**
      * 使用Json串构造ContentBody
@@ -27,7 +23,6 @@ public class ContentBody {
      */
     public ContentBody(String jsonStr) {
         this.jsonBody = jsonStr;
-        type = ContentType.APPLICATION_JSON;
     }
 
     /**
@@ -37,7 +32,6 @@ public class ContentBody {
      */
     public ContentBody(byte[] bytes) {
         this.bytesBody = bytes;
-        type = ContentType.APPLICATION_OCTET_STREAM;
     }
 
     /**
@@ -45,11 +39,6 @@ public class ContentBody {
      */
     public ContentBody(File file) {
         this.bytesBody = HttpCaller.readFile(file);
-        type = ContentType.APPLICATION_OCTET_STREAM;
-    }
-
-    public ContentType getContentType() {
-        return this.type;
     }
 
     public String getStrContentBody() {
@@ -58,16 +47,5 @@ public class ContentBody {
 
     public byte[] getBytesContentBody() {
         return bytesBody;
-    }
-
-    public String getContentBodyAsStr() {
-        if (type == ContentType.APPLICATION_OCTET_STREAM)
-            try {
-                return new String(bytesBody, HttpCaller.DEFAULT_CHARSET);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        else
-            return jsonBody;
     }
 }

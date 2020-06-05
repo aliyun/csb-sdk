@@ -803,7 +803,7 @@ public class HttpCaller {
         startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);
 
         if (cb != null && hp.isSignContentBody()) { //判断body是否参与签名
-            urlParamsMap.put(ContentBody.CONTENT_BODY_SIGN_KEY, Arrays.asList(cb.getContentBodyAsStr()));
+            urlParamsMap.put(ContentBody.CONTENT_BODY_SIGN_KEY, Arrays.asList(/*cb.getBytesContentBody()*/));
         }
 
         StringBuffer signDiagnosticInfo = DiagnosticHelper.getSignDiagnosticInfo(ret);

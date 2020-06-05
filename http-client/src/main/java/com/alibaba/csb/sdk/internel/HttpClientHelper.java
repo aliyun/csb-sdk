@@ -297,7 +297,15 @@ public class HttpClientHelper {
         }
 
         if (contentType == null) {
-            contentType = ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET); //默认值，兼容历史
+            if (cb != null) { //兼容历史未让用户设置content-type的场景
+                if (cb.getStrContentBody() != null) {
+                    contentType = ContentType.APPLICATION_JSON.withCharset(HttpCaller.DEFAULT_CHARSET);
+                } else {
+                    contentType = ContentType.APPLICATION_OCTET_STREAM;
+                }
+            } else {
+                contentType = ContentType.APPLICATION_FORM_URLENCODED.withCharset(HttpCaller.DEFAULT_CHARSET); //默认值，兼容历史
+            }
         }
 
         HttpPost httpost = new HttpPost(newUrl);
@@ -311,9 +319,9 @@ public class HttpClientHelper {
                 for (NameValuePair nvp : nvps) {
                     String name = nvp.getName();
                     String value = nvp.getValue();
-                    if (contentType.getMimeType().equals(ContentType.APPLICATION_FORM_URLENCODED)) {
-                        name = urlEncoding(nvp.getName(), HTTP.UTF_8);
-                        value = urlEncoding(nvp.getValue(), HTTP.UTF_8);
+                    if (contentType.getMimeType().equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
+                        name = urlEncoding(nvp.getName(), contentType.getCharset().name());
+                        value = urlEncoding(nvp.getValue(), contentType.getCharset().name());
                     }
                     if (ContentEncoding.gzip.equals(contentEncoding)) {
                         byte[] bytes = GZipUtils.gzipBytes(value.getBytes(HttpCaller.DEFAULT_CHARSET));
@@ -348,15 +356,13 @@ public class HttpClientHelper {
                     httpost.setHeader(HTTP.CONTENT_ENCODING, GZIP); //不参与签名，因为服务端需要先解析这个头，然后才参获得实际内容。同时兼容历史版本
                 }
 
-                if (cb.getContentType().equals(ContentType.APPLICATION_JSON)) {  //无附件，有json body内容，则 application/json 方式提交
-                    StringEntity strEntity = new StringEntity(cb.getStrContentBody(), HttpCaller.DEFAULT_CHARSET);// 解决中文乱码问题
-                    strEntity.setContentType(ContentType.APPLICATION_JSON.toString());
-                    entity = strEntity;
+                if (cb.getStrContentBody() != null) {  //无附件，有json body内容，则 application/json 方式提交
+                    entity = new StringEntity(cb.getStrContentBody(), contentType);// 解决中文乱码问题
                     if (ContentEncoding.gzip.equals(contentEncoding)) {
                         entity = new GzipCompressingEntity(entity);
                     }
                 } else {  //无附件，有二进制body内容，则 APPLICATION_OCTET_STREAM 方式提交
-                    entity = new ByteArrayEntity(cb.getBytesContentBody(), cb.getContentType());
+                    entity = new ByteArrayEntity(cb.getBytesContentBody(), contentType);
                     if (ContentEncoding.gzip.equals(contentEncoding)) {
                         entity = new GzipCompressingEntity(entity);
                     }
