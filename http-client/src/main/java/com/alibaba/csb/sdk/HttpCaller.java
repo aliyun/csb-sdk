@@ -184,6 +184,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *      -Dhttp.caller.connection.so.timeout   设置读取超时时间（毫秒），默认是-1， 永不超时
  *      -Dhttp.caller.connection.cr.timeout   设置从连接池获取连接实例的超时（毫秒），默认是-1， 永不超时
  *      -Dhttp.caller.connection.async        设置使用nio,默认fasle:同步io,true:nio
+ *      -Dhttp.caller.connection.keepalive.timeout    长连接超时时间(秒)，默认75
  *      -Dhttp.caller.skip.connection.pool    如何设置为true,则不使用连接池。默认行为是false,使用连接池(支持长连接)
  *   b. 也可以使用下面的方法设置以上的某一个或者多个参数：
  *      Map<String,String> sysParams = new HashMap<String,String>();

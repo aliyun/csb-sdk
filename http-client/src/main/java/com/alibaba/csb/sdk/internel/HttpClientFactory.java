@@ -24,69 +24,72 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
 public class HttpClientFactory {
-	private static ConnectionKeepAliveStrategy createKeepAliveStrategy() {
-		return new ConnectionKeepAliveStrategy() {
-			public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
-				HeaderElementIterator it = new BasicHeaderElementIterator(
-						response.headerIterator(HTTP.CONN_KEEP_ALIVE));
-				while (it.hasNext()) {
-					HeaderElement he = it.nextElement();
-					String param = he.getName();
-					String value = he.getValue();
-					if (value != null && param.equalsIgnoreCase("timeout")) {
-						return Long.parseLong(value) * 1000;
-					}
-				}
-				return 5 * 1000;
-			}
-		};
-	}
+    public static final long MAX_KEEPALIVE_TIMEOUT = Long.getLong("http.caller.connection.keepalive.timeout", 75);
 
-	public static CloseableHttpClient createCloseableHttpClient(PoolingHttpClientConnectionManager connManager)
-			throws HttpCallerException {
-		ConnectionKeepAliveStrategy myStrategy = createKeepAliveStrategy();
-		CloseableHttpClient client;
-		try {
-			client = HttpClients.custom()
-					.setConnectionManager(connManager)
-					.setKeepAliveStrategy(myStrategy)
-					.build();
-		} catch (Exception e) {
-			throw new HttpCallerException("Failed to create httpclient: " + e.getMessage(), e);
-		}
+    private static ConnectionKeepAliveStrategy createKeepAliveStrategy() {
+        return new ConnectionKeepAliveStrategy() {
+            public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+                HeaderElementIterator it = new BasicHeaderElementIterator(
+                        response.headerIterator(HTTP.CONN_KEEP_ALIVE));
+                while (it.hasNext()) {
+                    HeaderElement he = it.nextElement();
+                    String param = he.getName();
+                    String value = he.getValue();
+                    if (value != null && param.equalsIgnoreCase("timeout")) {
+                        return Long.parseLong(value) * 1000;
+                    }
+                }
+                return MAX_KEEPALIVE_TIMEOUT * 1000;
+            }
+        };
+    }
 
-		return client;
-	}
+    public static CloseableHttpClient createCloseableHttpClient(PoolingHttpClientConnectionManager connManager)
+            throws HttpCallerException {
+        ConnectionKeepAliveStrategy myStrategy = createKeepAliveStrategy();
+        CloseableHttpClient client;
+        try {
+            client = HttpClients.custom()
+                    .setConnectionManager(connManager)
+                    .setKeepAliveStrategy(myStrategy)
+                    .build();
+        } catch (Exception e) {
+            throw new HttpCallerException("Failed to create httpclient: " + e.getMessage(), e);
+        }
 
-	/**
-	 * Create a connection pool which supports http and https socket
-	 * @return
-	 * @throws HttpCallerException
-	 */
-	public static PoolingHttpClientConnectionManager createConnManager() throws HttpCallerException {
-		try {
-			// ignore SSL certificate info with the below two setting:
+        return client;
+    }
 
-			// 1. trust https server certificate always.
-			SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-				public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType)
-						throws java.security.cert.CertificateException {
-					return true;
-				}
-			}).build();
+    /**
+     * Create a connection pool which supports http and https socket
+     *
+     * @return
+     * @throws HttpCallerException
+     */
+    public static PoolingHttpClientConnectionManager createConnManager() throws HttpCallerException {
+        try {
+            // ignore SSL certificate info with the below two setting:
 
-			// 2. hostname verifier pass
-			HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
+            // 1. trust https server certificate always.
+            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType)
+                        throws java.security.cert.CertificateException {
+                    return true;
+                }
+            }).build();
 
-			SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
+            // 2. hostname verifier pass
+            HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
 
-			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-					.register("http", PlainConnectionSocketFactory.getSocketFactory())
-					.register("https", sslSocketFactory).build();
+            SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
 
-			return new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-		} catch (Exception e) {
-			throw new HttpCallerException("Failed to create httpclient: " + e.getMessage(), e);
-		}
-	}
+            Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                    .register("https", sslSocketFactory).build();
+
+            return new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+        } catch (Exception e) {
+            throw new HttpCallerException("Failed to create httpclient: " + e.getMessage(), e);
+        }
+    }
 }
