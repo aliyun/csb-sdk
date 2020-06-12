@@ -68,6 +68,25 @@ public class BuilderTest {
     }
 
     @Test
+    public void testHttp2SpringCloud() {
+        HttpParameters.Builder builder = new HttpParameters.Builder();
+        builder.requestURL("http://11.162.130.197:8086/1.0.0/http2nacos2/postFoo/abc")
+                .api("http2nacos2")
+                .version("1.0.0")
+                .method("post") // 设置调用方式, get/post
+                .accessKey("ak").secretKey("sk"); // 设置AccessKeyID和AccessKeySecret
+
+        // 设置HTTP FORM表单请求参数
+        builder.putParamsMap("name", "name1").putParamsMap("value", "123");
+        try {
+            String ret = HttpCaller.invoke(builder.build());
+            System.out.println(ret);
+        } catch (HttpCallerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testhttpJson() {
         //URI uri = new URI("http://11.239.187.178:8086/test?arg1=1&arg0=<ApproveDataInfo><TableName>sp_shenqin</TableName><UseSJBBH>false</UseSJBBH><ZZJGDM>006939801</ZZJGDM><SXBM>10281300100693980112440000</SXBM></ApproveDataInfo>");
 
