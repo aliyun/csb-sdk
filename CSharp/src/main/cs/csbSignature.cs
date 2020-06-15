@@ -14,7 +14,7 @@ namespace csb_signature
             formParamDict.Add("name",new string[] { "中文name1" });
             formParamDict.Add("times", new object[] { 123 });
             formParamDict.Add("multiValues", new object[] { "abc","efg" });
-            long timeStamp = DateTimeOffset.Now.ToUnixTimeSeconds();
+            long timeStamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 //            long timeStamp = 1592225468715;
 
             //form表单提交的签名串生成示例
