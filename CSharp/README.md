@@ -14,7 +14,7 @@
 
 ## form表单提交的http消息
 ```http request
-http://11.162.130.197:8086/CSB
+http://csb.broker.com:8086/CSB
 
 _api_timestamp:1592225468715
 _api_name:http2http11
@@ -28,7 +28,7 @@ name=%E4%B8%AD%E6%96%87name1&times=123
 
 ## json或xml提交的http消息
 ```http request
-http://11.162.130.197:8086/CSB
+http://csb.broker.com:8086/CSB
 
 _api_timestamp:1592225468715
 _api_name:http2http11
