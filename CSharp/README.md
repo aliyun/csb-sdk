@@ -36,7 +36,6 @@ http://csb.broker.com:8086/CSB
 _api_timestamp:1592225468715
 _api_name:http2http11
 _api_signature:签名值
-Accept-Encoding:gzip
 _api_version:1.0.0
 _api_access_key:ak123
 Content-Type:application/json; charset=UTF-8
