@@ -18,11 +18,11 @@ namespace csb_signature
             long timeStamp = 1592225468715;
 
             //form表单提交的签名串生成示例
-            string signature = sign("http2http11", "1.0.0", timeStamp, "38cc753dbc7b4f318c4ab55ff0e3a3c0", "LNZkY7Qp64iPsnCny0354792aI0=", formParamDict, null);
+            string signature = sign("http2http11", "1.0.0", timeStamp, "ak值", "sk值", formParamDict, null);
             Console.WriteLine("form signature::::: "+signature);
 
             //json或xml文本提交的签名串生成示例
-            signature = sign("http2http11", "1.0.0", timeStamp, "38cc753dbc7b4f318c4ab55ff0e3a3c0", "LNZkY7Qp64iPsnCny0354792aI0=", null, "{\"name\":\"中文name1\", \"times\":\"123\" }");
+            signature = sign("http2http11", "1.0.0", timeStamp, "ak值", "sk值", null, "{\"name\":\"中文name1\", \"times\":\"123\" }");
             Console.WriteLine("json signature::::: " + signature);
         }
 
