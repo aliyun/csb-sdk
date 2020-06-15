@@ -1,3 +1,6 @@
+# 签名机制
+参见[http-client说明](https://github.com/aliyun/csb-sdk/tree/master/http-client#41-%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6%E7%9A%84%E8%AF%B4%E6%98%8E）
+
 # C#签名串生成方法
 参见 csbSignature 源代码及说明。
 
