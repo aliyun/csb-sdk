@@ -4,6 +4,7 @@ import com.alibaba.csb.trace.TraceData;
 import com.alibaba.csb.trace.TraceFactory;
 import com.alibaba.csb.utils.LogUtils;
 import com.alibaba.csb.utils.TraceIdUtils;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.entity.ContentType;
@@ -73,7 +74,7 @@ public class HttpParameters {
         return builder.restfulProtocolVersion;
     }
 
-    Map<String, List<String>> getParamsMap() {
+    public Map<String, List<String>> getParamsMap() {
         return builder.paramsMap;
     }
 
@@ -81,7 +82,7 @@ public class HttpParameters {
         return builder.contentEncoding;
     }
 
-    Map<String, String> getHeaderParamsMap() {
+    public Map<String, String> getHeaderParamsMap() {
         return builder.headerParamsMap;
     }
 
@@ -749,6 +750,30 @@ public class HttpParameters {
          */
         public String getRequestId() {
             return this.headerParamsMap.get(TraceData.REQUESTID_KEY);
+        }
+
+        public String api() {
+            return this.api;
+        }
+
+        public String version() {
+            return this.version;
+        }
+
+        public String accessKey() {
+            return this.ak;
+        }
+
+        public String secretKey() {
+            return this.sk;
+        }
+
+        public String url() {
+            return this.requestUrl;
+        }
+
+        public Map<String, List<String>> paramsMap() {
+            return this.paramsMap;
         }
     }
 
