@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
+import org.apache.http.entity.ContentType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -238,5 +239,29 @@ public class BuilderTest {
 
         System.out.println(result);
 
+    }
+
+    @Test
+    public void testws2ws() {
+        HttpParameters.Builder builder = new HttpParameters.Builder();
+        builder.requestURL("http://11.162.130.197:9081/gt3aipservice/1.0.0/ws2ws")
+                .api("gt3aipservice")
+                .version("1.0.0")
+                .method("post"); // 设置调用方式, get/post
+//                .accessKey("ak").secretKey("sk"); // 设置AccessKeyID和AccessKeySecret
+
+        builder.contentType(ContentType.APPLICATION_XML.toString());
+        builder.contentBody(new ContentBody("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:spec=\"http://www.chinatax.gov.cn/spec/\">\n" +
+                "   <soapenv:Header/>\n" +
+                "   <soapenv:Body>\n" +
+                "      <spec:service>abc1</spec:service>\n" +
+                "   </soapenv:Body>\n" +
+                "</soapenv:Envelope>"));
+        try {
+            String ret = HttpCaller.invoke(builder.build());
+            System.out.println(ret);
+        } catch (HttpCallerException e) {
+            e.printStackTrace();
+        }
     }
 }
