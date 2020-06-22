@@ -89,12 +89,10 @@ bash gen-standaloneJar.sh
 
 # 其它语言的SDK (beta version!!!)
 注意: 目前其他语言只对HTTP-SDK进行支持, WS-SDK的调用只提供Java语言版本
-
 1. PHP 版本的HTTP-SDK [details](others/php/README.md)
-
 2. Go 版本的HTTP-SDK  [details](others/golang/README.md)
-
 3. node.js 版本的HTTP-SDK [details](others/node.js/README.md)
+4. C# 版本的HTTP-SDK [details](CSharp/README.md)
 
 ## 未来计划
 

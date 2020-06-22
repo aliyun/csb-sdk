@@ -1,14 +1,17 @@
 # HTTP SDK README
-
 HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方式。如果提供了AccessKey和SecurityKey参数信息，它能够在内部将请求消息进行签名处理，然后向CSB服务端发送进行验证和调用。
 
-## 0. CSB发布出的Restful服务的访问地址
+# SDK版本要求
+* 新上线应用，请使用最新SDK版本。
+* 使用了老版本SDK的应用，请逐步、灰度升级到最新SDK版本。
+
+## CSB发布出的Restful服务的访问地址
 地址访问格式： http://broker-vip:8086/CSB
 * broker-vip 是CSB-Broker的前置SLB地址或者具体的一个broker的地址(当没有前置的SLB或者Proxy)
 * 默认的访问端口为 "8086"
 * 请求的context-path可以任意指定，默认使用“CSB”
 
-## 1. 工具包的下载地址
+## 工具包的下载地址
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里  
 [最新的包 http-client-1.1.5.8.jar](https://middleware-csb.oss-cn-shanghai.aliyuncs.com/sdk/http-client-1.1.5.8.jar)  
@@ -22,7 +25,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 </dependency>
 ```
 
-## 2. HTTP Client SDK 使用方式
+## HTTP Client SDK 使用方式
 
 ### 方式一: 使用命令行直接调用
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
@@ -255,8 +258,8 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
  
 ```
 
-## 4. 附录 
-### 4.1. 签名机制的说明
+## 附录 
+### 签名机制的说明
 如果CSB 控制台发布出来的HTTP 服务声明需要鉴权处理，则客户端调用该服务试CSB 要对每个访问请求进行身份验证。这就要求客户端无论使用HTTP 还是HTTPS协议提交请求，都需要在请求中包含签名（Signature）信息。
 CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来验证请求的发送者身份。 Access Key ID 和Access Key Secret由在管理控制台在服务订购时候指定和确认，HTTP SDK在访问时，按照下面的方法对请求进行签名处理：
 
@@ -278,7 +281,7 @@ CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来�
 ####  请求参数中包含中文导致签名验证失败的问题
 SDK在将参数签名完成后，在发送给服务端之前，会把请求参数进行URLEncoder编码，编码方式为当前Java系统中的file.encoding系统参数所指定的值。如请求参数中包含有中文，并且客户单的系统Charset编码参数与服务端的不一致的时候，当使用GET方式调用就可能出现验签失败的问题；当这种情况发生时要检查两端的Charset编码是否一致， 可以在SDK客户端设置编码方式(如: -Dfile.encoding=UTF-8)使编码与服务器一致。如果你的中文参数是写死在Java程序代码中，需要保证源码的编码方式与服务端要求的一致，否则也会出现签名失败的问题.
 
-### 4.2. 高级功能
+### 高级功能
 #### 设置代理地址 （注意：从1.1.4开始支持）
 
 ```java
@@ -322,11 +325,11 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
   HttpCaller.doPost(builder.build()), doGet(builder.build()) or invoke(builder.build());
 ```
 
-### 4.3. 使用http-sdk调用CSB控制台的Open API
+### 使用http-sdk调用CSB控制台的Open API
 
 使用HTTP-SDK可以对控制台提供的OpenAPI进行调用,具体的例子[参见](InvokeOpenAPI.md)
 
-### 4.4. 在无Java对象的情况下，使用泛化的形式转换json串的工具
+### 在无Java对象的情况下，使用泛化的形式转换json串的工具
 
 ```java
   一个辅助工具类Java对象到JSON串的泛化转换，在不定义复杂对象类的情况下，把HTTP参数转换为Json串
@@ -369,7 +372,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 	}
  ]
 ```
-## 5. Trace
+## Trace
 ### CmdHttpCaller
 #### 设置bizIdKey
 -bizIdKey $bizid，默认为_biz_id

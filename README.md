@@ -122,7 +122,7 @@ A http-sdk implementation by Go script [details](others/golang/README.md)
 A http-sdk implementation by Node.js [details](others/node.js/README.md)
 
 4. .net based HTTP-SDK
-A http-sdk implementation by .net [details](https://github.com/neozhu/csb-sdk.net)
+A http-sdk implementation by .net [details](CSharp/README.md)
 
 ## Future Work
 
