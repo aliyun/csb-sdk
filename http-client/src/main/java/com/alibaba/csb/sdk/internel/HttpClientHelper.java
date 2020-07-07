@@ -53,18 +53,13 @@ public class HttpClientHelper {
         return stringListMap;
     }
 
-    public static void mergeParams(Map<String, List<String>> urlParamsMap, Map<String, String> paramsMap, boolean decodeFlag) throws HttpCallerException {
-        mergeParamsList(urlParamsMap, convertStrMap2ListStrMap(paramsMap), decodeFlag);
+    public static void mergeParams(Map<String, List<String>> urlParamsMap, Map<String, String> paramsMap) throws HttpCallerException {
+        mergeParamsList(urlParamsMap, convertStrMap2ListStrMap(paramsMap));
     }
 
-    public static void mergeParamsList(Map<String, List<String>> urlParamsMap, Map<String, List<String>> paramsMap, boolean decodeFlag) throws HttpCallerException {
+    public static void mergeParamsList(Map<String, List<String>> urlParamsMap, Map<String, List<String>> paramsMap) throws HttpCallerException {
         if (paramsMap != null) {
-            //decode all params first, due to it will be encode to construct the request URL later
             for (Entry<String, List<String>> kv : paramsMap.entrySet()) {
-                for (ListIterator<String> iter = kv.getValue().listIterator(); iter.hasNext(); ) {
-                    iter.set(decodeValue(kv.getKey(), iter.next(), decodeFlag));
-                }
-
                 urlParamsMap.put(kv.getKey(), kv.getValue());
             }
         }
