@@ -157,12 +157,12 @@ public class AxisCallWrapper extends org.apache.axis.client.Call {
 			String dest = url.substring(cidx + 3, pidx);
 
 			String method = operation.substring(operation.indexOf("}") + 1);
-			LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
+			LogUtils.info("{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}", new Object[]{startTime, endTime, endTime - startTime
 					, "WS", IPUtils.getLocalHostIP(), dest
 					, params.getBizId(), params.getRequestId()
 					, params.getTraceId(), params.getRpcId()
 					, params.getApi(), params.getVersion()
-					, defaultValue(params.getAk()), defaultValue(params.getSk()), method
+					, defaultValue(params.getAk()), method
 					, url, code, "", defaultValue(msg)});
 		} catch (Throwable e) {
 			LogUtils.exception(MessageFormat.format("csb invoke error, api:{0}, version:{1}", params.getApi(), defaultValue(params.getSk())), e);
