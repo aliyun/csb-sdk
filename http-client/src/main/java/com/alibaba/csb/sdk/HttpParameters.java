@@ -775,6 +775,10 @@ public class HttpParameters {
         public Map<String, List<String>> paramsMap() {
             return this.paramsMap;
         }
+
+        public ContentBody contentBody() {
+            return this.contentBody;
+        }
     }
 
     /**
