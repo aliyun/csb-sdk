@@ -2,7 +2,7 @@
 参见[http-client签名说明](https://github.com/aliyun/csb-sdk/tree/master/http-client#%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6%E7%9A%84%E8%AF%B4%E6%98%8E)
 
 # Java签名串生成方法
-参见 CsbSignature 源代码及说明。
+参见 [CsbSignature源代码及说明](main/java/com/alibaba/csb/CsbSignature.java)。
 
 # http请求示例
 假设当前要访问csb的信息如下：
