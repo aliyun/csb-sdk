@@ -485,7 +485,7 @@ public class HttpCaller {
     public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap,
                                                     String accessKey, String secretKey, String signImpl, String verifySignImpl) throws HttpCallerException {
         Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
-        HttpClientHelper.mergeParams(urlParamsMap, paramsMap, true);
+        HttpClientHelper.mergeParams(urlParamsMap, paramsMap);
         return HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey, secretKey,
                 true, false, null, null, signImpl, verifySignImpl);
     }
@@ -512,7 +512,7 @@ public class HttpCaller {
         HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
 
         Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
-        HttpClientHelper.mergeParamsList(urlParamsMap, paramsMap, true);
+        HttpClientHelper.mergeParamsList(urlParamsMap, paramsMap);
         if (SdkLogger.isLoggable()) {
             SdkLogger.print("--+++ prepare params costs = " + (System.currentTimeMillis() - startT) + " ms ");
         }
@@ -799,7 +799,7 @@ public class HttpCaller {
 
         Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
         String newRequestURL = HttpClientHelper.generateAsEncodeRequestUrl(requestURL, urlParamsMap);
-        HttpClientHelper.mergeParamsList(urlParamsMap, paramsMap, false);
+        HttpClientHelper.mergeParamsList(urlParamsMap, paramsMap);
 
         startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);
 
