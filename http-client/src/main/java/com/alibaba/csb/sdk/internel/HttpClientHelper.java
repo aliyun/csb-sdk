@@ -305,7 +305,7 @@ public class HttpClientHelper {
 
         HttpPost httpost = new HttpPost(newUrl);
         setHeaders(httpost, headerParams);
-        if (fileMap == null && fileMap.isEmpty()) { //不是多附件请求，则要显示设置content-type。附件时，则 MultipartEntityBuilder 自动设置
+        if (fileMap == null || fileMap.isEmpty()) { //不是多附件请求，则要显示设置content-type。附件时，则 MultipartEntityBuilder 自动设置
             httpost.addHeader(HTTP.CONTENT_TYPE, contentType.toString());
         }
 
