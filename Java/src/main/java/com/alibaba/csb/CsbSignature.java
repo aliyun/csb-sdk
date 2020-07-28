@@ -64,7 +64,7 @@ public class CsbSignature {
         try {
             Mac mac = Mac.getInstance(HMACSHA1);
             mac.init(new SecretKeySpec(secretKey.getBytes(CHARSET_UTF8), HMACSHA1));
-            return Base64.encode(mac.doFinal(str.getBytes(CHARSET_UTF8)));
+            return Base64.encode(mac.doFinal(str.getBytes(CHARSET_UTF8))).trim();
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage());
         } catch (NoSuchAlgorithmException e) {
