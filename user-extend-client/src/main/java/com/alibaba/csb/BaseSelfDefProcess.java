@@ -10,6 +10,11 @@ package com.alibaba.csb;
  */
 public interface BaseSelfDefProcess {
     /**
+     * CSB实例的用户自定义配置
+     */
+    String INSTANCE_PROPERTIES = "_instance_properties";
+
+    /**
      * 请求业务id : String
      */
     String BIZ_ID = "_biz_id";

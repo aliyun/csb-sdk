@@ -32,7 +32,7 @@ public interface SelfDefFlowControl {
 如果用户希望终止当前请求，则抛出 `LimitExceedException`异常即可。此时CSB客户端将收到的响应结果为“`LimitExceedException的异常信息描述`”。
 ### 使用说明
 本扩展功能基于Java SPI规范实现：
-* [引用接口包 user-extend-client.1.1.6.0.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/user-extend-client-1.1.6.0.jar) 
+* [引用接口包 user-extend-client.1.1.6.1.jar](http://middleware-udp.oss-cn-beijing.aliyuncs.com/components/csb/CSB-SDK/user-extend-client-1.1.6.1.jar) 
 * 实现`com.alibaba.csb.sentinel.SelfDefFlowControl`的 `process` 方法。
 * 在用户jar包的classpath路径下定义`META-INF/services/com.alibaba.csb.sentinel.SelfDefFlowControl`文件，文件内容如下：
 ```text
@@ -47,6 +47,11 @@ public class DemoSelfDefFlowControlImpl implements SelfDefFlowControl {
 
     public void process(Map<String, Object> contextMap) throws LimitExceedException {
         System.out.println("自定义流控逻辑" + contextMap.toString());
+        
+        //获取csb实例级自定义配置
+        Map<String, String> instanceProperties = (Map<String, String>) contextMap.get(INSTANCE_PROPERTIES);
+        System.out.println("user define property abc=" + instanceProperties.get("abc"));
+        
         throw new LimitExceedException("自定义流控限制当前请求: " + contextMap.get(TRACE_ID));
     }
 }
@@ -163,6 +168,11 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
      */
     public void requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.requestProcess contextMap: " + contextMap);
+        
+        //获取csb实例级自定义配置
+        Map<String, String> instanceProperties = (Map<String, String>) contextMap.get(INSTANCE_PROPERTIES);
+        System.out.println("user define property abc=" + instanceProperties.get("abc"));
+        
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");//增加http请求头
         
@@ -197,6 +207,11 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
      */
     public void responseProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.responseProcess contextMap: " + contextMap);
+        
+        //获取csb实例级自定义配置
+        Map<String, String> instanceProperties = (Map<String, String>) contextMap.get(INSTANCE_PROPERTIES);
+        System.out.println("user define property abc=" + instanceProperties.get("abc"));
+        
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
         headers.put("addRspHeader", "rspheader1"); //增加http响应头
 
@@ -277,6 +292,12 @@ com.abc.csb.BeforeSend2BackendHttpClass
 public class DemoBeforeSend2BackendHttp implements BeforeSend2BackendHttp {
     public void process(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoBeforeSend2BackendHttp.process contextMap: " + contextMap);
+        
+        //获取csb实例级自定义配置
+        Map<String, String> instanceProperties = (Map<String, String>) contextMap.get(INSTANCE_PROPERTIES);
+        System.out.println("user define property abc=" + instanceProperties.get("abc"));
+        
+        
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");
 
@@ -358,6 +379,11 @@ com.abc.csb.AfterResponseFromBackendHttpClass
 public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBackendHttp {
     public void process(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoAfterResponseFromBackendHttp.process contextMap: " + contextMap);
+        
+        //获取csb实例级自定义配置
+        Map<String, String> instanceProperties = (Map<String, String>) contextMap.get(INSTANCE_PROPERTIES);
+        System.out.println("user define property abc=" + instanceProperties.get("abc"));
+        
         Map<String, String> headers = (Map<String, String>) contextMap.get(RESPONSE_HEADERS);
         headers.put("addRspHeader", "rspheader1");
 

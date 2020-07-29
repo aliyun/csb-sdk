@@ -17,6 +17,11 @@ public class DemoMessageProcessInterceptor implements ServerMessageProcessInterc
      */
     public void requestProcess(Map<String, Object> contextMap) throws SelfDefProcessException {
         System.out.println("DemoMessageProcessInterceptor.requestProcess contextMap: " + contextMap);
+
+        //获取csb实例级自定义配置
+        Map<String, String> instanceProperties = (Map<String, String>) contextMap.get(INSTANCE_PROPERTIES);
+        System.out.println("user define property abc=" + instanceProperties.get("abc"));
+
         Map<String, String> headers = (Map<String, String>) contextMap.get(REQUEST_HEADERS);
         headers.put("addReqHeader", "reqHeader1");//增加http请求头
 
