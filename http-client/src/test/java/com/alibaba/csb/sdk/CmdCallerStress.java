@@ -86,7 +86,6 @@ public class CmdCallerStress {
 							ret = HttpCaller.doPost(lurl, apiName, version, params, ak, sk);
 
 						System.out.println("---- retStr = " + ret);
-						System.out.println("---- retStr after changeCharset = " + HttpCaller.changeCharset(ret));
 					} catch (Throwable e) {
 						e.printStackTrace();
 					} finally {

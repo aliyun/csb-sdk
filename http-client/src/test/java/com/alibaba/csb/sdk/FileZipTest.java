@@ -135,12 +135,13 @@ public class FileZipTest {
     public void testPostFormFilesSpringCloud() {
         HttpParameters.Builder builder = new HttpParameters.Builder();
 //        builder.requestURL("http://localhost:8086/1.0.0/http2nacos/postFoo/abc123?name=3") // 设置请求的URL
-        builder.requestURL("http://localhost:8086/csb") // 设置请求的URL
+        builder.requestURL("http://localhost:18086/csb") // 设置请求的URL
                 .api("http2http11") // 设置服务名
                 .version("1.0.0") // 设置版本号
                 .method("post") // 设置调用方式, get/post
-                .contentType("text/plain;charset=iso-8859-1"); //设置请求content-type
-//                .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
+                .contentType("text/plain;charset=GBK") //设置请求content-type
+                .accessKey("8d3608fa4f2a45f496c74e928ee633d1").secretKey("FtyFQUcRz90ngqZ1JMWADAMirGg="); // 设置accessKey 和 设置secretKey
+        ;
 //        builder.setContentEncoding(ContentEncoding.gzip);
 
         try {

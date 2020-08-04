@@ -25,7 +25,6 @@ public class CmdHttpCaller {
         opt.addOption("nonce", false, MessageHelper.getMessage("cli.nonce"));
         opt.addOption("h", "help", false, MessageHelper.getMessage("cli.help"));
         opt.addOption("d", "debug", false, MessageHelper.getMessage("cli.debug"));
-        opt.addOption("cc", "changeCharset", false, MessageHelper.getMessage("cli.change.charset"));
         opt.addOption("sdkv", "sdk-version", false, MessageHelper.getMessage("cli.sdk.version"));
         opt.addOption("sign", "signImpl", true, MessageHelper.getMessage("cli.signImpl"));
         opt.addOption("verify", "verifySignImpl", true, MessageHelper.getMessage("cli.verifySignImpl"));
@@ -79,7 +78,6 @@ public class CmdHttpCaller {
             String bizIdKey = commandline.getOptionValue("bizIdKey");
             String bizId = commandline.getOptionValue("bizId");
             isDebug = commandline.hasOption("d");
-            Boolean changeCharset = commandline.hasOption("cc");
 
             if (sdkv) {
                 Version.version();
@@ -201,11 +199,7 @@ public class CmdHttpCaller {
                     System.out.println("Diagnostic Info:" + ret.diagnosticInfo);
                 }
                 System.out.println("---- response http headers = " + ret.responseHeaders);
-                if (changeCharset) {
-                    System.out.println("\n---- retStr after changeCharset = " + HttpCaller.changeCharset(ret.getResponseStr()));
-                } else {
-                    System.out.println("---- retStr = " + ret.getResponseStr());
-                }
+                System.out.println("---- retStr = " + ret.getResponseStr());
 
                 //call multi-times for stress or flow-ctrl testing
                 int times = Integer.getInteger("test.stress.times", 0);

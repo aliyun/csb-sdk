@@ -52,7 +52,6 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
  -signImpl        客户端签名类
  -verifySignImpl  CSB服务端验签类
  -cbJSON          以JSON串方式post发送的请求body, 例如: -cbJSON '{"name":"wiseking"}'
- -cc,--changeCharset   返回值是否需要转换charset
 
 
 * **sys-props**      为可选的**JVM系统参数**, 可以设置如下的一项或者多项（空格分隔），具体包括：
@@ -126,10 +125,6 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
         //   {"header1":"value1","header2":"value2",...}
         StringBuffer resHttpHeaders = new StringBuffer(); 
         result = HttpCaller.invoke(builder.build(), resHttpHeaders);
-        
-      
-        //注：如果返回结果出现乱码(不能正常显示中文),可以使用串字符集转换方法进行转换
-        result = HttpCaller.changeCharset(result);
    } catch (HttpCallerException e) {
       	// error process
    }

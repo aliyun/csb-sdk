@@ -122,9 +122,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *  String result = null;
  *  try {
  *    result = HttpCaller.invoke(builder.build());
- *
- *    //注：如果返回结果出现乱码(不能正常显示中文),可以使用串字符集转换方法进行转换
- *    result = HttpCaller.changeCharset(result);
  *  } catch (HttpCallerException e) {
  *    // error process
  *  }
