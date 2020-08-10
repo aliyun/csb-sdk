@@ -109,9 +109,6 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
    //设置是否生成防重放Nonce, 默认值是false, 这个功能仅在SDK1.1.4及CSB-Broker 1.1.2后支持
    builder.nonce(true);
    
-   //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
-   builder.setContentEncoding(ContentEncoding.gzip);
-      
    //进行调用 返回结果
    String result = null;
    try {
@@ -164,9 +161,6 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
      
   builder.contentBody(cb);
   
-  //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
-  builder.setContentEncoding(ContentEncoding.gzip);
-      
   //进行调用，返回结果
   try {
       HttpReturn ret = HttpCaller.invokeReturn(builder.build());
@@ -187,9 +181,6 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
       .contentType("application/x-www-form-urlencoded;charset=utf-8"); //设置请求content-type
       .accessKey("ak").secretKey("sk"); // 设置accessKey 和 设置secretKey
   
-  //设置是否对请求进行gzip压缩。如果压缩，则后端业务http服务需要根据http头的 Content-Type: gzip 来进行解压。
-  builder.setContentEncoding(ContentEncoding.gzip);
-      
     // 设置form请求参数
   builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
   

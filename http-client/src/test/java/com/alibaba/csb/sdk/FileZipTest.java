@@ -117,7 +117,7 @@ public class FileZipTest {
             // 设置form请求参数
             builder.putParamsMap("times", "2").putParamsMap("name", "we中文wesdsfsfdsasdefds");
 //            builder.addAttachFile("file1", new File("D:\\temp\\csb-dev.jar"));
-            builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\temp\\fileTest.xml")), ContentEncoding.none); //对文件进行压缩传输
+            builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\temp\\fileTest.xml")), ContentEncoding.none); //不对文件进行压缩传输
 
             HttpReturn ret = HttpCaller.invokeReturn(builder.build());
             System.out.println("------- ret=" + JSON.toJSONString(ret, SerializerFeature.PrettyFormat));
