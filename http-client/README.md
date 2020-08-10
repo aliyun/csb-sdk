@@ -186,7 +186,7 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
   
   //设置上传文件
   builder.addAttachFile("file1", new File("uploadFile1.xxx")); //未指定是否压缩传输，则会根据 builder.setContentEncoding() 的设置来定义是否压缩
-  builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\tmp\\AuthenticationMapper.xml")), ContentEncoding.gzip); //对文件进行压缩传输//明确要求对此文件进行压缩传输
+  builder.addAttachFile("file2", "fileName2", new FileInputStream(new File("D:\\tmp\\AuthenticationMapper.xml"))); 
  
   //进行调用，返回结果
   try {
