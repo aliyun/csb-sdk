@@ -401,3 +401,23 @@ public class DemoAfterResponseFromBackendHttp implements AfterResponseFromBacken
 # FAQ
 ## 各自定义扩展逻辑的关系？
 ![自定义扩展逻辑关系](flow.jpg)
+
+## 扩展逻辑里如何打印日志？
+通过注解方式引用 @Slf4j 即可。示例代码：
+```java
+package com.alibaba.csb.sentinel;
+
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
+
+@Slf4j
+public class DemoSelfDefFlowControlImpl implements SelfDefFlowControl {
+
+    public void process(Map<String, Object> contextMap) throws LimitExceedException {
+        log.info("自定义流控逻辑" + contextMap.toString());
+        throw new LimitExceedException("自定义流控限制当前请求: " + contextMap.get(TRACE_ID));
+    }
+}
+```
+上传jar到csb Broker的/home/admin/cloud-gateway/patchlib目录时，不需要上传slf4j相关jar。
