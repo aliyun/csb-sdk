@@ -69,14 +69,6 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
  import com.alibaba.csb.sdk.HttpCallerException;
  ...
 ```
-
-  **注意：**在编程方式调用时，首先要在整个JVM范围内启动一次HttpCaller.warmup()来加载SDK所需要的类,
-  否则在第一次调用HttpCaller的doGet/doPost/invoke等方法时会很慢(~5s)
-
-```java 
-  HttpCaller.warmup();
-```
-
   (1) 使用Builder的方式构造调用参数，然后进行调用 （推荐用法）
 
 ```java
