@@ -106,16 +106,13 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
    builder.putHeaderParamsMap("header1", "value1");
    builder.putHeaderParamsMap("header2", "value2");
    
-   //设置是否生成防重放Nonce, 默认值是false, 这个功能仅在SDK1.1.4及CSB-Broker 1.1.2后支持
-   builder.nonce(true);
-   
    //进行调用 返回结果
    String result = null;
    try {
       	result = HttpCaller.invoke(builder.build());
+      	
       	// 或者使用下面的调用方法, 可以返回更多的信息，包括诊断信息,这个功能仅在SDK1.1.4.0以后版本支持
       	HttpReturn res = HttpCaller.invokeReturn(builder.build()); //然后在res里获取相关的信息
-      	
       	
         // 如果期望获取返回的http headers, 则需要在invoke中加入第二个参数，如下：
         // 用这个参数变量获取调用后返回的http headers, 内容为
