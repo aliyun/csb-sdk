@@ -216,6 +216,32 @@ public class HttpParameters {
             headerParamsMap.put("Accept-Encoding", HttpCaller.GZIP);//默认设置接受gzip
         }
 
+        public Builder copy() {
+            HttpParameters.Builder builder = HttpParameters.newBuilder();
+            builder.api = this.api;
+            builder.version = this.version;
+            builder.ak = this.ak;
+            builder.sk = this.sk;
+            builder.restfulProtocolVersion = this.restfulProtocolVersion;
+            builder.method = this.method;
+            builder.contentType = this.contentType;
+            builder.contentBody = this.contentBody;
+            builder.attatchFileMap = this.attatchFileMap;
+            builder.requestUrl = this.requestUrl;
+            builder.signImpl = this.signImpl;
+            builder.verifySignImpl = this.verifySignImpl;
+            builder.nonce = this.nonce;
+            builder.timestamp = this.timestamp;
+            builder.signContentBody = this.signContentBody;
+            builder.paramsMap = this.paramsMap;
+            builder.contentEncoding = this.contentEncoding;
+            builder.headerParamsMap = this.headerParamsMap;
+            builder.diagnostic = this.diagnostic;
+            builder.request = this.request;
+            builder.overrideBizId = this.overrideBizId;
+            return builder;
+        }
+
         /**
          * 设置是否对 paramsMap和contentBody 进行压缩
          */
@@ -579,6 +605,22 @@ public class HttpParameters {
          * @param map
          * @return
          */
+        public Builder putParamsMap(Map<String, List<String>> map) {
+            if (map == null) {
+                throw new IllegalArgumentException("empty map!!");
+            }
+            for (Entry<String, List<String>> entry : map.entrySet()) {
+                this.paramsMap.put(entry.getKey(), entry.getValue());
+            }
+            return this;
+        }
+
+        /**
+         * 设置参数对集合
+         *
+         * @param map
+         * @return
+         */
         public Builder putParamsMapListAll(Map<String, List<String>> map) {
             if (map != null) {
                 this.paramsMap.putAll(map);
@@ -768,6 +810,10 @@ public class HttpParameters {
             return this.sk;
         }
 
+        public String method() {
+            return this.method;
+        }
+
         public String url() {
             return this.requestUrl;
         }
@@ -782,6 +828,14 @@ public class HttpParameters {
 
         public ContentBody contentBody() {
             return this.contentBody;
+        }
+
+        public ContentType contentType() {
+            return this.contentType;
+        }
+
+        public ContentEncoding contentEncoding() {
+            return this.contentEncoding;
         }
     }
 
