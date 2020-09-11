@@ -105,6 +105,9 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
       	
       	// 或者使用下面的调用方法, 可以返回更多的信息，包括诊断信息,这个功能仅在SDK1.1.4.0以后版本支持
       	HttpReturn res = HttpCaller.invokeReturn(builder.build()); //然后在res里获取相关的信息
+      	res.getResponseStr();//获取响应的文本串。
+      	res.responseBytes;//获取响应二进制数据，比如图片
+      	
       	
         // 如果期望获取返回的http headers, 则需要在invoke中加入第二个参数，如下：
         // 用这个参数变量获取调用后返回的http headers, 内容为
