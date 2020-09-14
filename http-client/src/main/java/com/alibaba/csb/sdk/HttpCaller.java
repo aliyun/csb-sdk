@@ -966,12 +966,14 @@ public class HttpCaller {
         HttpEntity responseEntity = response.getEntity();
         Header header = responseEntity.getContentType();
         if (header == null) {
-            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8); //兼容csb历史版本的不规范
+            rret.responseBytes = EntityUtils.toByteArray(responseEntity);
+            rret.response = new String(rret.responseBytes, HTTP.UTF_8);//兼容csb历史版本的不规范
             return;
         }
         String contentType = header.getValue();
         if (contentType == null || contentType.equals("")) {
-            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8);//兼容csb历史版本的不规范
+            rret.responseBytes = EntityUtils.toByteArray(responseEntity);
+            rret.response = new String(rret.responseBytes, HTTP.UTF_8);//兼容csb历史版本的不规范
             return;
         }
 
