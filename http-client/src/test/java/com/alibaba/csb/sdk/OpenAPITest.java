@@ -52,11 +52,12 @@ public class OpenAPITest {
     public void uploadJar() {
         try {
             HttpParameters.Builder hp = HttpParameters.newBuilder();
-            hp.api("/api/uploadjar/Upload").requestURL("http://localhost:7001/api/uploadjar/Upload");
-            hp.version("1.1.0.0").accessKey(csbInstanceAK).secretKey(csbInstanceSK);
+            hp.api("/api/uploadjar/Upload").requestURL("https://csb.console.inter.env10.shuguang.com/api/uploadjar/Upload");
+            hp.version("1.1.6.0").accessKey(csbInstanceAK).secretKey(csbInstanceSK);
             hp.method("post");
 
             hp.addAttachFile("file", new File("D:\\temp\\prj-interface.jar"));
+            hp.putParamsMap("csbId", "135");
             hp.putParamsMap("local", "true");
             hp.putParamsMap("services", "com.alibaba.csb.api.TestService");
 
