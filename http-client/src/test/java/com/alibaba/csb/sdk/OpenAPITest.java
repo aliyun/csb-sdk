@@ -8,15 +8,15 @@ import java.io.File;
  * Created by wiseking on 2017/9/4.
  */
 public class OpenAPITest {
-    public static final String ak = "REPLACE-AK";
-    public static final String sk = "REPLACE-SK";
+    public static final String csbInstanceAK = "REPLACE-AK";
+    public static final String csbInstanceSK = "REPLACE-SK";
 
     @Test
     public void testListCsb() {
         try {
             HttpParameters.Builder hp = HttpParameters.newBuilder();
             hp.api("/api/csbinstance/listCsbs").requestURL("http://lcsb.daily.taobao.net:8080/api/csbinstance/listCsbs");
-            hp.version("1.1.0.0").accessKey(ak).secretKey(sk);
+            hp.version("1.1.0.0").accessKey(csbInstanceAK).secretKey(csbInstanceSK);
             hp.method("get");
 
             String value = null;
@@ -38,7 +38,7 @@ public class OpenAPITest {
             String data = "{\"description\":\"openapi test\",\"projectName\":\"lt-wiseking\"}";
             HttpParameters.Builder hp = HttpParameters.newBuilder();
             hp.api("/api/project/createorupdate").requestURL("http://lcsb.daily.taobao.net:8080/api/project/createorupdate?csbId=175");
-            hp.version("1.1.0.0").accessKey(ak).secretKey(sk);
+            hp.version("1.1.0.0").accessKey(csbInstanceAK).secretKey(csbInstanceSK);
             hp.method("post");
             hp.putParamsMap("data", data);
             String ret = HttpCaller.invoke(hp.build());
@@ -53,7 +53,7 @@ public class OpenAPITest {
         try {
             HttpParameters.Builder hp = HttpParameters.newBuilder();
             hp.api("/api/uploadjar/Upload").requestURL("http://localhost:7001/api/uploadjar/Upload");
-            hp.version("1.1.0.0").accessKey(ak).secretKey(sk);
+            hp.version("1.1.0.0").accessKey(csbInstanceAK).secretKey(csbInstanceSK);
             hp.method("post");
 
             hp.addAttachFile("file", new File("D:\\temp\\prj-interface.jar"));
