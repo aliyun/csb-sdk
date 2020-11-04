@@ -57,7 +57,7 @@ java [sys-props] -jar http-sdk-1.1.5.9.jar [options...]
 * **sys-props**      为可选的**JVM系统参数**, 可以设置如下的一项或者多项（空格分隔），具体包括：
   * -Dtest.stress.times=n   压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
   * -Dhttp.caller.DEBUG=true    命令行打开调试模式
-  * -Dcsb_httpAttachmentTotalMBSize=M字节    附件大小限制，默认15M
+  * -Dcsb_httpAttachmentTotalMBSize=M字节    附件大小限制，默认50M
   * -Dcsb_httpAttachmentMaxAmount=文件数   附件数量限制，默认5
 
 * 注意：上述命令行方式在1.1.4.0版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
