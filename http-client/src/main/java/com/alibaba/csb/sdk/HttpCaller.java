@@ -225,7 +225,7 @@ public class HttpCaller {
 
     static {
         //默认15M
-        TOTAL_FILE_SIZE = Integer.getInteger("csb_httpAttachmentTotalMBSize", 15) * 1024 * 1024;
+        TOTAL_FILE_SIZE = Integer.getInteger("csb_httpAttachmentTotalMBSize", 64) * 1024 * 1024;
     }
 
     protected HttpCaller() {
@@ -987,12 +987,14 @@ public class HttpCaller {
         HttpEntity responseEntity = response.getEntity();
         Header header = responseEntity.getContentType();
         if (header == null) {
-            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8); //兼容csb历史版本的不规范
+            rret.responseBytes = EntityUtils.toByteArray(responseEntity);
+            rret.response = new String(rret.responseBytes, HTTP.UTF_8);//兼容csb历史版本的不规范
             return;
         }
         String contentType = header.getValue();
         if (contentType == null || contentType.equals("")) {
-            rret.response = EntityUtils.toString(responseEntity, HTTP.UTF_8);//兼容csb历史版本的不规范
+            rret.responseBytes = EntityUtils.toByteArray(responseEntity);
+            rret.response = new String(rret.responseBytes, HTTP.UTF_8);//兼容csb历史版本的不规范
             return;
         }
 

@@ -6,7 +6,7 @@
 
     <groupId>com.alibaba.csb.sdk</groupId>
     <artifactId>csb.sdk.parent</artifactId>
-    <version>1.1.5.9-SNAPSHOT</version>
+    <version>1.1.5.10-SNAPSHOT</version>
     <name>CSB :: SDK :: parent</name>
     <packaging>pom</packaging>
     <description>CSB SDK build POM</description>
@@ -14,7 +14,7 @@
     <properties>
         <junit.version>4.11</junit.version>
         <gpg.executable>gpg2</gpg.executable>
-        <csb.sdk.version>1.1.5.9-SNAPSHOT</csb.sdk.version>
+        <csb.sdk.version>1.1.5.10-SNAPSHOT</csb.sdk.version>
     </properties>
 
     <modules>

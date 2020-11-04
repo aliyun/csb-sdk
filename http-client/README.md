@@ -14,14 +14,14 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 ## 工具包的下载地址
 
 * 如果使用命令行方式调用SDK,则需要将standalone的运行包放在调用端的CLASSPATH环境里  
-[最新的包 http-client-1.1.5.8.jar](https://middleware-csb.oss-cn-shanghai.aliyuncs.com/sdk/http-client-1.1.5.8.jar)  
+[最新的包 http-client-1.1.5.9.jar](https://middleware-csb.oss-cn-shanghai.aliyuncs.com/sdk/http-client-1.1.5.9.jar)  
 * 如果用编程的方式,可以不下载这个standalone的Jar包,而是在用户的pom.xml里引用如下的dependency:
 
 ```xml
 <dependency>
   <groupId>com.alibaba.csb.sdk</groupId>
   <artifactId>http-client</artifactId>
-  <version>1.1.5.8</version>
+  <version>1.1.5.9</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ HTTP SDK工具类，用来向服务端发送HTTP请求，请求支持POST/GET方
 这个方式适合开发测试使用，不需要编写代码，快速地查看一个服务是否可通可用。
 
 ```shell
-java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
+java [sys-props] -jar http-sdk-1.1.5.9.jar [options...]
 ```
 
 参数取值说明:
@@ -57,7 +57,7 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
 * **sys-props**      为可选的**JVM系统参数**, 可以设置如下的一项或者多项（空格分隔），具体包括：
   * -Dtest.stress.times=n   压测或者限流测试时使用的参数，一次命令行调用可以发起n次调用
   * -Dhttp.caller.DEBUG=true    命令行打开调试模式
-  * -Dcsb_httpAttachmentTotalMBSize=M字节    附件大小限制，默认15M
+  * -Dcsb_httpAttachmentTotalMBSize=M字节    附件大小限制，默认50M
   * -Dcsb_httpAttachmentMaxAmount=文件数   附件数量限制，默认5
 
 * 注意：上述命令行方式在1.1.4.0版本支持, 如果是有之前的版本命令行方式有所不同,[详见](https://github.com/aliyun/csb-sdk/blob/1.0.4.x/http-client/README.md)
@@ -105,6 +105,9 @@ java [sys-props] -jar http-sdk-1.1.5.8.jar [options...]
       	
       	// 或者使用下面的调用方法, 可以返回更多的信息，包括诊断信息,这个功能仅在SDK1.1.4.0以后版本支持
       	HttpReturn res = HttpCaller.invokeReturn(builder.build()); //然后在res里获取相关的信息
+      	res.getResponseStr();//获取响应的文本串。
+      	res.responseBytes;//获取响应二进制数据，比如图片
+      	
       	
         // 如果期望获取返回的http headers, 则需要在invoke中加入第二个参数，如下：
         // 用这个参数变量获取调用后返回的http headers, 内容为
@@ -356,7 +359,7 @@ SDK在将参数签名完成后，在发送给服务端之前，会把请求参�
 * -H '$bizid:e48ffd7c1e7f4d07b7fc141f43503cb1'
 * -H优先于-bizId
 ```shell
-java -jar http-client-1.1.5.8.jar \
+java -jar http-client-1.1.5.9.jar \
 -api item.hsf.add -version 1.0.0 -method post \
 -bizIdKey bizid -bizId e48ffd7c1e7f4d07b7fc141f43503cb2 \
 -D "item={\"itemName\":\"benz\",\"quantity\":10}" \

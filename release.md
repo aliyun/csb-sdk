@@ -1,7 +1,7 @@
 ## Latest version/最新的版本
 * RELEASE
- 1.  ${http.sdk.version} = 1.1.5.8
- 2.  ${ws.sdk.version} = 1.1.5.8
+ 1.  ${http.sdk.version} = 1.1.5.9
+ 2.  ${ws.sdk.version} = 1.1.5.9
 
 ## Maven项目依赖
  1. [http.sdk](https://mvnrepository.com/artifact/com.alibaba.csb.sdk/http-client)
@@ -26,4 +26,5 @@
 | 1.1.5.6 | snapshot | 20190925   | 1. http-client connect default parameters.<br/>2. fix sdk log performance bug.              | [go](release/r20190925.md) |
 | 1.1.5.7 | snapshot | 20191211   | 1.fix http2ws content-type resolve <br/>2. add soapaction option<br/>            | [go](release/r220191211.md)  |
 | 1.1.5.8 | snapshot | 20200606   | 1. add contentType method<br/>2. contentBody using contentType setting             | [go](release/r20200606.md)  |
+| 1.1.5.9 | snapshot | 20200914   | httpReturn always set responseBytes             | [go](release/r20200914.md)  |
 
