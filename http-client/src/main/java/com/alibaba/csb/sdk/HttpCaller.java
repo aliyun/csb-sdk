@@ -463,7 +463,22 @@ public class HttpCaller {
      * @return 发送CSB请求需要增加的httpHeader，包含签名串等
      */
     public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap, String accessKey, String secretKey) throws HttpCallerException {
-        return getCsbHeaders(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null);
+        return getCsbHeaders(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null, null);
+    }
+
+    /**
+     * 获取签名串
+     *
+     * @param requestURL 请求的服务URL, 如：http://abc.com:8086/CSB， 如果URL里的请求参数有特殊字符(如 '&')，需要先将次值进行URL Encode处理
+     * @param apiName    API名字(服务名)
+     * @param version    API版本号
+     * @param paramsMap  请求参数key-value参数列表，注：可以将JSON对象转换为String作为参数值，如果URL里的请求参数有特殊字符(如 '&')，需要先将次值进行URL Encode处理
+     * @param accessKey  访问key
+     * @param secretKey  安全key
+     * @return 发送CSB请求需要增加的httpHeader，包含签名串等
+     */
+    public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap, String accessKey, String secretKey, String charset) throws HttpCallerException {
+        return getCsbHeaders(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null, charset);
     }
 
     /**
@@ -480,8 +495,8 @@ public class HttpCaller {
      * @return 发送CSB请求需要增加的httpHeader，包含签名串等
      */
     public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap,
-                                                    String accessKey, String secretKey, String signImpl, String verifySignImpl) throws HttpCallerException {
-        Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
+                                                    String accessKey, String secretKey, String signImpl, String verifySignImpl, String charset) throws HttpCallerException {
+        Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, charset, true);
         HttpClientHelper.mergeParams(urlParamsMap, paramsMap);
         return HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey, secretKey,
                 true, false, null, null, signImpl, verifySignImpl);
@@ -508,7 +523,8 @@ public class HttpCaller {
         DiagnosticHelper.setStartTime(ret, initT);
         HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
 
-        Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
+        String charset = hp.getContentType() == null || hp.getContentType().getCharset() == null ? null : hp.getContentType().getCharset().name();
+        Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, charset, true);
         HttpClientHelper.mergeParamsList(urlParamsMap, paramsMap);
         if (SdkLogger.isLoggable()) {
             SdkLogger.print("--+++ prepare params costs = " + (System.currentTimeMillis() - startT) + " ms ");
@@ -518,10 +534,14 @@ public class HttpCaller {
         StringBuffer signDiagnosticInfo = DiagnosticHelper.getSignDiagnosticInfo(ret);
         Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
                 secretKey, hp.isTimestamp(), hp.isNonce(), extSignHeadersMap, signDiagnosticInfo, hp.getSignImpl(), hp.getVerifySignImpl());
+        if (hp.getContentType() != null) {
+            headerParamsMap.put("Content-Type", hp.getContentType().toString());
+        }
+
         DiagnosticHelper.setSignDiagnosticInfo(ret, signDiagnosticInfo);
 
         endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
-        String newRequestURL = HttpClientHelper.generateAsEncodeRequestUrl(requestURL, urlParamsMap);
+        String newRequestURL = HttpClientHelper.generateAsEncodeRequestUrl(requestURL, charset, urlParamsMap);
 
         if (isCurlResponse()) {
             StringBuffer curl = new StringBuffer("curl ");
@@ -794,8 +814,9 @@ public class HttpCaller {
         DiagnosticHelper.setStartTime(ret, startT);
         HttpClientHelper.validateParams(apiName, accessKey, secretKey, paramsMap);
 
-        Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, true);
-        String newRequestURL = HttpClientHelper.generateAsEncodeRequestUrl(requestURL, urlParamsMap);
+        String charset = hp.getContentType() == null || hp.getContentType().getCharset() == null ? null : hp.getContentType().getCharset().name();
+        Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, charset, true);
+        String newRequestURL = HttpClientHelper.generateAsEncodeRequestUrl(requestURL, charset, urlParamsMap);
         HttpClientHelper.mergeParamsList(urlParamsMap, paramsMap);
 
         startProcessRestful(newRequestURL, restfulProtocolVersion, urlParamsMap);

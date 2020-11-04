@@ -31,7 +31,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import static com.alibaba.csb.sdk.HttpCaller.GZIP;
-//import com.alibaba.fastjson.JSONObject;
 
 /**
  * HttpClient Helper Class
@@ -118,12 +117,12 @@ public class HttpClientHelper {
 
     }
 
-    private static String decodeValue(String key, String value, boolean decodeFlag) throws HttpCallerException {
+    private static String decodeValue(String key, String value, String charset, boolean decodeFlag) throws HttpCallerException {
         if (decodeFlag) {
             if (value == null) {
                 throw new HttpCallerException("bad params, the value for key {" + key + "} is null!");
             }
-            return urlDecoding(value, HTTP.UTF_8);
+            return urlDecoding(value, charset == null ? "UTF-8" : charset);
         }
 
         return value;
@@ -136,7 +135,7 @@ public class HttpClientHelper {
      * @return
      * @throws HttpCallerException
      */
-    public static Map<String, List<String>> parseUrlParamsMap(String requestURL, boolean decodeFlag) throws HttpCallerException {
+    public static Map<String, List<String>> parseUrlParamsMap(String requestURL, String charset, boolean decodeFlag) throws HttpCallerException {
         boolean questionMarkFlag = requestURL.contains("?");
         Map<String, List<String>> urlParamsMap = new HashMap<String, List<String>>();
         String key;
@@ -153,13 +152,13 @@ public class HttpClientHelper {
                 if (pos <= 0) {
                     throw new HttpCallerException("bad request URL, url params error:" + requestURL);
                 }
-                key = decodeValue("", param.substring(0, pos), decodeFlag);
+                key = decodeValue("", param.substring(0, pos), charset, decodeFlag);
                 value = param.substring(pos + 1);
                 List<String> values = urlParamsMap.get(key);
                 if (values == null) {
                     values = new ArrayList<String>();
                 }
-                values.add(decodeValue(key, value, decodeFlag));
+                values.add(decodeValue(key, value, charset, decodeFlag));
                 urlParamsMap.put(key, values);
             }
         }
@@ -277,11 +276,12 @@ public class HttpClientHelper {
      * @return
      */
     public static HttpPost createPost(final String url, Map<String, List<String>> urlParams, Map<String, String> headerParams, ContentBody cb, Map<String, HttpParameters.AttachFile> fileMap, ContentEncoding contentEncoding, ContentType contentType) {
+        String charset = contentType == null || contentType.getCharset() == null ? HTTP.UTF_8 : contentType.getCharset().name();
         //set both cb and urlParams
         String newUrl = url;
         List<NameValuePair> nvps = toNVP(urlParams);
         if (cb != null && urlParams != null) {
-            String newParamStr = urlEncodedString(nvps, HTTP.UTF_8);
+            String newParamStr = urlEncodedString(nvps, charset);
             if ("".equals(newParamStr) == false) { //避免出现最后多一个&： http://ip:port/x?y=1&
                 if (!url.contains("?")) {
                     newUrl = String.format("%s?%s", url, newParamStr);
@@ -312,7 +312,11 @@ public class HttpClientHelper {
         HttpEntity entity;
         try {
             if (fileMap != null && fileMap.isEmpty() == false) { //有附件，则使用 form+附件 提交
-                MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create().setMode(HttpMultipartMode.RFC6532); //http头 始终使用utf-8，解决附件文件名中文乱码
+                MultipartEntityBuilder multiBuilder = MultipartEntityBuilder.create()
+//                        .setContentType(ContentType.MULTIPART_FORM_DATA)
+//                        .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                        .setMode(HttpMultipartMode.RFC6532)
+                        .setCharset(contentType.getCharset());
                 for (NameValuePair nvp : nvps) {
                     String name = nvp.getName();
                     String value = nvp.getValue();
@@ -343,7 +347,7 @@ public class HttpClientHelper {
                 }
                 entity = multiBuilder.build();
             } else if (cb == null) { //无附件，无body内容，则使用form提交
-                entity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
+                entity = new UrlEncodedFormEntity(nvps, charset);
                 if (ContentEncoding.gzip.equals(contentEncoding)) {
                     entity = new GzipCompressingEntity(entity);
                     httpost.setHeader(HTTP.CONTENT_ENCODING, GZIP);
@@ -448,26 +452,27 @@ public class HttpClientHelper {
     }
 
 
-    public static String generateAsEncodeRequestUrl(String requestURL, Map<String, List<String>> urlParamsMap) {
+    public static String generateAsEncodeRequestUrl(String requestURL, String charset, Map<String, List<String>> urlParamsMap) {
         requestURL = HttpClientHelper.trimUrl(requestURL);
+        charset = charset == null ? "UTF-8" : charset;
 
         StringBuffer params = new StringBuffer();
         for (Entry<String, List<String>> kv : urlParamsMap.entrySet()) {
-            if (params.length() > 0) {
-                params.append("&");
-            }
             if (kv.getValue() != null) {
                 List<String> vlist = kv.getValue();
                 for (String v : vlist) {
-                    params.append(urlEncoding(kv.getKey(), HTTP.UTF_8)).append("=").append(urlEncoding(v, HTTP.UTF_8));
+                    params.append("&")
+                            .append(urlEncoding(kv.getKey(), charset))
+                            .append("=")
+                            .append(urlEncoding(v, charset));
                 }
             }
         }
 
         String newRequestURL = requestURL;
-        if (params.length() > 0)
-            newRequestURL += "?" + params.toString();
-
+        if (params.length() > 0) {
+            newRequestURL += params.replace(0, 1, "?");
+        }
         HttpClientHelper.printDebugInfo("-- requestURL=" + newRequestURL);
         return newRequestURL;
     }
@@ -485,6 +490,18 @@ public class HttpClientHelper {
             return sb.toString().substring(1); //去掉最前面的 &
         } else {
             return "";
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            String fileName = new String("文件-1604378082581".getBytes(), "GBK");
+            System.out.println(fileName);
+
+            fileName = new String(fileName.getBytes("GBK"));
+            System.out.println(fileName);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
     }
 }
