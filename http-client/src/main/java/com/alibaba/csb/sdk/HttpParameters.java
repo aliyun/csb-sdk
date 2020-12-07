@@ -233,9 +233,9 @@ public class HttpParameters {
             builder.nonce = this.nonce;
             builder.timestamp = this.timestamp;
             builder.signContentBody = this.signContentBody;
-            builder.paramsMap = this.paramsMap;
+            builder.paramsMap = new HashMap<String, List<String>>(this.paramsMap);
             builder.contentEncoding = this.contentEncoding;
-            builder.headerParamsMap = this.headerParamsMap;
+            builder.headerParamsMap = new HashMap<String, String>(this.headerParamsMap);
             builder.diagnostic = this.diagnostic;
             builder.request = this.request;
             builder.overrideBizId = this.overrideBizId;

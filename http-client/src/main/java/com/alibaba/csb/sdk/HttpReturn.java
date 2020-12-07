@@ -112,4 +112,7 @@ public class HttpReturn {
         return null;
     }
 
+    public byte[] getResponseBytes() {
+        return responseBytes;
+    }
 }
