@@ -251,6 +251,7 @@ CSB通过使用Access Key ID 和Access Key Secret进行对称加密的方法来�
 3. 按照Base64编码规则把上面的HMAC值编码成字符串，即得到签名值（Signature）。
 4. 将得到的签名值作为_api_signature参数添加到请求参数中，即完成对请求签名的过程。
 5. 多文件上传（multipart/form-data）请求时，文件的key、name和内容均不参与签名。
+6. query或x-www-form-urlencoded Body参数参与签名计算，json、xml等body不参与签名
 
 ####  HTTP SDK 签名处理的图示
 
