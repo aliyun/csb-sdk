@@ -12,6 +12,8 @@ import org.apache.http.entity.ContentType;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -861,8 +863,24 @@ public class HttpParameters {
         if (this.getRequestUrl() == null)
             throw new IllegalArgumentException("Bad httpparameters: null requestUrl!");
 
-        if (this.getApi() == null)
+        String api = this.getApi(), version = this.getVersion();
+        if (api == null) {
+            try {
+                URI uri = new URI(this.getRequestUrl().matches("https?://.+") ? this.getRequestUrl() : "http://" + this.getRequestUrl());
+                String[] path = uri.getPath().split("/");
+                if (path.length >= 3) {
+                    api = path[2];
+                    version = path[1];
+                }
+            } catch (URISyntaxException e) {
+            }
+        }
+        if (api == null) {
             throw new IllegalArgumentException("Bad httpparameters: null api!");
+        }
+        if (version == null) {
+            throw new IllegalArgumentException("Bad httpparameters: null version!");
+        }
 
         if (this.getContentBody() != null) {
             if (!"post".equalsIgnoreCase(this.getMethod())) {
@@ -874,8 +892,8 @@ public class HttpParameters {
             }
         }
 
-        builder.api = trimWhiteSpaces(this.getApi());
-        builder.version = trimWhiteSpaces(this.getVersion());
+        builder.api = trimWhiteSpaces(api);
+        builder.version = trimWhiteSpaces(version);
         builder.ak = trimWhiteSpaces(this.getAccessKey());
         builder.sk = trimWhiteSpaces(this.getSecretkey());
     }
