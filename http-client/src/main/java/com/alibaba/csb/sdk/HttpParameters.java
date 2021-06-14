@@ -867,18 +867,32 @@ public class HttpParameters {
         if (api == null) {
             try {
                 URI uri = new URI(this.getRequestUrl().matches("https?://.+") ? this.getRequestUrl() : "http://" + this.getRequestUrl());
-                String[] path = uri.getPath().split("/");
-                if (path.length >= 3) {
-                    api = path[2];
-                    version = path[1];
+                String query = uri.getQuery();
+                if (query != null && !"".equals(query.trim())) {
+                    String[] params = query.split("&");
+                    for (String p : params) {
+                        if (p.startsWith("_api_name=")) {
+                            api = p.substring(10);
+                        }
+                        if (p.startsWith("_api_version=")) {
+                            version = p.substring(13);
+                        }
+                    }
+                }
+                if (api == null || "".equals(api.trim())) {
+                    String[] path = uri.getPath().split("/");
+                    if (path.length >= 3) {
+                        api = path[2];
+                        version = path[1];
+                    }
                 }
             } catch (URISyntaxException e) {
             }
         }
-        if (api == null) {
+        if (api == null || "".equals(api.trim())) {
             throw new IllegalArgumentException("Bad httpparameters: null api!");
         }
-        if (version == null) {
+        if (version == null || "".equals(version.trim())) {
             throw new IllegalArgumentException("Bad httpparameters: null version!");
         }
 
