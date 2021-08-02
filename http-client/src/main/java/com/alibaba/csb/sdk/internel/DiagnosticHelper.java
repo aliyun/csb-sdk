@@ -103,7 +103,7 @@ public class DiagnosticHelper {
     }
 
 
-    public static void setSignDiagnosticInfo(HttpReturn ret, StringBuffer signDiagnosticInfo) {
+    public static void setSignDiagnosticInfo(HttpReturn ret, StringBuilder signDiagnosticInfo) {
         if (ret == null || !ret.diagnosticFlag) {
             return;
         }
@@ -113,11 +113,11 @@ public class DiagnosticHelper {
         }
     }
 
-    public static StringBuffer getSignDiagnosticInfo(HttpReturn ret) {
+    public static StringBuilder getSignDiagnosticInfo(HttpReturn ret) {
         if (ret == null || !ret.diagnosticFlag) {
             return null;
         }
 
-        return new StringBuffer();
+        return new StringBuilder();
     }
 }

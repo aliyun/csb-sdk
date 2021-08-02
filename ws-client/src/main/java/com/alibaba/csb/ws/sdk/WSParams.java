@@ -2,6 +2,7 @@ package com.alibaba.csb.ws.sdk;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.alibaba.csb.sdk.security.SpasSigner;
 import com.alibaba.csb.trace.TraceData;
 import com.alibaba.csb.trace.TraceFactory;
 import com.alibaba.csb.utils.LogUtils;
@@ -25,7 +26,8 @@ public class WSParams {
     private boolean nonce;            //是否成成Nonce防重放http-header
     private boolean debug;            //是否打印调试信息
     private String signImpl;          //设置spi签名实现类
-    private String verifySignImpl;          //设置spi验签实现类
+    private String signAlgothrim = SpasSigner.SigningAlgorithm.HmacSHA1.name();
+    private String verifySignImpl;    //设置spi验签实现类
 
     private String traceId;
     private String rpcId;
@@ -47,6 +49,7 @@ public class WSParams {
         sb.append("version=").append(version);
         sb.append("ak=").append(ak);
         sb.append("sk=").append(sk);
+        sb.append("signAlgothrim=").append(signAlgothrim);
         sb.append("traceId=").append(traceId);
         sb.append("rpcId=").append(rpcId);
         sb.append("requestId=").append(requestId);
@@ -224,6 +227,17 @@ public class WSParams {
      */
     public WSParams signImpl(String signImpl) {
         this.signImpl = signImpl;
+        return this;
+    }
+
+    /**
+     * 设置签名算法
+     *
+     * @param signAlgothrim
+     * @return
+     */
+    public WSParams signAlgothrim(String signAlgothrim) {
+        this.signAlgothrim = signAlgothrim;
         return this;
     }
 

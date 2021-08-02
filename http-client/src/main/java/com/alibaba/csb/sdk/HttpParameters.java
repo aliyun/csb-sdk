@@ -1,5 +1,6 @@
 package com.alibaba.csb.sdk;
 
+import com.alibaba.csb.sdk.security.SpasSigner;
 import com.alibaba.csb.trace.TraceData;
 import com.alibaba.csb.trace.TraceFactory;
 import com.alibaba.csb.utils.LogUtils;
@@ -110,6 +111,10 @@ public class HttpParameters {
 
     public String getVerifySignImpl() {
         return builder.verifySignImpl;
+    }
+
+    public String getSignAlgorithm(){
+        return builder.getSignAlgorithm();
     }
 
     /**
@@ -404,6 +409,17 @@ public class HttpParameters {
 
         public Builder requestId(String requestId) {
             this.putHeaderParamsMap(CsbSDKConstants.REQUESTID_KEY, requestId);
+            return this;
+        }
+
+        /**
+         * 签名算法
+         *
+         * @param signAlgorithm
+         * @return
+         */
+        public Builder signAlgorithm(SpasSigner.SigningAlgorithm signAlgorithm) {
+            this.putHeaderParamsMap(CsbSDKConstants.SIGNATURE_ALGORITHM_KEY, signAlgorithm.name());
             return this;
         }
 
@@ -794,6 +810,15 @@ public class HttpParameters {
          */
         public String getRequestId() {
             return this.headerParamsMap.get(TraceData.REQUESTID_KEY);
+        }
+
+        /**
+         * 获取签名算法
+         *
+         * @return
+         */
+        public String getSignAlgorithm() {
+            return this.headerParamsMap.get(CsbSDKConstants.SIGNATURE_ALGORITHM_KEY);
         }
 
         public String api() {

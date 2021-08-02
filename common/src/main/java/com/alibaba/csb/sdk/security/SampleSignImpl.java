@@ -22,4 +22,7 @@ public class SampleSignImpl implements SignService {
         return accessKey.substring(0, 1); //模拟签名算法
     }
 
+    public String generateSignature(SortedParamList paramNodeList, final String accessKey, final String secretKey, SpasSigner.SigningAlgorithm algorithm) {
+        return generateSignature(paramNodeList, accessKey, secretKey);
+    }
 }

@@ -12,6 +12,7 @@ public class CsbSDKConstants {
     public static final String REQUESTID_KEY = "_inner_ecsb_request_id";
     public static final String BIZID_KEY = "_biz_id";
 
+    public static final String SIGNATURE_ALGORITHM_KEY = "_api_sign_algorithm";
     public static final String SIGNATURE_KEY = "_api_signature";
     public static final String TIMESTAMP_KEY = "_api_timestamp";
     public static final String SIGN_IMPL_KEY = "_api_sign_impl";

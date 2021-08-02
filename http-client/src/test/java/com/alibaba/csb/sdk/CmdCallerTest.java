@@ -1,6 +1,7 @@
 package com.alibaba.csb.sdk;
 
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
+import com.alibaba.csb.sdk.security.SpasSigner;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -63,11 +64,12 @@ public class CmdCallerTest {
     @Test
     public void testSign() {
         HashMap<String, List<String>> urlParamsMap = new HashMap<String, List<String>>();
-        StringBuffer signDiagnostic = new StringBuffer();
+        StringBuilder signDiagnostic = new StringBuilder();
         urlParamsMap.put("MT_B8_ECCTOWMS_REQUEST", Arrays.asList("abc"));
         Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap,
                 "After_sale_information_query", "1.0.0", "6073f9ba68ff49baa0add7dbe9521a6a",
-                "1LZd4oOltnNkA6DMXWDayzDa3Lc=", true, true, null, signDiagnostic, null, null);
+                "1LZd4oOltnNkA6DMXWDayzDa3Lc=", true, true, null
+                , signDiagnostic, null, null, SpasSigner.SigningAlgorithm.HmacSHA1.name());
 
         System.out.println("headerParamsMap=" + headerParamsMap);
         System.out.println("signDiagnostic=" + signDiagnostic);

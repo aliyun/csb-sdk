@@ -43,9 +43,10 @@ public class SOAPHeaderHandler implements SOAPHandler<SOAPMessageContext> {
                 if (header == null)
                     header = envelope.addHeader();
                 if (wsParams.getAk() != null) {
-                    Map<String, String> headers = SignUtil.newParamsMap(null, wsParams.getApi(), wsParams.getVersion(),
-                            wsParams.getAk(), wsParams.getSk(), wsParams.isTimestamp(), wsParams.isNonce(),
-                            WSClientSDK.genExtHeader(wsParams.getFingerPrinter()), null, wsParams.getSignImpl(), wsParams.getVerifySignImpl());
+                    Map<String, String> headers = SignUtil.newParamsMap(null, wsParams.getApi(), wsParams.getVersion()
+                            , wsParams.getAk(), wsParams.getSk(), wsParams.isTimestamp(), wsParams.isNonce()
+                            , WSClientSDK.genExtHeader(wsParams.getFingerPrinter()), null
+                            , wsParams.getSignImpl(), wsParams.getVerifySignImpl(), wsParams.getSignAlgothrim());
                     for (Entry<String, String> kv : headers.entrySet()) {
                         header.addHeaderElement(new QName(HEADER_NS, kv.getKey())).setTextContent(kv.getValue());
                         dumpHeaders(kv.getKey(), kv.getValue());

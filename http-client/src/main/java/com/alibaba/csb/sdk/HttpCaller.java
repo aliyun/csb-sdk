@@ -4,6 +4,7 @@ import com.alibaba.csb.sdk.internel.DiagnosticHelper;
 import com.alibaba.csb.sdk.internel.HttpClientConnManager;
 import com.alibaba.csb.sdk.internel.HttpClientHelper;
 import com.alibaba.csb.sdk.security.SignUtil;
+import com.alibaba.csb.sdk.security.SpasSigner;
 import com.alibaba.csb.trace.TraceData;
 import com.alibaba.csb.utils.IPUtils;
 import com.alibaba.csb.utils.LogUtils;
@@ -463,7 +464,7 @@ public class HttpCaller {
      * @return 发送CSB请求需要增加的httpHeader，包含签名串等
      */
     public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap, String accessKey, String secretKey) throws HttpCallerException {
-        return getCsbHeaders(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null, null);
+        return getCsbHeaders(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null, null, SpasSigner.SigningAlgorithm.HmacSHA1.name());
     }
 
     /**
@@ -478,7 +479,7 @@ public class HttpCaller {
      * @return 发送CSB请求需要增加的httpHeader，包含签名串等
      */
     public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap, String accessKey, String secretKey, String charset) throws HttpCallerException {
-        return getCsbHeaders(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null, charset);
+        return getCsbHeaders(requestURL, apiName, version, paramsMap, accessKey, secretKey, null, null, charset, SpasSigner.SigningAlgorithm.HmacSHA1.name());
     }
 
     /**
@@ -492,14 +493,17 @@ public class HttpCaller {
      * @param secretKey      安全key
      * @param signImpl       签名算法实现类名
      * @param verifySignImpl 验签算法实现类名
+     * @param charset        字符集
+     * @param signAlgothrim  签名算法
      * @return 发送CSB请求需要增加的httpHeader，包含签名串等
      */
-    public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap,
-                                                    String accessKey, String secretKey, String signImpl, String verifySignImpl, String charset) throws HttpCallerException {
+    public static Map<String, String> getCsbHeaders(String requestURL, String apiName, String version, Map<String, String> paramsMap
+            , String accessKey, String secretKey, String signImpl, String verifySignImpl
+            , String charset, String signAlgothrim) throws HttpCallerException {
         Map<String, List<String>> urlParamsMap = HttpClientHelper.parseUrlParamsMap(requestURL, charset, true);
         HttpClientHelper.mergeParams(urlParamsMap, paramsMap);
         return HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey, secretKey,
-                true, false, null, null, signImpl, verifySignImpl);
+                true, false, null, null, signImpl, verifySignImpl, signAlgothrim);
     }
 
     private static HttpReturn doGet(HttpParameters hp, Map<String, String> extSignHeadersMap) throws HttpCallerException {
@@ -513,6 +517,7 @@ public class HttpCaller {
         Map<String, List<String>> paramsMap = hp.getParamsMap();
         String accessKey = hp.getAccessKey();
         String secretKey = hp.getSecretkey();
+        String signAlgothrim = hp.getSignAlgorithm();
         Map<String, String> directParamsMap = hp.getHeaderParamsMap();
         String restfulProtocolVersion = hp.getRestfulProtocolVersion();
 
@@ -531,9 +536,9 @@ public class HttpCaller {
         }
         startProcessRestful(requestURL, restfulProtocolVersion, urlParamsMap);
 
-        StringBuffer signDiagnosticInfo = DiagnosticHelper.getSignDiagnosticInfo(ret);
-        Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-                secretKey, hp.isTimestamp(), hp.isNonce(), extSignHeadersMap, signDiagnosticInfo, hp.getSignImpl(), hp.getVerifySignImpl());
+        StringBuilder signDiagnosticInfo = DiagnosticHelper.getSignDiagnosticInfo(ret);
+        Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey, secretKey, hp.isTimestamp()
+                , hp.isNonce(), extSignHeadersMap, signDiagnosticInfo, hp.getSignImpl(), hp.getVerifySignImpl(), signAlgothrim);
         if (hp.getContentType() != null) {
             headerParamsMap.put("Content-Type", hp.getContentType().toString());
         }
@@ -804,7 +809,8 @@ public class HttpCaller {
         ContentBody cb = hp.getContentBody();
         String accessKey = hp.getAccessKey();
         String secretKey = hp.getSecretkey();
-        Map<String, String> directHheaderParamsMap = hp.getHeaderParamsMap();
+        String signAlgothrim = hp.getSignAlgorithm();
+        Map<String, String> directHeaderParamsMap = hp.getHeaderParamsMap();
         String restfulProtocolVersion = hp.getRestfulProtocolVersion();
         boolean nonceFlag = hp.isNonce();
 
@@ -825,15 +831,15 @@ public class HttpCaller {
 //            urlParamsMap.put(ContentBody.CONTENT_BODY_SIGN_KEY, Arrays.asList(cb.getBytesContentBody()));
         }
 
-        StringBuffer signDiagnosticInfo = DiagnosticHelper.getSignDiagnosticInfo(ret);
+        StringBuilder signDiagnosticInfo = DiagnosticHelper.getSignDiagnosticInfo(ret);
         Map<String, String> headerParamsMap = HttpClientHelper.newParamsMap(urlParamsMap, apiName, version, accessKey,
-                secretKey, true, nonceFlag, extSignHeadersMap, signDiagnosticInfo, hp.getSignImpl(), hp.getVerifySignImpl());
+                secretKey, true, nonceFlag, extSignHeadersMap, signDiagnosticInfo, hp.getSignImpl(), hp.getVerifySignImpl(), signAlgothrim);
         DiagnosticHelper.setSignDiagnosticInfo(ret, signDiagnosticInfo);
 
         endProcessRestful(restfulProtocolVersion, urlParamsMap, headerParamsMap);
 
         if (isCurlResponse()) {
-            return new HttpReturn(HttpClientHelper.createPostCurlString(newRequestURL, paramsMap, headerParamsMap, cb, directHheaderParamsMap));
+            return new HttpReturn(HttpClientHelper.createPostCurlString(newRequestURL, paramsMap, headerParamsMap, cb, directHeaderParamsMap));
         }
         if (isToHttpRequest()) { //根据请求消息，生成http请求内容。目前使用在控制台发送测试服务消息，通过命令通道转发
             String body;
@@ -842,14 +848,14 @@ public class HttpCaller {
             } else {
                 body = cb.getStrContentBody();
             }
-            return new HttpReturn(newRequestURL, directHheaderParamsMap, headerParamsMap, body);
+            return new HttpReturn(newRequestURL, directHeaderParamsMap, headerParamsMap, body);
         }
 
         DiagnosticHelper.calcRequestSize(ret, newRequestURL, paramsMap, cb);
         HttpPost httpPost = HttpClientHelper.createPost(newRequestURL, paramsMap, headerParamsMap, cb, hp.getAttachFileMap(), hp.getContentEncoding(), hp.getContentType());
         DiagnosticHelper.setRequestHeaders(ret, httpPost.getAllHeaders());
 
-        HttpClientHelper.setDirectHeaders(httpPost, directHheaderParamsMap);
+        HttpClientHelper.setDirectHeaders(httpPost, directHeaderParamsMap);
 
         httpPost.setConfig(getRequestConfig());
 

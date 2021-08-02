@@ -1,6 +1,7 @@
 package com.alibaba.csb.sdk;
 
 import com.alibaba.csb.sdk.security.SampleSignImpl;
+import com.alibaba.csb.sdk.security.SpasSigner;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -139,7 +140,7 @@ public class BuilderTest {
         paramMap.put("sleepSeconds", "1");
         try {
             Map<String, String> csbHeaders = HttpCaller.getCsbHeaders(requestURL, apiName, version, paramMap, "025dbf21f9a5406eb86a5991187e3868", "sk",
-                    SampleSignImpl.class.getCanonicalName(), "com.alibaba.aosp.extension.security.SampleVerifySignImpl", "UTF-8");
+                    SampleSignImpl.class.getCanonicalName(), "com.alibaba.aosp.extension.security.SampleVerifySignImpl", "UTF-8", SpasSigner.SigningAlgorithm.HmacSHA1.name());
             System.out.println(csbHeaders);
         } catch (HttpCallerException e) {
             // TODO Auto-generated catch block

@@ -27,10 +27,15 @@ public class SignUtil {
      * @param nonceFlag          是否防重放随机数参与签名
      * @param signDiagnosticInfo 返回参与签名的所有key vlaue 信息， 这是一个诊断相关的返回串
      * @param extSignHeaders     附加的参与签名的key=value键值对  @return 将生成的签名及一些关键字段以key=value的方式返回
+     * @param signDiagnosticInfo 签名诊断
+     * @param signImpl           签名实现类
+     * @param vefifySignImpl     验证签名类
+     * @param signAlgothrim      签名算法
      */
-    public static Map<String, String> newParamsMap(final Map<String, List<String>> paramsMap, String apiName, String version,
-                                                   String accessKey, String securityKey, boolean timestampFlag, boolean nonceFlag,
-                                                   final Map<String, String> extSignHeaders, final StringBuffer signDiagnosticInfo, String signImpl, String vefifySignImpl) {
+    public static Map<String, String> newParamsMap(final Map<String, List<String>> paramsMap, String apiName, String version
+            , String accessKey, String securityKey, boolean timestampFlag, boolean nonceFlag
+            , final Map<String, String> extSignHeaders, final StringBuilder signDiagnosticInfo
+            , String signImpl, String vefifySignImpl, String signAlgothrim) {
 
         Map<String, List<String>> newParamsMap = new HashMap<String, List<String>>();
         Map<String, String> headerParamsMap = new HashMap<String, String>();
@@ -105,9 +110,12 @@ public class SignUtil {
             }
 
             SortedParamList paramNodeList = convertMultiValueParams(newParamsMap);
-            String signKey = signService.generateSignature(paramNodeList, accessKey, securityKey);
+
+            SpasSigner.SigningAlgorithm signingAlgorithm = signAlgothrim == null ? SpasSigner.SigningAlgorithm.HmacSHA1 : SpasSigner.SigningAlgorithm.valueOf(signAlgothrim);
+            String signKey = signService.generateSignature(paramNodeList, accessKey, securityKey, signingAlgorithm);
+
             if (SdkLogger.isLoggable() || signDiagnosticInfo != null) {
-                StringBuffer msg = new StringBuffer();
+                StringBuilder msg = new StringBuilder();
                 msg.append("sign parameters:\n");
                 boolean first = true;
                 for (String key : newParamsMap.keySet()) {
@@ -118,8 +126,7 @@ public class SignUtil {
                     first = false;
 
                 }
-                msg.append("===signature:" + signKey).append(", ").append(
-                        "===costs time:" + (System.currentTimeMillis() - currT) + "ms");
+                msg.append("===signature:" + signKey).append(", ").append("===costs time:" + (System.currentTimeMillis() - currT) + "ms");
                 if (signDiagnosticInfo != null) {
                     signDiagnosticInfo.setLength(0);
                     signDiagnosticInfo.append(msg.toString());

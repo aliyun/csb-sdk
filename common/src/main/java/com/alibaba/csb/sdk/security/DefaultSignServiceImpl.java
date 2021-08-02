@@ -21,4 +21,8 @@ public class DefaultSignServiceImpl implements SignService {
         return SpasSigner.sign(paramNodeList, secretKey);
     }
 
+    @Override
+    public String generateSignature(SortedParamList paramNodeList, final String accessKey, final String secretKey, SpasSigner.SigningAlgorithm algorithm) {
+        return SpasSigner.sign(paramNodeList, secretKey, algorithm);
+    }
 }
