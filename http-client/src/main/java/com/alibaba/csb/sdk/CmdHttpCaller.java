@@ -1,13 +1,14 @@
 package com.alibaba.csb.sdk;
 
 import com.alibaba.csb.sdk.i18n.MessageHelper;
+import com.alibaba.csb.sdk.security.SpasSigner;
 import org.apache.commons.cli.*;
 
 /**
  * Created by wiseking on 18/1/8.
  */
 public class CmdHttpCaller {
-    private static final String SDK_VERSION = "1.1.5.8";
+    private static final String SDK_VERSION = "1.1.5.11";
 
     public static Options opt = new Options();
 
@@ -30,6 +31,7 @@ public class CmdHttpCaller {
         opt.addOption("verify", "verifySignImpl", true, MessageHelper.getMessage("cli.verifySignImpl"));
         opt.addOption("bizId", true, MessageHelper.getMessage("cli.bizId"));
         opt.addOption("bizIdKey", true, MessageHelper.getMessage("cli.bizIdKey"));
+        opt.addOption("algo", true, MessageHelper.getMessage("cli.algo"));
     }
 
     //TODO: move to  common
@@ -47,6 +49,7 @@ public class CmdHttpCaller {
 //  "-H" "bizid:e48ffd7c1e7f4d07b7fc141f43503cb3"
 //  "-D" "item={\"itemName\":\"benz\",\"quantity\":10}"
 //  "-url" "http://11.167.131.193:8086/CSB"
+//  "-algo" "HmacSHA256"
     public static void main(String[] args) {
         CommandLineParser parser = new DefaultParser();
 
@@ -77,6 +80,7 @@ public class CmdHttpCaller {
             boolean nonce = commandline.hasOption("nonce");
             String bizIdKey = commandline.getOptionValue("bizIdKey");
             String bizId = commandline.getOptionValue("bizId");
+            String signAlgothrim = commandline.getOptionValue("algo");
             isDebug = commandline.hasOption("d");
 
             if (sdkv) {
@@ -99,6 +103,7 @@ public class CmdHttpCaller {
                 System.out.println("nonce=" + nonce);
                 System.out.println("signImpl=" + signImpl);
                 System.out.println("verifySignImpl=" + verifySignImpl);
+                System.out.println("algo=" + signAlgothrim);
                 printKV("HTTP Headers", headers);
                 printKV("HTTP Params", params);
             }
@@ -125,8 +130,11 @@ public class CmdHttpCaller {
             if (bizIdKey != null && !bizIdKey.trim().equals("")) {
                 HttpCaller.bizIdKey(bizIdKey);
             }
-            builder.api(api).version(version).method(method).bizId(bizId).requestURL(url).accessKey(ak).secretKey(sk).signImpl(signImpl).verifySignImpl(verifySignImpl);
-
+            builder.api(api).version(version).method(method).bizId(bizId).requestURL(url).accessKey(ak).secretKey(sk)
+                    .signImpl(signImpl).verifySignImpl(verifySignImpl);
+            if (signAlgothrim != null) {
+                builder.signAlgorithm(SpasSigner.SigningAlgorithm.valueOf(signAlgothrim));
+            }
             if (headers != null) {
                 for (String header : headers) {
                     String[] kv = header.split(":", 2);
