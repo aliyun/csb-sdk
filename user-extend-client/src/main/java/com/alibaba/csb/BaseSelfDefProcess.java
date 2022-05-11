@@ -78,6 +78,10 @@ public interface BaseSelfDefProcess {
      */
     String BACKEND_METHOD = "backend_method";
     /**
+     * 客户端请求数据面的http方法：POST、GET等
+     */
+    String CLIENT_METHOD = "client_method";
+    /**
      * 请求后端业务服务的http query：map《String,List《String》》
      */
     String REQUEST_HTTP_QUERYS = "request_http_querys";
