@@ -1,1 +1,2 @@
 #com.alibaba.csb.sdk.security.SampleSignImpl
+com.alibaba.csb.sdk.security.SHA256SignImpl
